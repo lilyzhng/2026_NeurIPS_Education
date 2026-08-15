@@ -65,6 +65,9 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     }
     .toc ul { list-style: none; margin: 0; }
     .toc li { margin-bottom: 0.85rem; }
+    .toc li.sub { margin-bottom: 0.5rem; }
+    .toc li.sub a { padding-left: 2.1em; font-size: 0.8125rem; color: rgba(0,0,0,0.36); }
+    .toc li:not(.sub) a { font-weight: 600; color: rgba(0,0,0,0.55); }
     .toc a {
       display: block;
       position: relative;
@@ -173,23 +176,23 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     <ul>
       <li><a href="#intro">1 · Introduction</a></li>
       <li><a href="#measured">2 · What's Measured?</a></li>
-      <li><a href="#metric">2.1 · The metric</a></li>
-      <li><a href="#theorem">2.2 · Why it is enough</a></li>
-      <li><a href="#generations">2.3 · Three generations</a></li>
-      <li><a href="#objective">2.4 · Metric = objective</a></li>
-      <li><a href="#reproduce">2.5 · Reproduce it</a></li>
-      <li><a href="#datasets">2.6 · What evals run on</a></li>
+      <li class="sub"><a href="#metric">2.1 · The metric</a></li>
+      <li class="sub"><a href="#theorem">2.2 · Why it is enough</a></li>
+      <li class="sub"><a href="#generations">2.3 · Three generations</a></li>
+      <li class="sub"><a href="#objective">2.4 · Metric = objective</a></li>
+      <li class="sub"><a href="#reproduce">2.5 · Reproduce it</a></li>
+      <li class="sub"><a href="#datasets">2.6 · What evals run on</a></li>
       <li><a href="#missed">3 · What's Missed?</a></li>
-      <li><a href="#nevergrades">3.1 · The eval never grades</a></li>
-      <li><a href="#narrowroad">3.2 · A narrow road</a></li>
-      <li><a href="#knob">3.3 · Turn the knob</a></li>
-      <li><a href="#mismatch">3.4 · Expectation mismatch</a></li>
-      <li><a href="#losslessbench">3.5 · LosslessBench</a></li>
-      <li><a href="#scope">3.6 · Scope statement</a></li>
+      <li class="sub"><a href="#nevergrades">3.1 · The eval never grades</a></li>
+      <li class="sub"><a href="#narrowroad">3.2 · A narrow road</a></li>
+      <li class="sub"><a href="#knob">3.3 · Turn the knob</a></li>
+      <li class="sub"><a href="#mismatch">3.4 · Expectation mismatch</a></li>
+      <li class="sub"><a href="#losslessbench">3.5 · LosslessBench</a></li>
+      <li class="sub"><a href="#scope">3.6 · Scope statement</a></li>
       <li><a href="#next">4 · What's Next?</a></li>
-      <li><a href="#ownership">4.1 · Ownership</a></li>
-      <li><a href="#traininggap">4.2 · The training gap</a></li>
-      <li><a href="#proposal">4.3 · Proposal</a></li>
+      <li class="sub"><a href="#ownership">4.1 · Ownership</a></li>
+      <li class="sub"><a href="#traininggap">4.2 · The training gap</a></li>
+      <li class="sub"><a href="#proposal">4.3 · Proposal</a></li>
       <li><a href="#runit">5 · Run It Yourself</a></li>
     </ul>
   </aside>
