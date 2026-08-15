@@ -187,8 +187,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#datasets">2.6 · What evals run on</a></li>
       <li><a href="#missed">3 · What's Missed?</a></li>
       <li class="sub"><a href="#nevergrades">3.1 · The eval never grades</a></li>
-      <li class="sub"><a href="#narrowroad">3.2 · Exact verification only</a></li>
-      <li class="sub"><a href="#knob">3.3 · Threshold sweep</a></li>
+      <li class="sub"><a href="#narrowroad">3.2 · Lossy in production</a></li>
+      <li class="sub"><a href="#knob">3.3 · Acceptance is not accuracy</a></li>
       <li class="sub"><a href="#mismatch">3.4 · Expectation mismatch</a></li>
       <li class="sub"><a href="#losslessbench">3.5 · LosslessBench</a></li>
       <li class="sub"><a href="#scope">3.6 · Scope statement</a></li>
@@ -383,7 +383,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     </section>
 
     <section id="narrowroad">
-      <h3>3.2 · The theorem covers exact verification only</h3>
+      <h3>3.2 · Why is it lossy in production?</h3>
       <p>The theorem guarantees exactness for one step: exact rejection-sampling verification
       against the target distribution. A production serving stack is longer than that. Quantized
       weights and KV caches, cache-aware routing, prefill-decode disaggregation, and relaxed
@@ -400,7 +400,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     </section>
 
     <section id="knob">
-      <h3>3.3 · Sweep the confidence threshold</h3>
+      <h3>3.3 · Acceptance rate is not accuracy</h3>
       <p>The flag that breaks the assumption ships in the official code. DeepSpec's evaluation exposes
       <code>--confidence-threshold</code>: when the draft's confidence exceeds the threshold,
       verification stops early and the remaining draft tokens are accepted without being checked.
