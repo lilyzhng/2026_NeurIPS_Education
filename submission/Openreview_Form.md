@@ -41,5 +41,5 @@ TBD
 
 ## File uploads
 
-- **PDF** → `submission/paper/submission.pdf` (2 pages)
+- **PDF** → `submission/2_page_pdf/submission.pdf` (2 pages)
 - **Educational material ZIP**
