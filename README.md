@@ -1,11 +1,11 @@
 # NeurIPS 2026 Education Track — Is Speculative Decoding All We Need?
 
-Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips.cc/Conferences/2026/CallforEducationalResources) ([scraped copy](guidelines/call-for-educational-resources.md)).
+Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips.cc/Conferences/2026/CallforEducationalResources).
 
 - **Deadline:** 4 September 2026 (submit via [OpenReview](https://openreview.net/group?id=NeurIPS.cc/2026/Education_Track))
 - **Notification:** 28 September 2026
-- **Conference:** Sydney, Australia — at least one author presents in person (Madison)
-- **Collaborators:** Lily Zhang (@lily_gpupoor) + Madison Kanna
+- **Conference:** Sydney, Australia
+- **Collaborators:** Lily Zhang + Madison Kanna
 
 ## Folder structure
 
@@ -16,18 +16,10 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 │   ├── figures/            # our original figures (shared by paper + interactive_site)
 │   ├── video/              # video content (scripts, recordings) — recording TBD
 │   └── Openreview_Form.md # every OpenReview form field, ready to copy-paste
-├── guidelines/     # the scraped CFP — the requirements contract
-└── local/          # LOCAL ONLY — entire folder gitignored, never pushed
-    ├── article/              # full-length article working drafts (md sections, outline, self-review)
-    │                         # — source the site + new materials are built from
-    ├── materials/            # prior AIE poster/article/teach-back script — NOT submittable
-    │                         # (CFP requires materials original to this track); source to build new ones
-    ├── education-materials.zip # old zip of the AIE materials, kept for reference
-    └── references/           # third-party material: 2025 accepted examples,
-                              # benchmarking slides notes + their figures, curated index (README.md)
+└── guidelines/     # the scraped CFP — the requirements contract
 ```
 
-**Teaching materials do not exist yet.** The AIE poster/article/script (in `local/materials/`) can't be submitted — the CFP requires materials created specifically for this track. New materials get built fresh inside `submission/` (from the article drafts in `local/article/` and the evolving `submission/interactive_site/`) and zipped before the Sept 4 deadline.
+**Teaching materials do not exist yet.** Prior materials (AIE poster/article/script) can't be submitted — the CFP requires materials created specifically for this track. New materials get built fresh inside `submission/` and zipped before the Sept 4 deadline.
 
 ## Build
 
@@ -55,8 +47,6 @@ cd submission/paper && pdflatex submission.tex
 - [The Art of Picking the Next Token](https://sampling.amanvir.com/) — NeurIPS 2025 Education, interactive scrollytelling teaching sampling. Closest exemplar to ours.
 - [The Science of Benchmarking](https://benchmarking.science/) — NeurIPS 2025 tutorial; our article borrows its What's Measured / What's Missed / What's Next framing.
 - [NeurIPS 2025 Education Program](https://openreview.net/group?id=NeurIPS.cc/2025/Education_Program#tab-accept) — full list of what got in last year.
-
-Local annotated notes on these live in `local/references/` (gitignored — third-party material stays off the remote).
 
 ## Submission requirements (from the CFP)
 
