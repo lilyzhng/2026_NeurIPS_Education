@@ -1,6 +1,6 @@
 # NeurIPS 2026 Education Track — Is Speculative Decoding All We Need?
 
-Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips.cc/Conferences/2026/CallforEducationalResources) ([local copy](local/references/call-for-educational-resources.md)).
+Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips.cc/Conferences/2026/CallforEducationalResources) ([scraped copy](guidelines/call-for-educational-resources.md)).
 
 - **Deadline:** 4 September 2026 (submit via [OpenReview](https://openreview.net/group?id=NeurIPS.cc/2026/Education_Track))
 - **Notification:** 28 September 2026
@@ -16,13 +16,14 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 │   ├── figures/            # our original figures (shared by paper + interactive_site)
 │   ├── video/              # video content (scripts, recordings) — recording TBD
 │   └── Openreview_Form.md # every OpenReview form field, ready to copy-paste
+├── guidelines/     # the scraped CFP — the requirements contract
 └── local/          # LOCAL ONLY — entire folder gitignored, never pushed
     ├── article/              # full-length article working drafts (md sections, outline, self-review)
     │                         # — source the site + new materials are built from
     ├── materials/            # prior AIE poster/article/teach-back script — NOT submittable
     │                         # (CFP requires materials original to this track); source to build new ones
     ├── education-materials.zip # old zip of the AIE materials, kept for reference
-    └── references/           # third-party material: CFP scrape, 2025 accepted examples,
+    └── references/           # third-party material: 2025 accepted examples,
                               # benchmarking slides notes + their figures, curated index (README.md)
 ```
 
