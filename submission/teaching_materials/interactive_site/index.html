@@ -38,8 +38,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
-    a { color: rgba(0,0,0,0.70); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: rgba(0,0,0,0.25); }
-    a:hover { text-decoration-color: rgba(0,0,0,0.7); }
+    a { color: #2437e7; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: #2437e7; }
+    a:hover { color: #1a28b8; text-decoration-color: #1a28b8; }
 
     .layout {
       max-width: 1240px;
@@ -109,6 +109,9 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     .authors .role { color: var(--muted); font-weight: 400; }
 
     .lede { font-size: 1.2rem; line-height: 1.55; color: var(--ink); margin-bottom: 2.5rem; }
+    .lede p { margin-bottom: 1rem; }
+    .lede ul { margin: 0 0 1rem 1.5rem; }
+    .lede li { margin-bottom: 0.5rem; }
     h2 {
       font-family: var(--serif); font-size: 1.55rem; font-weight: 700;
       letter-spacing: -0.01em; color: var(--ink); margin: 3.25rem 0 1rem;
@@ -205,16 +208,21 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <span class="role">Draft V2 · August 15, 2026 · NeurIPS 2026 Education Track</span>
     </div>
 
-    <p class="lede">Speculative decoding now runs under nearly every hosted LLM, and the field
+    <div class="lede">
+    <p>Speculative decoding now runs under nearly every hosted LLM, and the field
     reports success in acceptance rate and token speed while claiming the result is lossless.
-    This education material is organized around three questions: <u>What's Measured</u> (how does
-    speculative decoding work, and why is it lossless in theory?), <u>What's Missed</u> (does
-    lossless inference hold true beyond math and code?), and <u>What's Next</u> (who owns the
-    quality of accelerated inference?). Learners walk through three generations of draft models
+    This education material is organized around three questions:</p>
+    <ul>
+      <li><u>What's Measured</u>: how does speculative decoding work, and why is it lossless in theory?</li>
+      <li><u>What's Missed</u>: does lossless inference hold true beyond math and code?</li>
+      <li><u>What's Next</u>: who owns the quality of accelerated inference?</li>
+    </ul>
+    <p>Learners walk through three generations of draft models
     (EAGLE-3, DFlash, DSpark) and see how the field settled on measuring what is easy to measure:
     token speed and acceptance rate, on math and code. Token quality on everything else goes
     unmeasured. A hands-on lab on a single GPU reproduces the numbers: serve an accelerated
     model, and grade the outputs.</p>
+    </div>
 
     <section id="intro">
       <h2>1 · Introduction</h2>
