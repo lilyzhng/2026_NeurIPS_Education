@@ -11,3 +11,9 @@
 local/
 *.fdb_latexmk
 *.fls
+*.synctex*
+*.fdb_latexmk
+*.fls
+*.aux
+*.out
+*.log
