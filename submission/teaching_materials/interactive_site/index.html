@@ -233,10 +233,10 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       whether the accelerated model still behaves like the original. The evaluation surface behind
       the word "lossless" is narrow, and the claim is rarely tested directly.</p>
 
-      <p>This resource walks through what the field measures (acceptance rate, and why theory says
-      that is enough), what that measurement misses (the assumptions that break in production,
-      demonstrated with a knob you can turn yourself), and what comes next (who should own
-      acceleration quality, and the training objective nobody has built yet).</p>
+      <p>This material is organized around three questions: What's Measured (how does speculative
+      decoding work, and why is it lossless in theory?), What's Missed (does lossless inference
+      hold true beyond math and code?), and What's Next (who owns the quality of accelerated
+      inference?).</p>
     </section>
 
     <section id="measured">
@@ -248,14 +248,13 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <p>Speculative decoding reports progress with two numbers. Acceptance length is how many
       draft tokens the target model accepts per verification step, on average. Tokens per second is
       the throughput the user feels. The first drives the second, but they are not the same thing:
-      drafting has its own cost, so an acceptance length of 3 does not mean a 3x speedup. Reading
-      acceptance length correctly is the first skill this section teaches. It counts accepted
+      drafting has its own cost, so an acceptance length of 3 does not mean a 3x speedup. Acceptance length counts accepted
       proposals, not saved passes.</p>
     </section>
 
     <section id="theorem">
       <h3>2.2 · Why theory says this metric is enough</h3>
-      <p>The mechanism fits in one sentence: a small draft model proposes K tokens, and the large
+      <p>A small draft model proposes K tokens, and the large
       target model verifies all K in a single forward pass. This works because autoregressive
       decoding is memory-bandwidth bound. Generating one token streams the entire weight matrix out
       of HBM while the compute units sit mostly idle, so a forward pass over K tokens costs nearly
@@ -335,15 +334,15 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       harness runs nine datasets: gsm8k, math500, and aime25 for math; humaneval, mbpp, and
       livecodebench for code; mt-bench, alpaca, and arena-hard-v2 for conversation. The center of
       gravity is verifiable, predictable tasks, the kind where the next token is easy to guess.</p>
-      <p>Which raises the question this article turns on. If acceleration has only ever been
+      <p>If acceleration has only ever been
       evaluated on this narrow a slice of what models do, can we claim the inference is lossless?
       What happens in the domains nobody measured?</p>
 
       <blockquote>
       <p><strong>Takeaways.</strong> The field reports acceptance length and tokens per second.
-      Evaluation collapsed to a single efficiency dimension because rejection-sampling verification
-      guarantees the output distribution exactly, and everything downstream inherits this
-      assumption. The training objective converged onto the same number: the LK loss is the
+      Speed and acceptance are easy to measure and quality is not, and rejection-sampling verification
+      guarantees the output distribution exactly, so evaluation collapsed to a single efficiency
+      dimension. The training objective converged onto the same number: the LK loss is the
       negative log of per-token acceptance probability, so drafts are trained on the metric they
       are graded with. And the evaluation datasets concentrate on verifiable, low-entropy
       tasks.</p>
@@ -356,7 +355,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
     <section id="nevergrades">
       <h3>3.1 · The eval never grades</h3>
-      <p>Start with a code fact. The nine datasets in Section 2.6 are not used the way their names
+      <p>The nine datasets in Section 2.6 are not used the way their names
       suggest. In DeepSpec's <code>eval.py</code>, gsm8k and humaneval supply prompts, and the
       harness records four acceptance metrics per run: draft tokens per proposal, acceptance
       length, verify rate, and acceptance rate by position. It never checks whether the generated
@@ -396,7 +395,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <div class="tbd"><span class="tag">TBD · Original results</span>Trade-off curve, acceptance
       rate vs task accuracy across the confidence-threshold sweep. This is the core original
       figure.</div>
-      <p>The point of doing this by hand is pedagogical. Acceptance rate is not accuracy, and after
+      <p>Acceptance rate is not accuracy, and after
       this sweep the learner has seen the two numbers move in opposite directions on the same model
       and the same prompts.</p>
     </section>
@@ -421,7 +420,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
     <section id="losslessbench">
       <h3>3.5 · LosslessBench, a way to measure it</h3>
-      <p>Raising the question comes with an obligation to propose a measurement.
+      <p>LosslessBench is our answer to the question.
       <a href="https://lilyzh.ng/posts/losslessbench/">LosslessBench</a> runs the same task suite
       against a reference deployment and an accelerated deployment of the same model, across five
       domains: coding, agent workflows, creative writing, guardrails, and frontend design. Each
@@ -470,8 +469,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     <section id="ownership">
       <h3>4.1 · Acceleration is moving into training</h3>
       <p>The industry is already answering part of the question, not by fixing the eval but by
-      moving the acceleration to where it can be validated before release. The timeline reads step
-      by step. DeepSeek pushed FP8 into pre-training with DeepSeek-V3
+      moving the acceleration to where it can be validated before release. DeepSeek pushed FP8 into pre-training with DeepSeek-V3
       (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). gpt-oss shipped MXFP4
       weights with quantization-aware training
       (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every
@@ -503,8 +501,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       published work operates at the verification layer instead: Judge Decoding
       (<a href="https://arxiv.org/abs/2501.19309">Bachmann et al., 2025</a>) trains the verifier to
       accept tokens that differ from the target but preserve quality. Quality-aware draft training
-      is an open seat, and naming it precisely is more useful to a learner than pretending it is
-      solved.</p>
+      does not exist yet.</p>
     </section>
 
     <section id="proposal">
