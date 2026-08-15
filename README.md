@@ -1,6 +1,6 @@
-# NeurIPS 2026 Education Track — Is Speculative Decoding All We Need?
+# NeurIPS 2026 Education Track - 
 
-Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips.cc/Conferences/2026/CallforEducationalResources).
+# Speculative Decoding: What's Measured, What's Missed, and What's Next
 
 - **Deadline:** 4 September 2026 (submit via [OpenReview](https://openreview.net/group?id=NeurIPS.cc/2026/Education_Track))
 - **Notification:** 28 September 2026
@@ -10,13 +10,13 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 ## Folder structure
 
 ```
-├── submission/     # EVERYTHING that goes to OpenReview lives here
-│   ├── 2_page_pdf/         # the 2-page PDF statement (LaTeX source + compiled PDF)
-│   ├── teaching_materials/ # the artifacts learners touch (ZIP contents)
-│   │   ├── interactive_site/  # interactive website — self-contained index.html (P1, in progress)
-│   │   └── video/             # video content (scripts, recordings) — recording TBD
-│   ├── figures/            # our original figures (shared by 2_page_pdf + teaching_materials)
-│   └── Openreview_Form.md # every OpenReview form field, ready to copy-paste
+├── submission/   
+│   ├── 2_page_pdf/       
+│   ├── teaching_materials/ 
+│   │   ├── interactive_site/  
+│   │   └── video/           
+│   ├── figures/          
+│   └── Openreview_Form.md
 ```
 
 ## Build
@@ -26,7 +26,7 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 cd submission/2_page_pdf && pdflatex submission.tex
 ```
 
-## Inspiration (accepted exemplars)
+## Inspiration (accepted examples)
 
 - [The Art of Picking the Next Token](https://sampling.amanvir.com/) — NeurIPS 2025 Education, interactive scrollytelling teaching sampling. Closest exemplar to ours.
 - [The Science of Benchmarking](https://benchmarking.science/) — NeurIPS 2025 tutorial; our article borrows its What's Measured / What's Missed / What's Next framing.
@@ -34,7 +34,7 @@ cd submission/2_page_pdf && pdflatex submission.tex
 
 ## Neurips CFP Submission requirements
 
-Scraped 2026-08-15 from [neurips.cc/Conferences/2026/CallforEducationalResources](https://neurips.cc/Conferences/2026/CallforEducationalResources).
+Source: [neurips.cc/Conferences/2026/CallforEducationalResources](https://neurips.cc/Conferences/2026/CallforEducationalResources).
 
 ### About the track
 
