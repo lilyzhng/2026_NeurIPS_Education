@@ -1,0 +1,11 @@
+.claude/
+.cc-writes
+.DS_Store
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz
+# Local-only: everything under local/ stays off the remote
+# (third-party references, prior AIE materials, old zip builds)
+local/
