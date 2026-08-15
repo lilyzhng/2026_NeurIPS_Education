@@ -10,12 +10,13 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{graphicx}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
 
-\title{Is Speculative Decoding All We Need?\\ A Visual Walkthrough from Autoregressive Decoding to Confidence-Scheduled Drafting}
+\title{Speculative Decoding: What's Measured, What's Missed, and What's Next}
 
 \author{%
-  Lily Zhang \\
-  \texttt{@lily\_gpupoor} \\
+  Lily Zhang \and Madison Kanna
 }
 
 \begin{document}
@@ -23,30 +24,31 @@
 \maketitle
 
 \begin{abstract}
-A single-poster, plain-language walkthrough of speculative decoding for LLM inference, built as a four-stage progression: vanilla autoregressive decoding, EAGLE-3 draft-and-verify, DFlash block-parallel drafting, and DSpark confidence-scheduled trimming. It translates a systems technique into user-facing intuition (``fewer seconds staring at the terminal'') and ends on an honest, unresolved question: the base method is provably lossless, but the frontier tricks that push speed further trade a little exactness on the long tail, and almost nobody measures it. It was stress-tested at the AI Engineer conference, where repeated requests for a walkthrough motivated this submission.
+An interactive, plain-language resource that teaches speculative decoding the way the field actually evaluates it --- and then examines that evaluation. Learners trace three generations of draft models (EAGLE-3 $\to$ DFlash $\to$ DSpark), learn to read \emph{acceptance length} correctly, and see why rejection-sampling verification makes the base method provably lossless. The resource then turns on that foundation: the standard harness never grades outputs, the theorem covers only exact verification, and measured behavior gaps between owner-trained and vendor-assembled acceleration reach 5.6 points on long-tail domains. A one-GPU, one-afternoon lab lets learners reproduce acceptance numbers, sweep the confidence threshold that converts lossless into lossy, and grade the outputs themselves.
 \end{abstract}
 
 \section{Concept Summary}
-Autoregressive LLM decoding is \emph{memory-bandwidth bound}, not compute bound: generating one token streams the entire weight matrix from HBM while most compute units sit idle. A forward pass over $K$ tokens costs almost the same wall-clock time as a pass over one, so \emph{verifying} many tokens at once is nearly free. Speculative decoding exploits this: a small draft model proposes $K$ tokens, and the target model verifies all $K$ in a single pass, accepting a correct prefix via rejection sampling so the output distribution matches the target exactly.
+Autoregressive LLM decoding is \emph{memory-bandwidth bound}, not compute bound: generating one token streams the entire weight matrix from HBM while compute sits idle, so a forward pass over $K$ tokens costs almost the same as a pass over one. Speculative decoding exploits this: a small draft model proposes $K$ tokens, and the target model verifies all $K$ in a single pass, accepting a correct prefix via rejection sampling so the output distribution matches the target exactly. Correctness being guaranteed by construction, the field's evaluation collapsed onto one dimension --- efficiency, reported as \emph{acceptance length} and tokens/s --- and draft training converged onto the same number (the LK loss is the negative log of per-token acceptance probability).
 
-Figure~\ref{fig:walkthrough} walks the four-stage story, each stage removing the previous bottleneck (tokens per target-model pass; Qwen3-4B code average, DSpark Table~1): \textbf{Vanilla} (1/pass) $\to$ \textbf{EAGLE-3} ($\sim$3.9) $\to$ \textbf{DFlash} ($\sim$4.4, block-parallel draft) $\to$ \textbf{DSpark} ($\sim$5.1, sequential head $+$ confidence-scheduled trimming). The ``aha'': \emph{we did not make the big model faster; we made it open fewer times.} The title's honest answer is \emph{no} --- the base method is lossless, but confidence-scheduled trimming and FP8 quantization slide toward lossy on the long tail, and almost nobody measures it.
+Figure~\ref{fig:walkthrough} walks the three generations, each removing the previous bottleneck: \textbf{EAGLE-3} reuses target hidden states for feature-level drafting ($\sim$3.9 tokens/pass) $\to$ \textbf{DFlash} drafts a whole block in one diffusion pass ($\sim$4.4) $\to$ \textbf{DSpark} adds a sequential head and confidence-scheduled trimming ($\sim$5.1; Qwen3-4B code average, DSpark Table~1). The resource then asks what this measurement misses: in DeepSpec's evaluation harness the nine standard datasets supply only \emph{prompts} --- no grader or accuracy metric exists in the code, so the lossless claim rests entirely on the theorem. That theorem covers exact verification only; quantization, KV routing, disaggregation, and relaxed acceptance sit outside it, and the gap is measurable (owner-trained acceleration lost 0.3 points on a behavior benchmark where a vendor-assembled stack lost 5.6). Acceptance is also domain-conditional: verification is densest in low-entropy math and code, exactly where acceleration is least likely to misbehave. The resource ends on the open question: no published objective trains a draft to preserve the target's \emph{behavior} on the long tail.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.46\textwidth]{../figures/architecture_walk_through.png}
-  \caption{The core teaching visual: one worked example (``\texttt{at AIE 2026 .}'') carried across all four stages, with tokens-per-pass and accept/reject mechanics shown in place. The DSpark panel makes the lossless-vs-lossy boundary concrete: a low-confidence draft (``Marriott,'' 0.31) is trimmed before verification and corrected to ``Moscone.''}
+  \includegraphics[width=0.40\textwidth]{../figures/teaser_figure.png}
+  \caption{The core teaching visual: one worked example (``\texttt{at AIE 2026 .}'') carried across all four decoding stages, with tokens-per-pass and accept/reject mechanics shown in place. The DSpark panel makes the lossless-vs-lossy boundary concrete: a low-confidence draft (``Marriott,'' 0.31) is trimmed before verification and corrected to ``Moscone.''}
   \label{fig:walkthrough}
 \end{figure}
 
 \section{Prerequisites and Technical Level}
-\textbf{Level:} accessible to any engineer or student who knows that an LLM generates text one token at a time. \textbf{Prerequisites:} basic familiarity with transformer inference (a forward pass produces a next-token distribution); no RL, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
+\textbf{Level:} introductory-to-intermediate; accessible to any engineer or student who knows that an LLM generates text one token at a time. \textbf{Prerequisites:} basic familiarity with transformer inference (a forward pass produces a next-token distribution); no RL, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
 
 \section{Learning Objectives and Outcomes}
 After engaging with this resource, a learner can:
 \begin{itemize}
-  \item explain \emph{why} speculative decoding is possible (memory-bandwidth-bound decoding; verifying $K$ tokens $\approx$ cost of one), and read \emph{acceptance length} correctly rather than counting total passes;
-  \item trace the vanilla $\to$ EAGLE $\to$ DFlash $\to$ DSpark progression and name the specific bottleneck each stage removes;
-  \item articulate the lossless-vs-lossy boundary --- where speedups start trading exactness (pre-verification trimming, FP8) --- and pose the open evaluation question: does an accelerated model degrade on long-horizon tasks, and how would you measure it?
+  \item explain \emph{why} speculative decoding is possible (verifying $K$ tokens $\approx$ the cost of one), and read \emph{acceptance length} correctly --- accepted proposals per verification step, not saved passes;
+  \item trace the EAGLE-3 $\to$ DFlash $\to$ DSpark progression, name the bottleneck each stage removes, and explain why training objective and evaluation metric converged onto the same number;
+  \item \textbf{demonstrate hands-on} that acceptance rate is not accuracy: sweep the confidence threshold in the official evaluation code, grade the outputs, and watch the two numbers move in opposite directions;
+  \item articulate the domain mismatch --- verification concentrates where acceptance is naturally highest (math, code) while usage concentrates elsewhere --- and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
 \end{itemize}
 
 \section{Grounding in NeurIPS Research (2022--2026)}
@@ -56,10 +58,9 @@ Speculative decoding is an active NeurIPS research line, and this resource makes
   \item \href{https://proceedings.neurips.cc/paper_files/paper/2024/hash/ea1f5f0878d43ff4fb8bf64ef4a2326c-Abstract-Conference.html}{\textbf{Sequoia}} (NeurIPS 2024) --- a dynamic-programming algorithm for the optimal speculation \emph{tree}, up to $9.5\times$ speedups.
   \item \href{https://neurips.cc/virtual/2024/poster/95733}{\textbf{SpecExec}} (NeurIPS 2024) --- builds a cache tree validated in a single target pass, up to 20 tokens per iteration on offloaded consumer hardware.
 \end{itemize}
-The walkthrough positions EAGLE-3, DFlash, and DSpark as the applied frontier these NeurIPS methods (tree structure, candidate selection, parallel verification) directly enable.
-
+The walkthrough positions \textbf{EAGLE-3} (2025), \textbf{DFlash} (2026), and \textbf{DSpark} (DeepSeek, 2026) as the applied frontier these methods enable, alongside frontier work cited throughout: the foundational speculative-decoding papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (2025), and Kimi K3 shipping the speculator as part of post-training (2026).
 
 \section{Teaching Materials Summary}
-The submitted ZIP contains original materials created for this track: the \textbf{poster} (Figure~\ref{fig:walkthrough}) as \texttt{.pdf} and hi-res \texttt{.png} (incl.\ 32-inch print); an \textbf{interactive reading article} (self-contained HTML, also public at \url{https://lily-ideas.vercel.app/thoughts/reading/20260701_speculative_decoding/}); a \textbf{Feynman teach-back script} (narration $+$ Q\&A walking the concept both ways, usable as speaker notes or self-study); and a \textbf{call-to-action exercise} --- a proposed crowdsourced benchmark (BF16 vanilla vs.\ BF16$+$spec vs.\ FP8$+$spec on a long task, scored on kept-context / clean-patch / knew-when-stuck). All figures are original; numbers cite the DSpark paper.
+All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} walking the What's Measured / What's Missed / What's Next arc, built around Figure~\ref{fig:walkthrough} and an interactive walkthrough with adjustable draft length; (2) a \textbf{one-afternoon lab} (single GPU): reproduce the reported EAGLE-3 acceptance length (2.4--2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints on one prompt set, sweep \texttt{--confidence-threshold} while grading outputs for correctness, and a pick-a-domain exercise outside math and code; (3) a \textbf{short video walkthrough} recorded against the interactive site. All figures are original; numbers cite the DSpark paper and the LosslessBench evaluation.
 
 \end{document}
