@@ -15,7 +15,7 @@ Lily Zhang, Madison Kanna
 
 ## TLDR
 
-An interactive resource that teaches speculative decoding as the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why theory says measuring acceptance is enough, what that measurement misses (the standard harness never grades outputs; a vendor-assembled accelerated stack loses 5.6 behavior points where an owner-trained one loses 0.3), and a hands-on lab where learners turn the lossless knob themselves.
+An interactive resource that teaches speculative decoding as the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why theory says measuring acceptance is enough, what that measurement misses (the standard harness never grades outputs; a vendor-assembled accelerated stack loses 5.6 behavior points where an owner-trained one loses 0.3), and a hands-on lab where learners sweep the confidence threshold and grade the outputs themselves.
 
 ## The concept (≤200 words)
 
