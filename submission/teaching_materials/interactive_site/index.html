@@ -285,7 +285,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       low-confidence tokens before verification, saving batch capacity.</p>
 
       <figure>
-        <img src="../figures/architecture_walk_through.png" alt="Token-level walkthrough of the four decoding stages">
+        <img src="../../figures/architecture_walk_through.png" alt="Token-level walkthrough of the four decoding stages">
         <figcaption><strong>Figure 1.</strong> The same sentence decoded four ways. Vanilla needs
         one forward pass per token. EAGLE-3 drafts K tokens sequentially and verifies them in one
         pass. DFlash drafts the whole block in one pass. DSpark trims low-confidence draft tokens

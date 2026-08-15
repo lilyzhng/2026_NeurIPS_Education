@@ -12,8 +12,9 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 ```
 ├── submission/     # EVERYTHING that goes to OpenReview lives here
 │   ├── 2_page_pdf/         # the 2-page PDF statement (LaTeX source + compiled PDF)
-│   ├── teaching_materials/ # the interactive website — self-contained index.html (P1 artifact, in progress)
-│   ├── video/              # video content (scripts, recordings) — recording TBD
+│   ├── teaching_materials/ # the artifacts learners touch (ZIP contents)
+│   │   ├── interactive_site/  # interactive website — self-contained index.html (P1, in progress)
+│   │   └── video/             # video content (scripts, recordings) — recording TBD
 │   ├── figures/            # our original figures (shared by 2_page_pdf + teaching_materials)
 │   └── Openreview_Form.md # every OpenReview form field, ready to copy-paste
 └── guidelines/     # the scraped CFP — the requirements contract
@@ -28,7 +29,7 @@ Submission for the [NeurIPS 2026 Call for Educational Resources](https://neurips
 cd submission/2_page_pdf && pdflatex submission.tex
 
 # Teaching-materials ZIP (must stay under 200MB) — once the materials exist:
-# cd submission && zip -r ../education-materials.zip teaching_materials video -x '*/.claude/*' '*/.DS_Store'
+# cd submission && zip -r ../education-materials.zip teaching_materials -x '*/.claude/*' '*/.DS_Store'
 # (2_page_pdf/ is uploaded separately — it does not go in the ZIP)
 ```
 
