@@ -9,3 +9,5 @@
 # Local-only: everything under local/ stays off the remote
 # (third-party references, prior AIE materials, old zip builds)
 local/
+*.fdb_latexmk
+*.fls
