@@ -245,6 +245,16 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       and Kimi K3 ships the speculator itself, a draft model fine-tuned and validated before release
       (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
 
+
+      <figure>
+        <img src="teaser_figure.png" alt="Token-level walkthrough of the four decoding stages">
+        <figcaption><strong>Figure 1.</strong> The same sentence decoded four ways. Vanilla needs
+        one forward pass per token. EAGLE-3 drafts K tokens sequentially and verifies them in one
+        pass. DFlash drafts the whole block in one pass. DSpark trims low-confidence draft tokens
+        before verification.</figcaption>
+      </figure>
+
+
       <p>Inference providers now run some combination of quantization, speculative decoding, and
       serving-level optimizations on nearly every hosted model, and the field reports progress in
       tokens per second while describing the acceleration as lossless. What no one owns is the
@@ -300,14 +310,6 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       builds on the parallel backbone and adds two things: a small sequential head so later draft
       tokens can see earlier ones, and a confidence head with a load-aware scheduler that trims
       low-confidence tokens before verification, saving batch capacity.</p>
-
-      <figure>
-        <img src="teaser_figure.png" alt="Token-level walkthrough of the four decoding stages">
-        <figcaption><strong>Figure 1.</strong> The same sentence decoded four ways. Vanilla needs
-        one forward pass per token. EAGLE-3 drafts K tokens sequentially and verifies them in one
-        pass. DFlash drafts the whole block in one pass. DSpark trims low-confidence draft tokens
-        before verification.</figcaption>
-      </figure>
 
       <div class="tbd"><span class="tag">TBD</span>Interactive walkthrough component for the web
       version, with adjustable draft length.</div>
