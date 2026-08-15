@@ -32,15 +32,9 @@ cd submission/paper && pdflatex submission.tex
 # (paper/ is uploaded separately — it does not go in the ZIP)
 ```
 
-## Open tasks (from 8/15 sync)
+## Open tasks
 
-- [ ] Lily: push content to GitHub, invite Madison as co-contributor
-- [ ] Madison: create OpenReview account
-- [ ] Madison: label all questions so they're relatable for a technical audience without speculative-decoding expertise
-- [ ] Pick section of interest to develop artifacts; recording later
-- [ ] Interactive website to convey ideas (P1)
-- [ ] Expert for "what's next" section — candidates: Zhijian Liu, Eugine, Featherless (P2)
-- [ ] Next sync: Monday 8/17, 2:30 PM
+Task split and per-meeting action items live in [`meeting_sync/`](meeting_sync/) — see the latest sync note. Next sync: Monday 8/17, 2:30 PM.
 
 ## Inspiration (accepted exemplars)
 
