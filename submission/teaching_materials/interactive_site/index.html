@@ -186,7 +186,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#reproduce">2.5 · Reproduce it</a></li>
       <li class="sub"><a href="#datasets">2.6 · What evals run on</a></li>
       <li><a href="#missed">3 · What's Missed?</a></li>
-      <li class="sub"><a href="#nevergrades">3.1 · The eval never grades</a></li>
+      <li class="sub"><a href="#nevergrades">3.1 · Eval Biased to Coding and Math Only</a></li>
       <li class="sub"><a href="#narrowroad">3.2 · Lossy in production</a></li>
       <li class="sub"><a href="#knob">3.3 · Acceptance is not accuracy</a></li>
       <li class="sub"><a href="#mismatch">3.4 · Expectation mismatch</a></li>
@@ -370,7 +370,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     </section>
 
     <section id="nevergrades">
-      <h3>3.1 · The eval never grades</h3>
+      <h3>3.1 · Eval Biased to Coding and Math Only</h3>
       <p>The nine datasets in Section 2.6 are not used the way their names
       suggest. In DeepSpec's <code>eval.py</code>, gsm8k and humaneval supply prompts, and the
       harness records four acceptance metrics per run: draft tokens per proposal, acceptance
