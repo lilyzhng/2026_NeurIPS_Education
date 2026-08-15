@@ -24,7 +24,7 @@
 \maketitle
 
 \begin{abstract}
-An interactive, plain-language resource that teaches speculative decoding as the field evaluates it, then examines the evaluation itself. Learners trace three generations of draft models (EAGLE-3, DFlash, DSpark), learn to read \emph{acceptance length} correctly, and see why rejection-sampling verification makes the base method provably lossless. The standard harness never grades outputs, the theorem covers only exact verification, and the measured behavior gap between owner-trained and vendor-assembled acceleration reaches 5.6 points on long-tail domains. A one-GPU, one-afternoon lab lets learners reproduce acceptance numbers, sweep the confidence threshold that converts lossless into lossy, and grade the outputs themselves.
+Speculative decoding now runs under nearly every hosted LLM, and the field reports its progress in acceptance rate and tokens per second while describing the result as lossless. This interactive resource examines both the method and the claim. It is organized around three questions: \underline{What's Measured} (how does speculative decoding work, and why does theory let the field evaluate it on efficiency alone?), \underline{What's Missed} (what do production stacks break in the lossless guarantee, and which domains does verification never touch?), and \underline{What's Next} (who should own acceleration quality, and what draft-training objective is still unbuilt?). Learners trace three generations of draft models (EAGLE-3, DFlash, DSpark), then reproduce the numbers in a one-GPU, one-afternoon lab: serve an accelerated model, sweep the confidence threshold that converts lossless into lossy, and grade the outputs themselves. All materials, including the interactive article, lab scripts, and a video walkthrough, will be publicly available.
 \end{abstract}
 
 \section{Concept Summary}
@@ -54,6 +54,28 @@ The three generations the resource teaches are themselves recent papers at NeurI
 The walkthrough places them in the NeurIPS speculative-decoding line they extend, SpecTr (NeurIPS 2023), Sequoia (NeurIPS 2024), and SpecExec (NeurIPS 2024), alongside the foundational papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (ICLR 2025), and Kimi K3 shipping the speculator as part of post-training (2026).
 
 \section{Teaching Materials Summary}
-All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length; (2) a \textbf{one-afternoon lab} (single GPU): reproduce the reported EAGLE-3 acceptance length (2.4--2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints on one prompt set, sweep \texttt{--confidence-threshold} while grading outputs for correctness, and a pick-a-domain exercise outside math and code; (3) a \textbf{video walkthrough} recorded from the site
+All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length; (2) a \textbf{ hands-onlab} (single GPU): reproduce the reported EAGLE-3 acceptance length (2.4--2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints on one prompt set, sweep \texttt{--confidence-threshold} while grading outputs for correctness, and a pick-a-domain exercise outside math and code; (3) a \textbf{video walkthrough} recorded from the site
+
+
+\section*{References}
+{\small
+\begin{itemize}
+  \item Leviathan, Kalman, Matias. \emph{Fast Inference from Transformers via Speculative Decoding.} ICML 2023. \url{https://arxiv.org/abs/2211.17192}
+  \item Chen et al. \emph{Accelerating Large Language Model Decoding with Speculative Sampling.} 2023. \url{https://arxiv.org/abs/2302.01318}
+  \item Sun et al. \emph{SpecTr: Fast Speculative Decoding via Optimal Transport.} NeurIPS 2023. \url{https://neurips.cc/virtual/2023/poster/71597}
+  \item Chen et al. \emph{Sequoia: Scalable, Robust, and Hardware-aware Speculative Decoding.} NeurIPS 2024.
+  \item Svirschevski et al. \emph{SpecExec: Massively Parallel Speculative Decoding.} NeurIPS 2024.
+  \item Zhou et al. \emph{DistillSpec: Improving Speculative Decoding via Knowledge Distillation.} ICLR 2024. \url{https://arxiv.org/abs/2310.08461}
+  \item Li, Wei, Zhang, Zhang. \emph{EAGLE-3: Scaling up Inference Acceleration of LLMs via Training-Time Test.} NeurIPS 2025. \url{https://arxiv.org/abs/2503.01840}
+  \item Bachmann et al. \emph{Judge Decoding: Faster Speculative Sampling Requires Going Beyond Model Alignment.} ICLR 2025. \url{https://arxiv.org/abs/2501.19309}
+  \item Chen, Liang, Liu. \emph{DFlash: Block Diffusion for Flash Speculative Decoding.} ICML 2026. \url{https://arxiv.org/abs/2602.06036}
+  \item DeepSeek. \emph{DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation.} 2026. \url{https://arxiv.org/abs/2607.05147}
+  \item Samarin et al. \emph{Direct Acceptance Optimization for Draft Model Training.} 2026. \url{https://arxiv.org/abs/2602.23881}
+  \item Kimi Team. \emph{Kimi K3 Technical Report}, \S4.1.4 Draft Model Fine-Tuning. 2026. \url{https://arxiv.org/abs/2607.24653}
+  \item DeepSeek-AI. \emph{DeepSeek-V3 Technical Report} (FP8 pre-training). 2024. \url{https://arxiv.org/abs/2412.19437}
+  \item OpenAI. \emph{gpt-oss Model Card} (MXFP4 quantization-aware training). 2025. \url{https://arxiv.org/abs/2508.10925}
+  \item Zhang. \emph{LosslessBench: Does Inference Acceleration Preserve Model Behavior?} 2026. \url{https://lilyzh.ng/posts/losslessbench/}
+\end{itemize}
+}
 
 \end{document}
