@@ -15,13 +15,13 @@ Lily Zhang, Madison Kanna
 
 ## TLDR
 
-An interactive resource that teaches speculative decoding through the lens of how the field evaluates it: three generations of draft models (EAGLE-3 → DFlash → DSpark), why theory says measuring acceptance is enough, what that measurement misses (the standard harness never grades outputs; a vendor-assembled accelerated stack loses 5.6 behavior points where an owner-trained one loses 0.3), and a one-afternoon lab where learners turn the lossless knob themselves.
+An interactive resource that teaches speculative decoding as the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why theory says measuring acceptance is enough, what that measurement misses (the standard harness never grades outputs; a vendor-assembled accelerated stack loses 5.6 behavior points where an owner-trained one loses 0.3), and a hands-on lab where learners turn the lossless knob themselves.
 
 ## The concept (≤200 words)
 
-Speculative decoding accelerates LLM inference without changing the model's output — in theory. Autoregressive decoding is memory-bandwidth bound: generating one token streams the entire weight matrix from HBM while compute sits idle, so verifying K tokens costs about as much as generating one. A small draft model proposes K tokens; the target verifies them in a single pass via rejection sampling, preserving the output distribution exactly. Because correctness is guaranteed by construction, the field evaluates on efficiency alone — and its harnesses never grade a single answer.
+Speculative decoding accelerates LLM inference without changing the model's output, in theory. Autoregressive decoding is memory-bandwidth bound: generating one token streams the entire weight matrix from HBM while compute sits idle, so verifying K tokens costs about as much as generating one. A small draft model proposes K tokens; the target verifies them in a single pass via rejection sampling, preserving the output distribution exactly. Because correctness is guaranteed by construction, the field evaluates on efficiency alone, and its harnesses never grade a single answer.
 
-Why now: acceleration is moving into the model itself (FP8 pre-training, MXFP4 quantization-aware training, INT4 benchmark reporting, Kimi K3's shipped speculator), every major serving provider ships a variant, and real usage (roleplay, marketing, agentic workflows) sits far from the math/code domains where verification concentrates. This resource teaches the whole arc — EAGLE-3 → DFlash → DSpark, what's measured, what's missed (a 0.3 vs 5.6-point behavior gap between owner-trained and vendor-assembled stacks), and what's next: quality-aware draft training, an open research seat. Learners finish by reproducing every number themselves on one GPU.
+Why now: acceleration is moving into the model itself (FP8 pre-training, MXFP4 quantization-aware training, INT4 benchmark reporting, Kimi K3's shipped speculator), every major serving provider ships a variant, and real usage (roleplay, marketing, agentic workflows) sits far from the math/code domains where verification concentrates. This resource teaches the whole arc: EAGLE-3 to DFlash to DSpark, what's measured, what's missed (a 0.3 vs 5.6-point behavior gap between owner-trained and vendor-assembled stacks), and what's next, the quality-aware draft training nobody has built. Learners finish by reproducing every number themselves on one GPU.
 
 ## Leveling and prerequisite knowledge
 
@@ -31,10 +31,10 @@ Introductory-to-intermediate. Accessible to any engineer or student who knows th
 
 After engaging with this resource, a learner can:
 
-- Explain WHY speculative decoding is possible (memory-bandwidth-bound decoding; verifying K tokens ≈ the cost of one), and read acceptance length correctly — accepted proposals per verification step, not saved passes.
+- Explain WHY speculative decoding is possible (memory-bandwidth-bound decoding; verifying K tokens ≈ the cost of one), and read acceptance length correctly: accepted proposals per verification step, not saved passes.
 - Trace the EAGLE-3 → DFlash → DSpark progression, name the bottleneck each stage removes, and explain why the training objective and the evaluation metric converged onto the same number.
 - Demonstrate hands-on that acceptance rate is not accuracy: sweep the confidence threshold in the official evaluation code, grade the outputs, and watch the two numbers move in opposite directions.
-- Articulate the domain mismatch — verification concentrates where acceptance is naturally highest (math, code) while usage concentrates elsewhere — and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
+- Articulate the domain mismatch (verification concentrates where acceptance is naturally highest, math and code, while usage concentrates elsewhere) and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
 
 ## Teaching material summary
 
