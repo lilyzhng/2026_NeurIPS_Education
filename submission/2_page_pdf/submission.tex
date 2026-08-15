@@ -45,15 +45,15 @@ After engaging with this resource, a learner can:
 \end{itemize}
 
 \section{Grounding in NeurIPS Research (2022--2026)}
-Speculative decoding is an active NeurIPS research line:
+The three generations the resource teaches are themselves recent papers at NeurIPS and its sister venues:
 \begin{itemize}\small
-  \item \href{https://neurips.cc/virtual/2023/poster/71597}{\textbf{SpecTr}} (NeurIPS 2023): generalizes draft selection to $k$ candidates via optimal transport, with further speedups over standard speculative decoding.
-  \item \href{https://proceedings.neurips.cc/paper_files/paper/2024/hash/ea1f5f0878d43ff4fb8bf64ef4a2326c-Abstract-Conference.html}{\textbf{Sequoia}} (NeurIPS 2024): a dynamic-programming algorithm for the optimal speculation \emph{tree}, up to $9.5\times$ speedups.
-  \item \href{https://neurips.cc/virtual/2024/poster/95733}{\textbf{SpecExec}} (NeurIPS 2024): builds a cache tree validated in a single target pass, up to 20 tokens per iteration on offloaded consumer hardware.
+  \item \href{https://openreview.net/forum?id=4exx1hUffq}{\textbf{EAGLE-3}} (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline.
+  \item \href{https://icml.cc/virtual/2026/poster/64301}{\textbf{DFlash}} (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over $6\times$ lossless acceleration and up to $2.5\times$ over EAGLE-3.
+  \item \href{https://arxiv.org/abs/2607.05147}{\textbf{DSpark}} (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60--85\% faster in production.
 \end{itemize}
-The walkthrough positions \textbf{EAGLE-3} (2025), \textbf{DFlash} (2026), and \textbf{DSpark} (DeepSeek, 2026) as the applied frontier these methods enable, alongside frontier work cited throughout: the foundational speculative-decoding papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (2025), and Kimi K3 shipping the speculator as part of post-training (2026).
+The walkthrough places them in the NeurIPS speculative-decoding line they extend, SpecTr (NeurIPS 2023), Sequoia (NeurIPS 2024), and SpecExec (NeurIPS 2024), alongside the foundational papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (ICLR 2025), and Kimi K3 shipping the speculator as part of post-training (2026).
 
 \section{Teaching Materials Summary}
-All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length; (2) a \textbf{one-afternoon lab} (single GPU): reproduce the reported EAGLE-3 acceptance length (2.4--2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints on one prompt set, sweep \texttt{--confidence-threshold} while grading outputs for correctness, and a pick-a-domain exercise outside math and code; (3) a \textbf{short video walkthrough} recorded from the site. All figures are original; numbers cite the DSpark paper and the LosslessBench evaluation.
+All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length; (2) a \textbf{one-afternoon lab} (single GPU): reproduce the reported EAGLE-3 acceptance length (2.4--2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints on one prompt set, sweep \texttt{--confidence-threshold} while grading outputs for correctness, and a pick-a-domain exercise outside math and code; (3) a \textbf{video walkthrough} recorded from the site
 
 \end{document}
