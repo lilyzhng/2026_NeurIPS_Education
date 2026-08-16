@@ -183,8 +183,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#theorem">2.2 · Lossless in theory</a></li>
       <li class="sub"><a href="#generations">2.3 · Three generations</a></li>
       <li class="sub"><a href="#objective">2.4 · Metric = objective</a></li>
-      <li class="sub"><a href="#reproduce">2.5 · Reproduce it</a></li>
-      <li class="sub"><a href="#datasets">2.6 · What evals run on</a></li>
+      <li class="sub"><a href="#datasets">2.5 · What evals run on</a></li>
       <li><a href="#missed">3 · What's Missed?</a></li>
       <li class="sub"><a href="#nevergrades">3.1 · Eval Biased to Coding and Math Only</a></li>
       <li class="sub"><a href="#narrowroad">3.2 · Lossy in production</a></li>
@@ -328,22 +327,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       then graded on how often it is accepted.</p>
     </section>
 
-    <section id="reproduce">
-      <h3>2.5 · Reproduce the numbers</h3>
-      <p>The headline numbers are reproducible on one GPU. Serving Qwen3-8B with its official
-      EAGLE-3 head:</p>
-      <pre><code>vllm serve Qwen/Qwen3-8B -tp 1 \
-  --speculative-config '{"model": "RedHatAI/Qwen3-8B-speculator.eagle3",
-                         "num_speculative_tokens": 3, "method": "eagle3"}'</code></pre>
-      <p>The <a href="https://huggingface.co/RedHatAI/Qwen3-8B-speculator.eagle3">model card</a>
-      reports an acceptance length of 2.4 to 2.8 on a single A100.</p>
-      <div class="tbd"><span class="tag">TBD</span>Our reproduced acceptance length and tokens/s
-      table. Three-generation comparison using the released DeepSpec checkpoints, EAGLE-3 vs DFlash
-      vs DSpark on Qwen3-4B/8B.</div>
-    </section>
-
     <section id="datasets">
-      <h3>2.6 · What the field evaluates on</h3>
+      <h3>2.5 · What the field evaluates on</h3>
       <p>Where do these numbers come from?
       <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, DeepSeek's open-source
       training and evaluation stack for draft models, is a representative example. Its evaluation
@@ -371,7 +356,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
     <section id="nevergrades">
       <h3>3.1 · Eval Biased to Coding and Math Only</h3>
-      <p>The nine datasets in Section 2.6 are not used the way their names
+      <p>The nine datasets in Section 2.5 are not used the way their names
       suggest. In DeepSpec's <code>eval.py</code>, gsm8k and humaneval supply prompts, and the
       harness records four acceptance metrics per run: draft tokens per proposal, acceptance
       length, verify rate, and acceptance rate by position. It never checks whether the generated
@@ -543,7 +528,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <p>Everything measured in this article fits on one GPU and one afternoon. This section is the
       hands-on companion; each step reproduces a number from the sections above.</p>
 
-      <h3>5.1 · Serve an accelerated model (Section 2.5)</h3>
+      <h3>5.1 · Serve an accelerated model</h3>
       <p>One command starts Qwen3-8B with its official EAGLE-3 draft head:</p>
       <pre><code>vllm serve Qwen/Qwen3-8B -tp 1 \
   --speculative-config '{"model": "RedHatAI/Qwen3-8B-speculator.eagle3",
