@@ -20,10 +20,11 @@ teaser_figure.png
 
 ```bash
 # 1. edit sections/03_whats_missed.md (or any section)
-# 2. rebuild
-python3 build.py
-# 3. open index.html to check
+# 2. rebuild + open in browser — one command:
+./build.sh
 ```
+
+(`build.sh` checks pandoc is installed, runs `build.py`, and opens `index.html`.)
 
 Notes:
 
