@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speculative Decoding: What's Measured, What's Missed, and What's Next</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600;700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+<script>
+MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+    :root {
+      --bg: #F9F9F9;
+      --surface: #fffffb;
+      --ink: rgba(0,0,0,0.86);
+      --text: rgba(0,0,0,0.80);
+      --muted: rgba(0,0,0,0.55);
+      --faint: rgba(0,0,0,0.40);
+      --line: rgba(0,0,0,0.12);
+      --line-strong: rgba(0,0,0,0.20);
+      --code-bg: rgba(0,0,0,0.055);
+      --block-bg: rgba(0,0,0,0.035);
+      --serif: Georgia, "Times New Roman", "Noto Serif", serif;
+      --sans: Inter, system-ui, -apple-system, sans-serif;
+      --mono: "Fragment Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--serif);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.62;
+      font-size: 18px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: #2437e7; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: #2437e7; }
+    a:hover { color: #1a28b8; text-decoration-color: #1a28b8; }
+
+    .layout {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 3.5rem;
+      align-items: start;
+    }
+    article { min-width: 0; max-width: 920px; }
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: 1fr; gap: 0; padding-inline: 1.25rem; }
+      article { max-width: none; }
+      .toc { display: none; }
+    }
+
+    .toc { position: sticky; top: 3rem; align-self: start; }
+    .toc-title {
+      font: 500 0.6875rem/1 var(--sans);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--faint); margin-bottom: 1.4rem;
+    }
+    .toc ul { list-style: none; margin: 0; }
+    .toc li { margin-bottom: 0.85rem; }
+    .toc li.sub { margin-bottom: 0.5rem; }
+    .toc li.sub a { padding-left: 2.1em; font-size: 0.8125rem; color: rgba(0,0,0,0.36); }
+    .toc li:not(.sub) a { font-weight: 600; color: rgba(0,0,0,0.55); }
+    .toc a {
+      display: block;
+      position: relative;
+      font: 500 0.875rem/1.35 var(--sans);
+      color: rgba(0,0,0,0.42);
+      padding-left: 0.85rem;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .toc a:hover { color: #2437e7; }
+    .toc a.active { color: #2437e7; font-weight: 600; }
+    .toc a.active::before {
+      content: '';
+      position: absolute;
+      left: -0.7rem;
+      top: 0.28em;
+      width: 3px;
+      height: 0.78em;
+      background: #2437e7;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+      font-size: clamp(2rem, 4.5vw, 2.55rem);
+      font-weight: 400; letter-spacing: -0.012em; line-height: 1.12;
+      color: var(--ink); margin-bottom: 1.5rem;
+    }
+    .authors {
+      display: flex; align-items: center; gap: 0.6rem;
+      font: 500 0.9375rem/1.3 var(--sans); color: var(--text);
+      margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line);
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #111; color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font: 600 0.75rem/1 var(--sans); letter-spacing: 0.02em; flex: none;
+    }
+    .authors .role { color: var(--muted); font-weight: 400; }
+
+    .lede { font-size: 1.2rem; line-height: 1.55; color: var(--ink); margin-bottom: 2.5rem; }
+    .lede p { margin-bottom: 1rem; }
+    .lede ul { margin: 0 0 1rem 1.5rem; }
+    .lede li { margin-bottom: 0.5rem; }
+    h2 {
+      font-family: var(--serif); font-size: 1.55rem; font-weight: 700;
+      letter-spacing: -0.01em; color: var(--ink); margin: 3.25rem 0 1rem;
+    }
+    h3 { font-family: var(--serif); font-size: 1.22rem; font-weight: 700; color: var(--ink); margin: 2.25rem 0 0.75rem; }
+    p { margin-bottom: 1.15rem; }
+    p + ul { margin-top: -0.4rem; }
+    ul, ol { margin: 0 0 1.15rem 1.35rem; }
+    li { margin-bottom: 0.4rem; }
+
+    blockquote, .callout {
+      border-left: 2px solid var(--line-strong);
+      padding: 0.25rem 0 0.25rem 1.25rem; margin: 1.5rem 0;
+      font-style: italic; color: var(--muted);
+    }
+    blockquote p:last-child { margin-bottom: 0; }
+
+    .tbd {
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+      background: var(--block-bg);
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0 2rem;
+      font: 400 0.875rem/1.6 var(--sans);
+      color: var(--muted);
+    }
+    .tbd .tag {
+      display: inline-block;
+      font: 600 0.6875rem/1 var(--sans);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #a84b28; margin-right: 0.5rem;
+    }
+
+    figure { margin: 2.25rem 0; text-align: center; }
+    figure img {
+      display: block; width: 100%; max-width: 100%; height: auto; margin: 0 auto;
+      border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+    }
+    figure.mid img { max-width: 640px; }
+    figcaption { font: 400 0.8125rem/1.55 var(--sans); color: var(--muted); margin-top: 0.7rem; text-align: left; }
+    .fig2 { display: flex; gap: 12px; }
+    .fig2 img { width: 50%; min-width: 0; }
+    @media (max-width: 640px) { .fig2 { flex-direction: column; } .fig2 img { width: 100%; } }
+
+    pre {
+      background: #1e2a1c; color: #e8e8e3;
+      font-family: var(--mono); font-size: 0.8125rem; line-height: 1.6;
+      padding: 1.1rem 1.25rem; border-radius: 10px; overflow-x: auto; margin: 1.5rem 0 2rem;
+    }
+    code {
+      font-family: var(--mono); font-size: 0.85em;
+      background: var(--code-bg); color: var(--ink); padding: 0.12em 0.36em; border-radius: 4px;
+    }
+    pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+    ::selection { background: #2437e7; color: #fff; }
+    ::-moz-selection { background: #2437e7; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-title">Table of Contents</div>
+    <ul>
+<!--TOC-->
+    </ul>
+  </aside>
+
+  <article>
+    <h1>Speculative Decoding: What's Measured, What's Missed, and What's Next</h1>
+    <div class="authors">
+      <span class="avatar">LZ</span>
+      <span class="who">Lily Zhang</span>
+      <span class="role">Draft V2 · August 15, 2026 · NeurIPS 2026 Education Track</span>
+    </div>
+
+    <!--CONTENT-->
+  </article>
+</div>
+
+<script>
+  (function () {
+    const links = [...document.querySelectorAll('.toc a')];
+    const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const targets = [...byId.keys()].map(id => document.getElementById(id)).filter(Boolean);
+    let current = null;
+    function setActive(id) {
+      if (id === current) return;
+      current = id;
+      links.forEach(a => a.classList.remove('active'));
+      const a = byId.get(id);
+      if (a) a.classList.add('active');
+    }
+    const obs = new IntersectionObserver((entries) => {
+      const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) setActive(visible[0].target.id);
+    }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+    targets.forEach(t => obs.observe(t));
+    if (targets.length) setActive(targets[0].id);
+  })();
+</script>
+
+</body>
+</html>

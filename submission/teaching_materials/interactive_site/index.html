@@ -180,20 +180,20 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li><a href="#intro">1 · Introduction</a></li>
       <li><a href="#measured">2 · What's Measured?</a></li>
       <li class="sub"><a href="#metric">2.1 · The metric</a></li>
-      <li class="sub"><a href="#theorem">2.2 · Lossless in theory</a></li>
-      <li class="sub"><a href="#generations">2.3 · Three generations</a></li>
-      <li class="sub"><a href="#objective">2.4 · Metric = objective</a></li>
-      <li class="sub"><a href="#datasets">2.5 · What evals run on</a></li>
+      <li class="sub"><a href="#theorem">2.2 · Why is it lossless in theory?</a></li>
+      <li class="sub"><a href="#generations">2.3 · Three generations of draft models</a></li>
+      <li class="sub"><a href="#objective">2.4 · The metric is also the training objective</a></li>
+      <li class="sub"><a href="#datasets">2.5 · What the field evaluates on</a></li>
       <li><a href="#missed">3 · What's Missed?</a></li>
       <li class="sub"><a href="#nevergrades">3.1 · Eval Biased to Coding and Math Only</a></li>
-      <li class="sub"><a href="#narrowroad">3.2 · Lossy in production</a></li>
-      <li class="sub"><a href="#knob">3.3 · Acceptance is not accuracy</a></li>
-      <li class="sub"><a href="#mismatch">3.4 · Expectation mismatch</a></li>
+      <li class="sub"><a href="#narrowroad">3.2 · Why is it lossy in production?</a></li>
+      <li class="sub"><a href="#knob">3.3 · Acceptance rate is not accuracy</a></li>
+      <li class="sub"><a href="#mismatch">3.4 · The verified domains are not the used domains</a></li>
       <li class="sub"><a href="#losslessbench">3.5 · Introducing LosslessBench</a></li>
       <li class="sub"><a href="#scope">3.6 · Scope statement</a></li>
       <li><a href="#next">4 · What's Next?</a></li>
-      <li class="sub"><a href="#ownership">4.1 · Ownership</a></li>
-      <li class="sub"><a href="#traininggap">4.2 · The training gap</a></li>
+      <li class="sub"><a href="#ownership">4.1 · Acceleration is moving into training</a></li>
+      <li class="sub"><a href="#traininggap">4.2 · The training objective nobody has built</a></li>
       <li class="sub"><a href="#proposal">4.3 · Proposal</a></li>
       <li><a href="#runit">5 · Hands-on Lab</a></li>
     </ul>
@@ -208,356 +208,193 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     </div>
 
     <div class="lede">
-    <p>Speculative decoding now runs under nearly every hosted LLM, and the field
-    reports success in acceptance rate and token speed while claiming the result is lossless.
-    This education material is organized around three questions:</p>
-    <ul>
-      <li><u>What's Measured</u>: how does speculative decoding work, and why is it lossless in theory?</li>
-      <li><u>What's Missed</u>: does lossless inference hold true beyond math and code?</li>
-      <li><u>What's Next</u>: who owns the quality of accelerated inference?</li>
-    </ul>
-    <p>Learners walk through three generations of draft models: EAGLE-3, DFlash, DSpark.
-    Token speed and acceptance rate get reported, mostly on math and code. What is missing is
-    token quality, unmeasured everywhere else. A hands-on lab on a single GPU reproduces the
-    numbers: serve an accelerated model, and grade the outputs.</p>
-    </div>
+<p>Speculative decoding now runs under nearly every hosted LLM, and the field reports success in acceptance rate and token speed while claiming the result is lossless. This education material is organized around three questions:</p>
+<ul>
+<li><u>What's Measured</u>: how does speculative decoding work, and why is it lossless in theory?</li>
+<li><u>What's Missed</u>: does lossless inference hold true beyond math and code?</li>
+<li><u>What's Next</u>: who owns the quality of accelerated inference?</li>
+</ul>
+<p>Learners walk through three generations of draft models: EAGLE-3, DFlash, DSpark. Token speed and acceptance rate get reported, mostly on math and code. What is missing is token quality, unmeasured everywhere else. A hands-on lab on a single GPU reproduces the numbers: serve an accelerated model, and grade the outputs.</p>
 
-    <section id="intro">
-      <h2>1 · Introduction</h2>
+</div>
+<div id="intro" class="section">
 
-      <p>The market wants more tokens. Agent workflows chain dozens of model calls per task,
-      reasoning models spend thousands of tokens thinking before they answer, and every product
-      built on either one pays for latency twice, once in compute and once in user patience. The
-      ideal answer to this demand is lossless inference acceleration: serve the same model faster
-      without changing what it outputs.</p>
+<h2 id="1--introduction">1 · Introduction</h2>
+<p>The market wants more tokens. Agent workflows chain dozens of model calls per task, reasoning models spend thousands of tokens thinking before they answer, and every product built on either one pays for latency twice, once in compute and once in user patience. The ideal answer to this demand is lossless inference acceleration: serve the same model faster without changing what it outputs.</p>
+<p>That demand has pulled acceleration steadily deeper into the model itself. Draft models for speculative decoding evolved through three generations in two years, from EAGLE-3's feature-level autoregressive drafting (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>), to DFlash's block-parallel diffusion drafting (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>), to DSpark's confidence-scheduled verification (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>). Frontier labs moved in the same direction from the training side: DeepSeek pushed FP8 into pre-training, gpt-oss shipped MXFP4 weights with quantization-aware training, K2-Thinking reported every benchmark at INT4, and Kimi K3 ships the speculator itself, a draft model fine-tuned and validated before release (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<figure>
+<img src="teaser_figure.png" alt="Token-level walkthrough of the four decoding stages" />
+<figcaption><strong>Figure 1.</strong> The same sentence decoded four ways. Vanilla needs one forward pass per token. EAGLE-3 drafts K tokens sequentially and verifies them in one pass. DFlash drafts the whole block in one pass. DSpark trims low-confidence draft tokens before verification.</figcaption>
+</figure>
 
-      <p>That demand has pulled acceleration steadily deeper into the model itself. Draft models for
-      speculative decoding evolved through three generations in two years, from EAGLE-3's
-      feature-level autoregressive drafting
-      (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>), to DFlash's block-parallel
-      diffusion drafting (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>), to
-      DSpark's confidence-scheduled verification
-      (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>). Frontier labs moved in the
-      same direction from the training side: DeepSeek pushed FP8 into pre-training, gpt-oss shipped
-      MXFP4 weights with quantization-aware training, K2-Thinking reported every benchmark at INT4,
-      and Kimi K3 ships the speculator itself, a draft model fine-tuned and validated before release
-      (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<p>Inference providers now run some combination of quantization, speculative decoding, and serving-level optimizations on nearly every hosted model, and the field reports progress in tokens per second while describing the acceleration as lossless. What no one owns is the quality of the accelerated output. Outside of coding and math, almost no one has checked whether the accelerated model still behaves like the original. The evaluation surface behind the word "lossless" is narrow, and the claim is rarely tested directly.</p>
+</div>
 
+<div id="measured" class="section">
 
-      <figure>
-        <img src="teaser_figure.png" alt="Token-level walkthrough of the four decoding stages">
-        <figcaption><strong>Figure 1.</strong> The same sentence decoded four ways. Vanilla needs
-        one forward pass per token. EAGLE-3 drafts K tokens sequentially and verifies them in one
-        pass. DFlash drafts the whole block in one pass. DSpark trims low-confidence draft tokens
-        before verification.</figcaption>
-      </figure>
+<h2 id="2--whats-measured">2 · What's Measured?</h2>
+</div>
 
+<div id="metric" class="section">
 
-      <p>Inference providers now run some combination of quantization, speculative decoding, and
-      serving-level optimizations on nearly every hosted model, and the field reports progress in
-      tokens per second while describing the acceleration as lossless. What no one owns is the
-      quality of the accelerated output. Outside of coding and math, almost no one has checked
-      whether the accelerated model still behaves like the original. The evaluation surface behind
-      the word "lossless" is narrow, and the claim is rarely tested directly.</p>
+<h3 id="21--the-metric">2.1 · The metric</h3>
+<p>Speculative decoding reports progress with two numbers. Acceptance length is how many draft tokens the target model accepts per verification step, on average. Tokens per second is the throughput the user feels. The first drives the second, but they are not the same thing: drafting has its own cost, so an acceptance length of 3 does not mean a 3x speedup. Acceptance length counts accepted proposals, not saved passes.</p>
+</div>
 
-      </section>
+<div id="theorem" class="section">
 
-    <section id="measured">
-      <h2>2 · What's Measured?</h2>
-    </section>
+<h3 id="22--why-is-it-lossless-in-theory">2.2 · Why is it lossless in theory?</h3>
+<p>A small draft model proposes K tokens, and the large target model verifies all K in a single forward pass. This works because autoregressive decoding is memory-bandwidth bound. Generating one token streams the entire weight matrix out of HBM while the compute units sit mostly idle, so a forward pass over K tokens costs nearly the same as a pass over one.</p>
+<p>Verification uses rejection sampling: each proposed token is accepted with probability \( \min(1, p(x)/q(x)) \), where \(p\) is the target distribution and \(q\) is the draft distribution, and the first rejected position is resampled from a corrected distribution. This procedure guarantees the output distribution is identical to the target model's (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>; <a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>). Correctness is guaranteed by construction, so evaluation only has one dimension left to care about, which is efficiency. This theorem is the foundation of how the entire field evaluates itself. It is also the assumption Section 3 examines.</p>
+</div>
 
-    <section id="metric">
-      <h3>2.1 · The metric</h3>
-      <p>Speculative decoding reports progress with two numbers. Acceptance length is how many
-      draft tokens the target model accepts per verification step, on average. Tokens per second is
-      the throughput the user feels. The first drives the second, but they are not the same thing:
-      drafting has its own cost, so an acceptance length of 3 does not mean a 3x speedup. Acceptance length counts accepted
-      proposals, not saved passes.</p>
-    </section>
+<div id="generations" class="section">
 
-    <section id="theorem">
-      <h3>2.2 · Why is it lossless in theory?</h3>
-      <p>A small draft model proposes K tokens, and the large
-      target model verifies all K in a single forward pass. This works because autoregressive
-      decoding is memory-bandwidth bound. Generating one token streams the entire weight matrix out
-      of HBM while the compute units sit mostly idle, so a forward pass over K tokens costs nearly
-      the same as a pass over one.</p>
-      <p>Verification uses rejection sampling: each proposed token is accepted with probability
-      \( \min(1, p(x)/q(x)) \), where \(p\) is the target distribution and \(q\) is the draft
-      distribution, and the first rejected position is resampled from a corrected distribution.
-      This procedure guarantees the output distribution is identical to the target model's
-      (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>;
-      <a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>). Correctness is guaranteed
-      by construction, so evaluation only has one dimension left to care about, which is
-      efficiency. This theorem is the foundation of how the entire field evaluates itself. It is
-      also the assumption Section 3 examines.</p>
-    </section>
-
-    <section id="generations">
-      <h3>2.3 · Three generations of draft models</h3>
-      <p>Each generation removes the bottleneck of the previous one.</p>
-      <p><strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>)
-      drafts at the feature level instead of the token level. A single trained decoder layer reuses
-      the target model's hidden states and proposes tokens autoregressively. Acceptance improves,
-      but drafting itself is still sequential, one token at a time.</p>
-      <p><strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>)
-      replaces the autoregressive draft with block diffusion. The draft predicts an entire block of
-      16 tokens in a single parallel forward pass, with the target's hidden states injected into
-      every draft layer. Drafting stops being the bottleneck.</p>
-      <p><strong>DSpark</strong> (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>)
-      builds on the parallel backbone and adds two things: a small sequential head so later draft
-      tokens can see earlier ones, and a confidence head with a load-aware scheduler that trims
-      low-confidence tokens before verification, saving batch capacity.</p>
-
-      <div class="tbd"><span class="tag">TBD</span>Interactive walkthrough component for the web
+<h3 id="23--three-generations-of-draft-models">2.3 · Three generations of draft models</h3>
+<p>Each generation removes the bottleneck of the previous one.</p>
+<p><strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>) drafts at the feature level instead of the token level. A single trained decoder layer reuses the target model's hidden states and proposes tokens autoregressively. Acceptance improves, but drafting itself is still sequential, one token at a time.</p>
+<p><strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) replaces the autoregressive draft with block diffusion. The draft predicts an entire block of 16 tokens in a single parallel forward pass, with the target's hidden states injected into every draft layer. Drafting stops being the bottleneck.</p>
+<p><strong>DSpark</strong> (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>) builds on the parallel backbone and adds two things: a small sequential head so later draft tokens can see earlier ones, and a confidence head with a load-aware scheduler that trims low-confidence tokens before verification, saving batch capacity.</p>
+<div class="tbd"><span class="tag">TBD</span>Interactive walkthrough component for the web
       version, with adjustable draft length.</div>
-    </section>
 
-    <section id="objective">
-      <h3>2.4 · The metric is also the training objective</h3>
-      <p>How a draft model gets trained explains why acceptance rate dominates evaluation. The Kimi
-      K3 report (<a href="https://arxiv.org/abs/2607.24653">§4.1.4</a>) describes the current
-      recipe. The target model is frozen. Only a single draft layer and a feature-fusion projection
-      are updated. During training the draft unrolls seven steps and consumes its own outputs,
-      simulating the recurrent drafting it will do at inference time. And the loss is</p>
-      <p>\[ \mathcal{L}_{LK} = -\log \sum_{x \in \mathcal{V}} \min\big(p(x),\, q(x)\big) \]</p>
-      <p>which is the negative log of the per-token acceptance probability itself
-      (<a href="https://arxiv.org/abs/2602.23881">Samarin et al., 2026</a>). The training objective
-      and the evaluation metric are the same number. A draft model is trained to be accepted, and
-      then graded on how often it is accepted.</p>
-    </section>
+</div>
 
-    <section id="datasets">
-      <h3>2.5 · What the field evaluates on</h3>
-      <p>Where do these numbers come from?
-      <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, DeepSeek's open-source
-      training and evaluation stack for draft models, is a representative example. Its evaluation
-      harness runs nine datasets: gsm8k, math500, and aime25 for math; humaneval, mbpp, and
-      livecodebench for code; mt-bench, alpaca, and arena-hard-v2 for conversation. The center of
-      gravity is verifiable, predictable tasks, the kind where the next token is easy to guess.</p>
-      <p>If acceleration has only ever been
-      evaluated on this narrow a slice of what models do, can we claim the inference is lossless?
-      What happens in the domains nobody measured?</p>
+<div id="objective" class="section">
 
-      <blockquote>
-      <p><strong>Takeaways.</strong> The field reports acceptance length and tokens per second.
-      Speed and acceptance are easy to measure and quality is not, and rejection-sampling verification
-      guarantees the output distribution exactly, so evaluation collapsed to a single efficiency
-      dimension. The training objective converged onto the same number: the LK loss is the
-      negative log of per-token acceptance probability, so drafts are trained on the metric they
-      are graded with. And the evaluation datasets concentrate on verifiable, low-entropy
-      tasks.</p>
-      </blockquote>
-    </section>
+<h3 id="24--the-metric-is-also-the-training-objective">2.4 · The metric is also the training objective</h3>
+<p>How a draft model gets trained explains why acceptance rate dominates evaluation. The Kimi K3 report (<a href="https://arxiv.org/abs/2607.24653">§4.1.4</a>) describes the current recipe. The target model is frozen. Only a single draft layer and a feature-fusion projection are updated. During training the draft unrolls seven steps and consumes its own outputs, simulating the recurrent drafting it will do at inference time. And the loss is</p>
+<p>\[ \mathcal{L}_{LK} = -\log \sum_{x \in \mathcal{V}} \min\big(p(x),\, q(x)\big) \]</p>
+<p>which is the negative log of the per-token acceptance probability itself (<a href="https://arxiv.org/abs/2602.23881">Samarin et al., 2026</a>). The training objective and the evaluation metric are the same number. A draft model is trained to be accepted, and then graded on how often it is accepted.</p>
+</div>
 
-    <section id="missed">
-      <h2>3 · What's Missed?</h2>
-    </section>
+<div id="datasets" class="section">
 
-    <section id="nevergrades">
-      <h3>3.1 · Eval Biased to Coding and Math Only</h3>
-      <p>The nine datasets in Section 2.5 are not used the way their names
-      suggest. In DeepSpec's <code>eval.py</code>, gsm8k and humaneval supply prompts, and the
-      harness records four acceptance metrics per run: draft tokens per proposal, acceptance
-      length, verify rate, and acceptance rate by position. It never checks whether the generated
-      answer is correct. A search across the codebase finds no grader, no judge, no pass@1, no
-      exact match, no accuracy metric of any kind. GSM8K is not a math test here. It is a traffic
-      sample.</p>
-      <p>This means the lossless claim has never been directly verified even on math and coding. It
-      rests entirely on the theorem from Section 2.2.</p>
-    </section>
+<h3 id="25--what-the-field-evaluates-on">2.5 · What the field evaluates on</h3>
+<p>Where do these numbers come from? <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, DeepSeek's open-source training and evaluation stack for draft models, is a representative example. Its evaluation harness runs nine datasets: gsm8k, math500, and aime25 for math; humaneval, mbpp, and livecodebench for code; mt-bench, alpaca, and arena-hard-v2 for conversation. The center of gravity is verifiable, predictable tasks, the kind where the next token is easy to guess.</p>
+<p>If acceleration has only ever been evaluated on this narrow a slice of what models do, can we claim the inference is lossless? What happens in the domains nobody measured?</p>
+<blockquote>
+<p><strong>Takeaways.</strong> The field reports acceptance length and tokens per second. Speed and acceptance are easy to measure and quality is not, and rejection-sampling verification guarantees the output distribution exactly, so evaluation collapsed to a single efficiency dimension. The training objective converged onto the same number: the LK loss is the negative log of per-token acceptance probability, so drafts are trained on the metric they are graded with. And the evaluation datasets concentrate on verifiable, low-entropy tasks.</p>
+</blockquote>
+</div>
 
-    <section id="narrowroad">
-      <h3>3.2 · Why is it lossy in production?</h3>
-      <p>The theorem guarantees exactness for one step: exact rejection-sampling verification
-      against the target distribution. A production serving stack is longer than that. Quantized
-      weights and KV caches, cache-aware routing, prefill-decode disaggregation, and relaxed
-      acceptance rules all sit outside the proof's assumptions. vLLM's own documentation describes
-      its typical-acceptance mode as trading response quality for speed
-      (<a href="https://docs.vllm.ai/en/latest/features/spec_decode.html">vLLM docs</a>).</p>
-      <p>The gap between theory and stack shows up in measurement. In
-      <a href="https://lilyzh.ng/posts/losslessbench/">LosslessBench</a>, the same GLM 5.2 model
-      served through a vendor's accelerated stack (fp4, speculative decoding, kv routing,
-      prefill-decode disaggregation) lost 5.6 points on frontend design tasks, 76.9 to 71.2,
-      relative to the reference deployment. Kimi K3, whose acceleration is trained and shipped by
-      the model owner, lost 0.3 points on the same evaluation. Both deployments would report
-      healthy acceptance rates. Only one of them preserved behavior.</p>
-    </section>
+<div id="missed" class="section">
 
-    <section id="knob">
-      <h3>3.3 · Acceptance rate is not accuracy</h3>
-      <p>The flag that breaks the assumption ships in the official code. DeepSpec's evaluation exposes
-      <code>--confidence-threshold</code>: when the draft's confidence exceeds the threshold,
-      verification stops early and the remaining draft tokens are accepted without being checked.
-      This is the lossless-for-speed trade in a single flag.</p>
-      <p>The experiment is direct. Run the same prompts across a sweep of thresholds, record
-      acceptance metrics the way the harness already does, and additionally grade the outputs for
-      task correctness. As the threshold loosens, acceptance climbs and task accuracy falls.</p>
-      <div class="tbd"><span class="tag">TBD · Original results</span>Trade-off curve, acceptance
+<h2 id="3--whats-missed">3 · What's Missed?</h2>
+</div>
+
+<div id="nevergrades" class="section">
+
+<h3 id="31--eval-biased-to-coding-and-math-only">3.1 · Eval Biased to Coding and Math Only</h3>
+<p>The nine datasets in Section 2.5 are not used the way their names suggest. In DeepSpec's <code>eval.py</code>, gsm8k and humaneval supply prompts, and the harness records four acceptance metrics per run: draft tokens per proposal, acceptance length, verify rate, and acceptance rate by position. It never checks whether the generated answer is correct. A search across the codebase finds no grader, no judge, no pass@1, no exact match, no accuracy metric of any kind. GSM8K is not a math test here. It is a traffic sample.</p>
+<p>This means the lossless claim has never been directly verified even on math and coding. It rests entirely on the theorem from Section 2.2.</p>
+</div>
+
+<div id="narrowroad" class="section">
+
+<h3 id="32--why-is-it-lossy-in-production">3.2 · Why is it lossy in production?</h3>
+<p>The theorem guarantees exactness for one step: exact rejection-sampling verification against the target distribution. A production serving stack is longer than that. Quantized weights and KV caches, cache-aware routing, prefill-decode disaggregation, and relaxed acceptance rules all sit outside the proof's assumptions. vLLM's own documentation describes its typical-acceptance mode as trading response quality for speed (<a href="https://docs.vllm.ai/en/latest/features/spec_decode.html">vLLM docs</a>).</p>
+<p>The gap between theory and stack shows up in measurement. In <a href="https://lilyzh.ng/posts/losslessbench/">LosslessBench</a>, the same GLM 5.2 model served through a vendor's accelerated stack (fp4, speculative decoding, kv routing, prefill-decode disaggregation) lost 5.6 points on frontend design tasks, 76.9 to 71.2, relative to the reference deployment. Kimi K3, whose acceleration is trained and shipped by the model owner, lost 0.3 points on the same evaluation. Both deployments would report healthy acceptance rates. Only one of them preserved behavior.</p>
+</div>
+
+<div id="knob" class="section">
+
+<h3 id="33--acceptance-rate-is-not-accuracy">3.3 · Acceptance rate is not accuracy</h3>
+<p>The flag that breaks the assumption ships in the official code. DeepSpec's evaluation exposes <code>--confidence-threshold</code>: when the draft's confidence exceeds the threshold, verification stops early and the remaining draft tokens are accepted without being checked. This is the lossless-for-speed trade in a single flag.</p>
+<p>The experiment is direct. Run the same prompts across a sweep of thresholds, record acceptance metrics the way the harness already does, and additionally grade the outputs for task correctness. As the threshold loosens, acceptance climbs and task accuracy falls.</p>
+<div class="tbd"><span class="tag">TBD · Original results</span>Trade-off curve, acceptance
       rate vs task accuracy across the confidence-threshold sweep. This is the core original
       figure.</div>
-      <p>Acceptance rate is not accuracy, and after
-      this sweep the learner has seen the two numbers move in opposite directions on the same model
-      and the same prompts.</p>
-    </section>
 
-    <section id="mismatch">
-      <h3>3.4 · The verified domains are not the used domains</h3>
-      <p>Who actually hits these accelerated endpoints, and with what? Public usage data from
-      OpenRouter's model rankings
-      (<a href="https://openrouter.ai/rankings">openrouter.ai/rankings</a>) shows that programming
-      is large but far from alone: roleplay and creative writing, marketing copy, translation, and
-      agentic workflows account for a substantial share of real traffic. The verification effort,
-      meanwhile, concentrates on math and code.</p>
-      <p>The mismatch has a mechanical reason to matter. Acceptance rate is domain-conditional.
-      Code and math are low-entropy, the draft guesses well, and acceptance is high. Creative and
-      open-ended text is high-entropy, and acceptance drops. The domains where verification is
-      densest are exactly the domains where acceleration is least likely to misbehave. Providers
-      validate where it is easy, users live where it is not, and the expectation gap between the
-      two is the hole this article is pointing at.</p>
-      <div class="tbd"><span class="tag">TBD</span>Figure: OpenRouter usage share by category next
+<p>Acceptance rate is not accuracy, and after this sweep the learner has seen the two numbers move in opposite directions on the same model and the same prompts.</p>
+</div>
+
+<div id="mismatch" class="section">
+
+<h3 id="34--the-verified-domains-are-not-the-used-domains">3.4 · The verified domains are not the used domains</h3>
+<p>Who actually hits these accelerated endpoints, and with what? Public usage data from OpenRouter's model rankings (<a href="https://openrouter.ai/rankings">openrouter.ai/rankings</a>) shows that programming is large but far from alone: roleplay and creative writing, marketing copy, translation, and agentic workflows account for a substantial share of real traffic. The verification effort, meanwhile, concentrates on math and code.</p>
+<p>The mismatch has a mechanical reason to matter. Acceptance rate is domain-conditional. Code and math are low-entropy, the draft guesses well, and acceptance is high. Creative and open-ended text is high-entropy, and acceptance drops. The domains where verification is densest are exactly the domains where acceleration is least likely to misbehave. Providers validate where it is easy, users live where it is not, and the expectation gap between the two is the hole this article is pointing at.</p>
+<div class="tbd"><span class="tag">TBD</span>Figure: OpenRouter usage share by category next
       to the domain coverage of current speculative-decoding evals.</div>
-    </section>
 
-    <section id="losslessbench">
-      <h3>3.5 · Introducing LosslessBench</h3>
-      <p>LosslessBench is our answer to the question.
-      <a href="https://lilyzh.ng/posts/losslessbench/">LosslessBench</a> runs the same task suite
-      against a reference deployment and an accelerated deployment of the same model, across five
-      domains: coding, agent workflows, creative writing, guardrails, and frontend design. Each
-      pair of outputs is graded for task behavior, not for token overlap.</p>
-      <p>The headline finding: frontend design lost 5.6 points under the accelerated stack while
-      four of the five domains showed no significant gap. The degradation is domain-localized,
-      which is exactly what acceptance-rate reporting cannot see. The failure is also qualitative,
-      not cosmetic:</p>
+</div>
 
-      <figure>
-        <div class="fig2">
-          <img src="https://lilyzh.ng/posts/losslessbench/id673_fp8.png" alt="fp8 render of the calendar prompt, with the requested translucent popup implemented">
-          <img src="https://lilyzh.ng/posts/losslessbench/id673_fp4.png" alt="fp4 render of the same prompt, a clean page with the calendar popup missing">
-        </div>
-        <figcaption><strong>Figure 2.</strong> The same model, the same frontend prompt, two
-        deployments. The reference deployment (left) implements the requested translucent calendar
-        popup. The accelerated fp4 deployment (right) ships a clean-looking page with the requested
-        component missing.</figcaption>
-      </figure>
-    </section>
+<div id="losslessbench" class="section">
 
-    <section id="scope">
-      <h3>3.6 · Scope statement</h3>
-      <p>Two limits. First, the lossless theorem is distribution-level,
-      not sequence-level. Even under exact verification at temperature 1, an individual output can
-      differ from what the reference deployment would have produced; the guarantee is that outputs
-      are drawn from the same distribution, not that any single generation matches. Second, all
-      numbers in this article are measured at batch size 1 and low concurrency. Under high
-      concurrency speculative decoding degrades and serving engines may disable it entirely, so
-      production behavior at load is a separate question from everything measured here.</p>
+<h3 id="35--introducing-losslessbench">3.5 · Introducing LosslessBench</h3>
+<p>LosslessBench is our answer to the question. <a href="https://lilyzh.ng/posts/losslessbench/">LosslessBench</a> runs the same task suite against a reference deployment and an accelerated deployment of the same model, across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. Each pair of outputs is graded for task behavior, not for token overlap.</p>
+<p>The headline finding: frontend design lost 5.6 points under the accelerated stack while four of the five domains showed no significant gap. The degradation is domain-localized, which is exactly what acceptance-rate reporting cannot see. The failure is also qualitative, not cosmetic:</p>
+<figure>
+<div class="fig2">
+<img src="https://lilyzh.ng/posts/losslessbench/id673_fp8.png" alt="fp8 render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/posts/losslessbench/id673_fp4.png" alt="fp4 render of the same prompt, a clean page with the calendar popup missing" />
+</div>
+<figcaption><strong>Figure 2.</strong> The same model, the same frontend prompt, two deployments. The reference deployment (left) implements the requested translucent calendar popup. The accelerated fp4 deployment (right) ships a clean-looking page with the requested component missing.</figcaption>
+</figure>
 
-      <blockquote>
-      <p><strong>Summary.</strong> The standard evaluation harness never grades outputs; the
-      lossless claim rests on a theorem, not on measurement. The theorem covers exact verification
-      only, and the measured gap between owned and vendor-assembled acceleration is 0.3 vs 5.6
-      points. A single flag in the official evaluation code converts lossless into lossy, and the
-      resulting curve is measurable by a learner in an afternoon. Verification concentrates where
-      acceptance is naturally highest; real usage concentrates elsewhere.</p>
-      </blockquote>
-    </section>
+</div>
 
-    <section id="next">
-      <h2>4 · What's Next?</h2>
-    </section>
+<div id="scope" class="section">
 
-    <section id="ownership">
-      <h3>4.1 · Acceleration is moving into training</h3>
-      <p>The industry is already answering part of the question, not by fixing the eval but by
-      moving the acceleration to where it can be validated before release. DeepSeek pushed FP8 into pre-training with DeepSeek-V3
-      (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). gpt-oss shipped MXFP4
-      weights with quantization-aware training
-      (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every
-      benchmark number at INT4, making the quantized model the official model. Kimi K3 ships the
-      speculator itself: the draft model is fine-tuned as part of post-training, against the
-      deployment-precision target, and validated before the model leaves the factory
-      (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
-      <div class="tbd"><span class="tag">TBD</span>Figure: timeline of acceleration moving from the
+<h3 id="36--scope-statement">3.6 · Scope statement</h3>
+<p>Two limits. First, the lossless theorem is distribution-level, not sequence-level. Even under exact verification at temperature 1, an individual output can differ from what the reference deployment would have produced; the guarantee is that outputs are drawn from the same distribution, not that any single generation matches. Second, all numbers in this article are measured at batch size 1 and low concurrency. Under high concurrency speculative decoding degrades and serving engines may disable it entirely, so production behavior at load is a separate question from everything measured here.</p>
+<blockquote>
+<p><strong>Summary.</strong> The standard evaluation harness never grades outputs; the lossless claim rests on a theorem, not on measurement. The theorem covers exact verification only, and the measured gap between owned and vendor-assembled acceleration is 0.3 vs 5.6 points. A single flag in the official evaluation code converts lossless into lossy, and the resulting curve is measurable by a learner in an afternoon. Verification concentrates where acceptance is naturally highest; real usage concentrates elsewhere.</p>
+</blockquote>
+</div>
+
+<div id="next" class="section">
+
+<h2 id="4--whats-next">4 · What's Next?</h2>
+</div>
+
+<div id="ownership" class="section">
+
+<h3 id="41--acceleration-is-moving-into-training">4.1 · Acceleration is moving into training</h3>
+<p>The industry is already answering part of the question, not by fixing the eval but by moving the acceleration to where it can be validated before release. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). gpt-oss shipped MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 ships the speculator itself: the draft model is fine-tuned as part of post-training, against the deployment-precision target, and validated before the model leaves the factory (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<div class="tbd"><span class="tag">TBD</span>Figure: timeline of acceleration moving from the
       serving layer into training, adapted from LosslessBench Figure 6.</div>
-      <p>This is why the ownership split in Section 3.2 produced a 0.3-point loss on one side and a
-      5.6-point loss on the other. When the model owner trains and validates the acceleration, the
-      accelerated model is the released model, and there is nothing left for a serving vendor to
-      bolt on unverified. When acceleration is assembled downstream by whoever hosts the model, the
-      lossless claim belongs to no one, and no one checks it. Whoever owns the acceleration owns
-      the quality.</p>
-    </section>
 
-    <section id="traininggap">
-      <h3>4.2 · The training objective nobody has built</h3>
-      <p>Ownership fixes who validates. It does not change what the draft is trained for. Every
-      published draft-training objective optimizes alignment with the target or acceptance itself:
-      distillation on target outputs in DistillSpec
-      (<a href="https://arxiv.org/abs/2310.08461">Zhou et al., 2024</a>), feature regression in
-      EAGLE-3 (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>), and the LK loss
-      that directly maximizes per-token acceptance
-      (<a href="https://arxiv.org/abs/2602.23881">Samarin et al., 2026</a>). No published objective
-      trains a draft to preserve the target's behavior on the long tail, the high-entropy domains
-      where Section 3.4 showed acceptance is weakest and verification is thinnest. The closest
-      published work operates at the verification layer instead: Judge Decoding
-      (<a href="https://arxiv.org/abs/2501.19309">Bachmann et al., 2025</a>) trains the verifier to
-      accept tokens that differ from the target but preserve quality. Quality-aware draft training
-      does not exist yet.</p>
-    </section>
+<p>This is why the ownership split in Section 3.2 produced a 0.3-point loss on one side and a 5.6-point loss on the other. When the model owner trains and validates the acceleration, the accelerated model is the released model, and there is nothing left for a serving vendor to bolt on unverified. When acceleration is assembled downstream by whoever hosts the model, the lossless claim belongs to no one, and no one checks it. Whoever owns the acceleration owns the quality.</p>
+</div>
 
-    <section id="proposal">
-      <h3>4.3 · Proposal</h3>
-      <p>The evaluation fix is smaller than the training fix, and available today: report behavior
-      alongside speed. A speculative-decoding eval should publish three numbers together,
-      acceptance rate, task correctness on the same generations, and the domain coverage of the
-      prompt set. The first is what the field already reports. The second costs one grading pass
-      over outputs the harness already produces. The third is a list of names. Section 5 shows that
-      a single afternoon and one GPU are enough to produce all three.</p>
+<div id="traininggap" class="section">
 
-      <blockquote>
-      <p><strong>Open questions.</strong> What does a draft-training objective that weights
-      long-tail behavior look like, and does it cost acceptance rate? When acceleration ships
-      inside the model, who audits the model owner's own lossless claim? And acceptance rate is
-      domain-conditional; is there a principled way to choose the domain mix of a
-      speculative-decoding eval, rather than inheriting whatever benchmarks are nearby?</p>
-      </blockquote>
-    </section>
+<h3 id="42--the-training-objective-nobody-has-built">4.2 · The training objective nobody has built</h3>
+<p>Ownership fixes who validates. It does not change what the draft is trained for. Every published draft-training objective optimizes alignment with the target or acceptance itself: distillation on target outputs in DistillSpec (<a href="https://arxiv.org/abs/2310.08461">Zhou et al., 2024</a>), feature regression in EAGLE-3 (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>), and the LK loss that directly maximizes per-token acceptance (<a href="https://arxiv.org/abs/2602.23881">Samarin et al., 2026</a>). No published objective trains a draft to preserve the target's behavior on the long tail, the high-entropy domains where Section 3.4 showed acceptance is weakest and verification is thinnest. The closest published work operates at the verification layer instead: Judge Decoding (<a href="https://arxiv.org/abs/2501.19309">Bachmann et al., 2025</a>) trains the verifier to accept tokens that differ from the target but preserve quality. Quality-aware draft training does not exist yet.</p>
+</div>
 
-    <section id="runit">
-      <h2>5 · Hands-on Lab</h2>
-      <p>Serve and verify a draft model on your own. One GPU is enough.</p>
+<div id="proposal" class="section">
 
-      <h3>5.1 · Serve an accelerated model</h3>
-      <p>One command starts Qwen3-8B with its official EAGLE-3 draft head:</p>
-      <pre><code>vllm serve Qwen/Qwen3-8B -tp 1 \
-  --speculative-config '{"model": "RedHatAI/Qwen3-8B-speculator.eagle3",
-                         "num_speculative_tokens": 3, "method": "eagle3"}'</code></pre>
-      <p>Send it a few prompts and read the acceptance metrics vLLM logs per request. The
-      <a href="https://huggingface.co/RedHatAI/Qwen3-8B-speculator.eagle3">model card</a> reports
-      an acceptance length of 2.4 to 2.8 on a single A100; your numbers should land in that range
-      on coding prompts and lower on open-ended ones. That difference is Section 3.4 showing up on
-      your own hardware.</p>
+<h3 id="43--proposal">4.3 · Proposal</h3>
+<p>The evaluation fix is smaller than the training fix, and available today: report behavior alongside speed. A speculative-decoding eval should publish three numbers together, acceptance rate, task correctness on the same generations, and the domain coverage of the prompt set. The first is what the field already reports. The second costs one grading pass over outputs the harness already produces. The third is a list of names. Section 5 shows that a single afternoon and one GPU are enough to produce all three.</p>
+<blockquote>
+<p><strong>Open questions.</strong> What does a draft-training objective that weights long-tail behavior look like, and does it cost acceptance rate? When acceleration ships inside the model, who audits the model owner's own lossless claim? And acceptance rate is domain-conditional; is there a principled way to choose the domain mix of a speculative-decoding eval, rather than inheriting whatever benchmarks are nearby?</p>
+</blockquote>
+</div>
 
-      <h3>5.2 · Compare three generations of drafts (Section 2.3)</h3>
-      <p><a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a> releases trained
-      checkpoints for EAGLE-3, DFlash, and DSpark on the same targets (Qwen3-4B/8B/14B), so the
-      three-generation comparison needs no training. Point the evaluation at each checkpoint in
-      turn and compare acceptance length on the same prompt set.</p>
-      <div class="tbd"><span class="tag">TBD</span>Exact commands and our measured table.</div>
+<div id="runit" class="section">
 
-      <h3>5.3 · Sweep the confidence threshold (Section 3.3)</h3>
-      <p>Using the DeepSpec evaluation harness, sweep <code>--confidence-threshold</code> over a
-      range of values on gsm8k prompts. For each run, keep the generated answers and grade them for
-      correctness in a separate pass. Plot acceptance rate against task accuracy.</p>
-      <div class="tbd"><span class="tag">TBD</span>Sweep script and grading script, with the
+<h2 id="5--hands-on-lab">5 · Hands-on Lab</h2>
+<p>Serve and verify a draft model on your own. One GPU is enough.</p>
+<h3 id="51--serve-an-accelerated-model">5.1 · Serve an accelerated model</h3>
+<p>One command starts Qwen3-8B with its official EAGLE-3 draft head:</p>
+<pre><code>vllm serve Qwen/Qwen3-8B -tp 1 \
+  --speculative-config &#39;{&quot;model&quot;: &quot;RedHatAI/Qwen3-8B-speculator.eagle3&quot;,
+                         &quot;num_speculative_tokens&quot;: 3, &quot;method&quot;: &quot;eagle3&quot;}&#39;</code></pre>
+<p>Send it a few prompts and read the acceptance metrics vLLM logs per request. The <a href="https://huggingface.co/RedHatAI/Qwen3-8B-speculator.eagle3">model card</a> reports an acceptance length of 2.4 to 2.8 on a single A100; your numbers should land in that range on coding prompts and lower on open-ended ones. That difference is Section 3.4 showing up on your own hardware.</p>
+<h3 id="52--compare-three-generations-of-drafts-section-23">5.2 · Compare three generations of drafts (Section 2.3)</h3>
+<p><a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a> releases trained checkpoints for EAGLE-3, DFlash, and DSpark on the same targets (Qwen3-4B/8B/14B), so the three-generation comparison needs no training. Point the evaluation at each checkpoint in turn and compare acceptance length on the same prompt set.</p>
+<div class="tbd"><span class="tag">TBD</span>Exact commands and our measured table.</div>
+
+<h3 id="53--sweep-the-confidence-threshold-section-33">5.3 · Sweep the confidence threshold (Section 3.3)</h3>
+<p>Using the DeepSpec evaluation harness, sweep <code>--confidence-threshold</code> over a range of values on gsm8k prompts. For each run, keep the generated answers and grade them for correctness in a separate pass. Plot acceptance rate against task accuracy.</p>
+<div class="tbd"><span class="tag">TBD</span>Sweep script and grading script, with the
       resulting curve.</div>
 
-      <h3>5.4 · Exercise: pick a domain nobody measured</h3>
-      <p>Swap the prompt set for one outside math and code, creative writing, an agent trace, or a
-      frontend task, and rerun 5.1. Watch what happens to acceptance length, then ask the question
-      this article ends on: if the numbers move this much when the domain changes, what else moved
-      that acceptance rate cannot see?</p>
-    </section>
+<h3 id="54--exercise-pick-a-domain-nobody-measured">5.4 · Exercise: pick a domain nobody measured</h3>
+<p>Swap the prompt set for one outside math and code, creative writing, an agent trace, or a frontend task, and rerun 5.1. Watch what happens to acceptance length, then ask the question this article ends on: if the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?</p>
+</div>
+
   </article>
 </div>
 
