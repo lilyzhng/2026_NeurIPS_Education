@@ -5,7 +5,7 @@
 - sections/00_lede.md          -> rendered into <div class="lede">
 - sections/01..05_*.md         -> concatenated article body (raw HTML blocks pass through)
 - TOC is regenerated from the <div id="..."> markers + headings in the sections
-- ../../figures/teaser_figure.png is copied next to index.html (self-contained for the ZIP)
+- ../../figures/teaser_figure.png is copied into figures/ (self-contained for the ZIP)
 
 Usage: python3 build.py
 """
@@ -54,9 +54,10 @@ toc = '\n'.join(toc_items)
 out = tpl.replace('<!--TOC-->', toc).replace('<!--CONTENT-->', content)
 open(os.path.join(HERE, 'index.html'), 'w').write(out)
 
-# --- figure next to the html so the site is self-contained ---
+# --- figures next to the html so the site is self-contained ---
 fig = os.path.join(HERE, '..', '..', 'figures', 'teaser_figure.png')
 if os.path.exists(fig):
-    shutil.copy(fig, os.path.join(HERE, 'teaser_figure.png'))
+    os.makedirs(os.path.join(HERE, 'figures'), exist_ok=True)
+    shutil.copy(fig, os.path.join(HERE, 'figures', 'teaser_figure.png'))
 
 print(f'built index.html ({len(out)} bytes), {len(toc_items)} TOC entries')

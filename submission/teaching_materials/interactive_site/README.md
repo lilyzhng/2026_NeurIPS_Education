@@ -4,7 +4,7 @@ The interactive article. **Edit the markdown, never the HTML.**
 
 ```
 sections/         # source of truth — edit these
-  00_lede.md          # the intro block under the title
+  00_lede.md         
   01_introduction.md
   02_whats_measured.md
   03_whats_missed.md
@@ -12,8 +12,8 @@ sections/         # source of truth — edit these
   05_hands_on_lab.md
 template.html     # page shell: CSS, title block, scripts. Edit only for design changes.
 build.py          # sections → pandoc → index.html (regenerates TOC, copies the figure in)
-index.html        # COMPILED OUTPUT — do not edit by hand
-teaser_figure.png # copied in by build.py so the folder is self-contained for the ZIP
+index.html        # COMPILED OUTPUT
+teaser_figure.png 
 ```
 
 ## Workflow
