@@ -2,7 +2,7 @@
 """Build index.html from sections/*.md.
 
 - template.html provides the full page shell (CSS, header, TOC placeholder, scripts)
-- sections/00_lede.md          -> rendered into <div class="lede">
+- sections/00_abstract.md       -> rendered into the intro block under the title
 - sections/01..05_*.md         -> concatenated article body (raw HTML blocks pass through)
 - TOC is regenerated from the <div id="..."> markers + headings in the sections
 - ../../figures/teaser_figure.png is copied into figures/ (self-contained for the ZIP)
@@ -31,8 +31,8 @@ def pandoc(md):
 tpl = open(os.path.join(HERE, 'template.html')).read()
 
 sections = sorted(glob.glob(os.path.join(HERE, 'sections', '*.md')))
-lede_file = [s for s in sections if s.endswith('00_lede.md')]
-body_files = [s for s in sections if not s.endswith('00_lede.md')]
+lede_file = [s for s in sections if s.endswith('00_abstract.md')]
+body_files = [s for s in sections if not s.endswith('00_abstract.md')]
 
 # --- lede ---
 lede_html = ''

@@ -4,7 +4,7 @@ The interactive article. **Edit the markdown, never the HTML.**
 
 ```
 sections/         # source of truth — edit these
-  00_lede.md       
+  00_abstract.md       
   01_introduction.md
   02_whats_measured.md
   03_whats_missed.md
