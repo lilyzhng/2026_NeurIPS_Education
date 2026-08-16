@@ -41,6 +41,8 @@ if lede_file:
 
 # --- body ---
 body_html = '\n'.join(pandoc(open(f).read()) for f in body_files)
+# sections reference ../figures/ (resolves in md preview); the built page needs figures/
+body_html = body_html.replace('src="../figures/', 'src="figures/')
 content = lede_html + '\n' + body_html
 
 # --- TOC: pair each <div id="X"> with the heading that follows it ---
