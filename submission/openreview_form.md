@@ -3,6 +3,8 @@
 NeurIPS 2026 Education Track · https://openreview.net/group?id=NeurIPS.cc/2026/Education_Track
 Deadline: **Sept 4, 2026**
 
+Interactive website: https://neurips2026-speculative-decoding.vercel.app/
+
 ---
 
 ## Title
@@ -15,30 +17,38 @@ Lily Zhang, Madison Kanna
 
 ## TLDR
 
-An interactive resource that teaches speculative decoding as the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why theory says measuring acceptance is enough, what that measurement misses (the standard harness never grades outputs; a vendor-assembled accelerated stack loses 5.6 behavior points where an owner-trained one loses 0.3), and a hands-on lab where learners sweep the confidence threshold and grade the outputs themselves.
+An interactive resource that teaches speculative decoding the way the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why the result is lossless in theory, what the standard harness never measures (token quality outside math and code; a 5.6-point behavior gap between owner-trained and vendor-assembled stacks), and a one-GPU lab where learners serve an accelerated model and grade the outputs themselves.
 
 ## The concept (≤200 words)
 
-Speculative decoding accelerates LLM inference without changing the model's output, in theory. Autoregressive decoding is memory-bandwidth bound: generating one token streams the entire weight matrix from HBM while compute sits idle, so verifying K tokens costs about as much as generating one. A small draft model proposes K tokens; the target verifies them in a single pass via rejection sampling, preserving the output distribution exactly. Because correctness is guaranteed by construction, the field evaluates on efficiency alone, and its harnesses never grade a single answer.
-
-Why now: acceleration is moving into the model itself (FP8 pre-training, MXFP4 quantization-aware training, INT4 benchmark reporting, Kimi K3's shipped speculator), every major serving provider ships a variant, and real usage (roleplay, marketing, agentic workflows) sits far from the math/code domains where verification concentrates. This resource teaches the whole arc: EAGLE-3 to DFlash to DSpark, what's measured, what's missed (a 0.3 vs 5.6-point behavior gap between owner-trained and vendor-assembled stacks), and what's next, the quality-aware draft training nobody has built. Learners finish by reproducing every number themselves on one GPU.
+The market wants more tokens: agent workflows chain dozens of model calls per task, reasoning models spend thousands of tokens thinking, and every product built on either one pays for latency twice, in compute and in user patience. The ideal answer is lossless inference acceleration, and that demand has pulled acceleration steadily deeper into the model itself: draft models evolved through three generations in two years — EAGLE-3 (~3.9 tokens/pass), DFlash (~4.4), DSpark (~5.1) — alongside FP8 pre-training, MXFP4 quantization-aware training, and Kimi K3's shipped speculator. A small draft proposes K tokens; the target verifies all K in a single forward pass at nearly the cost of one, and rejection-sampling verification guarantees the output distribution exactly. Because correctness is guaranteed by construction, evaluation collapsed onto acceptance length and tokens/s — the standard harness never grades a single answer — while the behavior gap between owner-trained and vendor-assembled stacks reaches 5.6 points on long-tail domains. Learners walk all three generations, then reproduce every number themselves on one GPU.
 
 ## Leveling and prerequisite knowledge
 
-Introductory-to-intermediate. Accessible to any engineer or student who knows that an LLM generates text one token at a time. Prerequisites: basic familiarity with transformer inference (a forward pass produces a next-token distribution). No reinforcement learning, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
+Introductory-to-intermediate. Accessible to any engineer or student who knows that an LLM generates text one token at a time. Prerequisites: basic familiarity with transformer inference (a forward pass produces a next-token distribution). No RL, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
 
 ## Learning objectives and outcomes
 
 After engaging with this resource, a learner can:
 
-- Explain WHY speculative decoding is possible (memory-bandwidth-bound decoding; verifying K tokens ≈ the cost of one), and read acceptance length correctly: accepted proposals per verification step, not saved passes.
-- Trace the EAGLE-3 → DFlash → DSpark progression, name the bottleneck each stage removes, and explain why the training objective and the evaluation metric converged onto the same number.
+- Explain why speculative decoding is possible (verifying K tokens ≈ the cost of one), and read acceptance length correctly: accepted proposals per verification step, not saved passes.
+- Walk through EAGLE-3, DFlash, and DSpark, name the bottleneck each stage removes, and explain why the training objective and the evaluation metric converged onto the same number.
 - Demonstrate hands-on that acceptance rate is not accuracy: sweep the confidence threshold in the official evaluation code, grade the outputs, and watch the two numbers move in opposite directions.
-- Articulate the domain mismatch (verification concentrates where acceptance is naturally highest, math and code, while usage concentrates elsewhere) and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
+- Articulate the domain mismatch (verification concentrates in math and code, usage concentrates elsewhere) and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
+
+## Grounding in NeurIPS Research (2022–2026)
+
+The three generations the resource teaches are themselves recent papers at NeurIPS and its sister venues:
+
+- EAGLE-3 (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline.
+- DFlash (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over 6× lossless acceleration and up to 2.5× over EAGLE-3.
+- DSpark (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60–85% faster in production.
+
+The walkthrough places them in the NeurIPS speculative-decoding line they extend — SpecTr (NeurIPS 2023), Sequoia (NeurIPS 2024), and SpecExec (NeurIPS 2024) — alongside the foundational papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (ICLR 2025), and Kimi K3 shipping the speculator as part of post-training (2026).
 
 ## Teaching material summary
 
-All materials are original and created for this track. (1) An interactive self-contained HTML article walking the What's Measured / What's Missed / What's Next arc, built around the four-stage walkthrough figure and an interactive component with adjustable draft length. (2) A one-afternoon, one-GPU lab: reproduce the reported EAGLE-3 acceptance length (2.4–2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints (EAGLE-3 vs DFlash vs DSpark) on one prompt set, sweep --confidence-threshold while grading outputs for correctness, and a pick-a-domain exercise rerunning the measurements outside math and code. (3) A short video walkthrough recorded against the interactive site. All figures are original; numbers cite the DSpark paper and the LosslessBench evaluation.
+All materials are original and created for this track. (1) An interactive self-contained HTML article following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length. (2) A hands-on lab on a single GPU: reproduce the reported EAGLE-3 acceptance length (2.4–2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints (EAGLE-3 vs DFlash vs DSpark) on one prompt set, sweep --confidence-threshold while grading outputs for correctness, and a pick-a-domain exercise outside math and code. (3) A video walkthrough recorded from the site. All materials, including the interactive article, lab scripts, and the video walkthrough, will be publicly available through the interactive website.
 
 ---
 
