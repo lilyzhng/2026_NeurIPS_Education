@@ -4,13 +4,13 @@
 
 What does lossless acceleration mean for an LLM? Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.
 
-<pre><code>time -&gt;   0s        1s        2s        3s        4s   ...   9s
-          +-+----------------------------------------+
-VANILLA   |A|harness |is |the |system |surrounding |a |base |model|  9.0s
-          +-+----------------------------------------+
-            +---------------------+--------------------+
-SPECULATIVE |A harness is the system|surrounding a base model|       3.3s
-            +---------------------+--------------------+</code></pre>
+<pre><code>time -&gt;   0s        1s        2s        3s        4s        5s        6s        7s        8s        9s
+          +-+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--+
+VANILLA   |It|does|not|do|to|dwell|on|dreams|and|forget|to|live|  9.0s
+          +-+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+--+
+            +------------------------+--------------------------------+
+SPECULATIVE |It does not do to dwell |on dreams and forget to live|     3.3s
+            +------------------------+--------------------------------+</code></pre>
 <figcaption><strong>Figure 1 (mock).</strong> One token at a time vs draft and verify. The same sentence is decoded by vanilla autoregressive decoding and by DFlash speculative decoding. (Animated, ~10 second loop)</figcaption>
 
 How much faster exactly, and how do we measure it? Table 1 defines the six metrics. Three of them are deciding factors: drafting time, verification time, and acceptance length. The other three, decoding speedup, per-token latency, and tokens per second, are computed from these three factors.
@@ -188,12 +188,12 @@ As we can tell, DFlash 2 raises acceptance length. The two additions produce 21%
 
 With all 5 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.
 
-<pre><code>time -&gt;  0s        1s        2s        3s        4s   ...   9s
-VANILLA  |A|harness|is|the|system|surrounding|a|base|model|    9.0s   230 tok/s
-EAGLE-3  |A harness|is the system|surrounding|a|base model|    5.5s   ~375 tok/s   τ 2.66
-DFLASH   |A harness is the system|surrounding a base model|    3.3s   ~630 tok/s   τ 3.11
-DSPARK   |A harness is the system|surrounding|a base model|    (speed to be measured)   τ 3.72
-DFLASH 2 |A harness is the system|surrounding a base model|    (to be measured)</code></pre>
+<pre class="wide"><code>time -&gt;  0s        1s        2s        3s        4s        5s        6s        7s        8s        9s
+VANILLA  |It|does|not|do|to|dwell|on|dreams|and|forget|to|live|  9.0s   230 tok/s
+EAGLE-3  |It does not|do to dwell|on dreams and|forget to live|                              5.5s   ~375 tok/s   τ 2.66
+DFLASH   |It does not do to dwell on dreams and forget to live|                              3.3s   ~630 tok/s   τ 3.11
+DSPARK   |It does not do to dwell on dreams|and forget to live|          (speed to be measured)   τ 3.72
+DFLASH 2 |It does not do to dwell on dreams and forget to live|                              (to be measured)</code></pre>
 <figcaption><strong>Figure 6 (mock).</strong> The full decoding race.</figcaption>
 
 <div class="table-wrap">
