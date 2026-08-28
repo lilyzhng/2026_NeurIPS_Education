@@ -70,7 +70,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
                 = p(x)                       # same as the target's probability
 </pre></div>
 
-To summarize, speculative decoding speed comes down to three factors: (1) drafting time, (2) verification time, and (3) acceptance length. In the following section, we'll go through the state-of-the-art of model architectures and how each model improves these deciding factors.
+To summarize, speculative decoding speed comes down to three factors: **(1) drafting time, (2) verification time, and (3) acceptance length.** In the following section, we'll go through the state-of-the-art of model architectures and how each model improves these deciding factors.
 
 </div>
 
