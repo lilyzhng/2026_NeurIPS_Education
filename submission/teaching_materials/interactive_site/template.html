@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speculative Decoding: What's Measured, What's Missed, and What's Next</title>
+<title>Speculative Decoding: What Lossless Means, What It Doesn't, and How to Test It</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@400;500;600;700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Fragment+Mono:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+@font-face { font-family: 'ET Book'; font-style: normal; font-weight: 400; font-display: swap; src: url('https://lilyzh.ng/assets/fonts/et-book-roman.woff') format('woff'); }
+@font-face { font-family: 'ET Book'; font-style: normal; font-weight: 700; font-display: swap; src: url('https://lilyzh.ng/assets/fonts/et-book-bold.woff') format('woff'); }
+@font-face { font-family: 'ET Book'; font-style: italic; font-weight: 400; font-display: swap; src: url('https://lilyzh.ng/assets/fonts/et-book-italic.woff') format('woff'); }
+</style>
 <script>
 MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 </script>
@@ -23,7 +28,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       --line-strong: rgba(0,0,0,0.20);
       --code-bg: rgba(0,0,0,0.055);
       --block-bg: rgba(0,0,0,0.035);
-      --serif: Georgia, "Times New Roman", "Noto Serif", serif;
+      --serif: 'ET Book', 'Iowan Old Style', Palatino, Georgia, serif;
       --sans: Inter, system-ui, -apple-system, sans-serif;
       --mono: "Fragment Mono", ui-monospace, "SF Mono", Menlo, monospace;
     }
@@ -59,19 +64,20 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
     .toc { position: sticky; top: 3rem; align-self: start; }
     .toc-title {
-      font: 500 0.6875rem/1 var(--sans);
+      font: 500 0.6875rem/1 var(--serif);
       text-transform: uppercase; letter-spacing: 0.12em;
       color: var(--faint); margin-bottom: 1.4rem;
     }
     .toc ul { list-style: none; margin: 0; }
     .toc li { margin-bottom: 0.85rem; }
-    .toc li.sub { margin-bottom: 0.5rem; }
-    .toc li.sub a { padding-left: 2.1em; font-size: 0.8125rem; color: rgba(0,0,0,0.36); }
+    .toc li.sub { margin-left: 0.45rem; margin-bottom: 0; padding-bottom: 0.45rem; }
+    .toc li.sub:has(+ li:not(.sub)) { padding-bottom: 0.85rem; } /* larger gap after the last sub */
+    .toc li.sub a { font-size: 0.75rem; padding-left: 1.5rem; }
     .toc li:not(.sub) a { font-weight: 600; color: rgba(0,0,0,0.55); }
     .toc a {
       display: block;
       position: relative;
-      font: 500 0.875rem/1.35 var(--sans);
+      font: 500 0.875rem/1.35 var(--serif);
       color: rgba(0,0,0,0.42);
       padding-left: 0.85rem;
       text-decoration: none;
@@ -90,27 +96,28 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     }
 
     h1 {
-      font-family: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+      font-family: 'ET Book', 'Iowan Old Style', Palatino, Georgia, serif;
       font-size: clamp(2rem, 4.5vw, 2.55rem);
       font-weight: 400; letter-spacing: -0.012em; line-height: 1.12;
       color: var(--ink); margin-bottom: 1.5rem;
     }
     .authors {
-      display: flex; align-items: center; gap: 0.6rem;
-      font: 500 0.9375rem/1.3 var(--sans); color: var(--text);
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font: 500 0.9375rem/1.3 var(--serif); color: var(--text);
       margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line);
     }
-    .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: #111; color: #fff;
-      display: inline-flex; align-items: center; justify-content: center;
-      font: 600 0.75rem/1 var(--sans); letter-spacing: 0.02em; flex: none;
-    }
-    .authors .role { color: var(--muted); font-weight: 400; }
+
+    /* distill-style byline strip: authors | affiliations | published */
+    .authors { gap: 4rem; row-gap: 1rem; padding-top: 1rem; padding-bottom: 1rem; border-top: 1px solid var(--line); flex-wrap: wrap; }
+    .byline-col { display: flex; flex-direction: column; gap: 0.1rem; }
+    .byline-col .byline-label { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+    .byline-col .byline-value { font-weight: 600; color: var(--ink); }
+    .byline-col .byline-value.light { font-weight: 400; }
+    .byline-col .byline-value + .byline-value { margin-top: 0.45rem; }
 
     .lede { font-size: 1.2rem; line-height: 1.55; color: var(--ink); margin-bottom: 2.5rem; }
     .lede p { margin-bottom: 1rem; }
-    .lede ul { margin: 0 0 1rem 1.5rem; }
+    .lede ul, .lede ol { margin: 0 0 1rem 1.5rem; }
     .lede li { margin-bottom: 0.5rem; }
     h2 {
       font-family: var(--serif); font-size: 1.55rem; font-weight: 700;
@@ -135,12 +142,12 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       background: var(--block-bg);
       padding: 1rem 1.25rem;
       margin: 1.5rem 0 2rem;
-      font: 400 0.875rem/1.6 var(--sans);
+      font: 400 0.875rem/1.6 var(--serif);
       color: var(--muted);
     }
     .tbd .tag {
       display: inline-block;
-      font: 600 0.6875rem/1 var(--sans);
+      font: 600 0.6875rem/1 var(--serif);
       letter-spacing: 0.08em; text-transform: uppercase;
       color: #a84b28; margin-right: 0.5rem;
     }
@@ -151,7 +158,10 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
     }
     figure.mid img { max-width: 640px; }
-    figcaption { font: 400 0.8125rem/1.55 var(--sans); color: var(--muted); margin-top: 0.7rem; text-align: left; }
+    figcaption { font: 400 0.9375rem/1.55 var(--serif); color: var(--muted); margin: 0.7rem 0 2rem; text-align: left; }
+    /* caption hugs its block when it follows one directly */
+    pre:has(+ figcaption), .table-wrap:has(+ figcaption), .sptc-py:has(+ figcaption) { margin-bottom: 0.25rem; }
+    pre + figcaption, .table-wrap + figcaption, .sptc-py + figcaption { margin-top: 0.6rem; }
     .fig2 { display: flex; gap: 12px; }
     .fig2 img { width: 50%; min-width: 0; }
     @media (max-width: 640px) { .fig2 { flex-direction: column; } .fig2 img { width: 100%; } }
@@ -167,8 +177,79 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     }
     pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
 
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0 2rem; }
+    table { width: 100%; border-collapse: collapse; font: 400 1.05rem/1.5 var(--serif); }
+    th, td {
+      padding: 0.6rem 1.25rem 0.6rem 0;
+      text-align: left; vertical-align: top; border-bottom: 1px solid var(--line);
+    }
+    th { font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line-strong); font-size: 1.05rem; letter-spacing: 0.02em; }
+    tbody tr:last-child td { border-bottom: 1px solid var(--line-strong); }
+    td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+    td .num { font-family: var(--mono); color: var(--ink); font-weight: 600; font-size: 0.875rem; }
+
     ::selection { background: #2437e7; color: #fff; }
     ::-moz-selection { background: #2437e7; color: #fff; }
+
+    /* Column rails carried over from the Posts index (Cognition-style) */
+    .layout { position: relative; }
+    .layout::before, .layout::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 6rem;
+      width: 2px;
+      background:
+        linear-gradient(#b3b8c2, #b3b8c2) 0 0 / 2px 14px no-repeat,
+        linear-gradient(#e7e9ee, #e7e9ee) 0.5px 14px / 1px calc(100% - 14px) no-repeat;
+    }
+    .layout::before { left: calc(2rem - 6px); }
+    .layout::after { left: calc(220px + 3.5rem); }
+    @media (max-width: 940px) {
+      .layout::before, .layout::after { display: none; }
+    }
+
+    /* sptc-py code blocks (from alexzhang13.github.io spec-ptc) */
+    .sptc-py {
+      --sp-bg: #12291d; --sp-panel: #0e2016; --sp-line: #2a4534;
+      --sp-text: #d7e8dd; --sp-dim: #a9c4b2; --sp-faint: #6f8f7c;
+      --sp-spec: #c39bff; --sp-run: #6cb0ff; --sp-ok: #46c364; --sp-amber: #d29922;
+      --sp-run-soft: rgba(108,176,255,0.07); --sp-ok-soft: rgba(70,195,100,0.12);
+      --sp-mono: "IBM Plex Mono", "Fragment Mono", ui-monospace, Menlo, Consolas, monospace;
+      margin: 1.15rem 0 1.4rem; border: 1px solid var(--sp-line); border-radius: 10px;
+      background: var(--sp-bg); overflow: hidden; color: var(--sp-text); max-width: 100%;
+    }
+    .sptc-py pre {
+      margin: 0; padding: 12px 14px; background: none; color: var(--sp-text);
+      border-radius: 0; font: 400 12.5px/1.7 var(--sp-mono); white-space: pre; overflow-x: auto;
+    }
+    .sptc-py-chrome { display: flex; align-items: center; gap: 8px; padding: 7px 12px; background: var(--sp-panel); border-bottom: 1px solid var(--sp-line); }
+    .sptc-py-dots { display: flex; gap: 5px; }
+    .sptc-py-dots i { display: block; width: 7px; height: 7px; border-radius: 50%; background: var(--sp-line); }
+    .sptc-py-lang { font: 500 10.5px/1 var(--sp-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sp-dim); }
+    .sptc-py-copy { margin-left: auto; font: 600 10.5px/1 var(--sp-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--sp-dim); background: none; border: 1px solid var(--sp-line); border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+    .sptc-py-copy:hover { color: var(--sp-text); border-color: var(--sp-dim); }
+    .sptc-py-copy.ok { color: var(--sp-ok); border-color: var(--sp-ok); background: var(--sp-ok-soft); }
+    .sptc-py-body { padding: 8px 0 10px; overflow-x: auto; }
+    .sptc-py-line { display: grid; grid-template-columns: 42px minmax(0,1fr); padding: 0 14px 0 0; font: 400 12.5px/1.7 var(--sp-mono); white-space: pre; }
+    .sptc-py.no-ln .sptc-py-line { grid-template-columns: minmax(0,1fr); padding: 0 14px; }
+    .sptc-py-line:hover { background: var(--sp-run-soft); }
+    .sptc-py-ln { user-select: none; text-align: right; padding-right: 14px; color: var(--sp-faint); font-variant-numeric: tabular-nums; }
+    .sptc-py-src { display: block; min-width: 0; background: none; color: var(--sp-text); padding: 0; font: inherit; white-space: pre; }
+    .sptc-py .tok-kw { color: var(--sp-spec); font-weight: 500; }
+    .sptc-py .tok-fn { color: var(--sp-run); }
+    .sptc-py .tok-str { color: var(--sp-ok); }
+    .sptc-py .tok-num { color: var(--sp-amber); }
+    .sptc-py .tok-bool { color: var(--sp-amber); font-weight: 500; }
+    .sptc-py .tok-cmt { color: var(--sp-faint); font-style: italic; }
+    .sptc-py .tok-dec { color: var(--sp-spec); }
+    .sptc-py .tok-type { color: var(--sp-run); }
+    .sptc-py .tok-op, .sptc-py .tok-punct { color: var(--sp-dim); }
+    .sptc-py .tok-interp { color: var(--sp-spec); }
+    .sptc-py[data-lang="bibtex"] .tok-str { color: var(--sp-text); }
+
+    .refs { font-size: 0.9375rem; color: var(--text); }
+    .refs li { margin-bottom: 0.75rem; }
 </style>
 </head>
 <body>
@@ -182,11 +263,30 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
   </aside>
 
   <article>
-    <h1>Speculative Decoding: What's Measured, What's Missed, and What's Next</h1>
+    <h1>Speculative Decoding: What Lossless Means, What It Doesn't, and How to Test It</h1>
     <div class="authors">
-      <span class="avatar">LZ</span>
-      <span class="who">Lily Zhang</span>
-      <span class="role">Draft V2 · August 15, 2026 · NeurIPS 2026 Education Track</span>
+      <span class="byline-col">
+        <span class="byline-label">Authors</span>
+        <span class="byline-value">Lily Zhang</span>
+        <span class="byline-value">Madison Kanna</span>
+      </span>
+      <span class="byline-col">
+        <span class="byline-label">Affiliations</span>
+        <span class="byline-value light">Independent</span>
+        <span class="byline-value light">Independent</span>
+      </span>
+      <span class="byline-col">
+        <span class="byline-label">Published</span>
+        <span class="byline-value light">August 15, 2026</span>
+      </span>
+      <span class="byline-col">
+        <span class="byline-label">Venue</span>
+        <span class="byline-value light">NeurIPS 2026 Education Track</span>
+      </span>
+      <span class="byline-col">
+        <span class="byline-label">Version</span>
+        <span class="byline-value light">V3</span>
+      </span>
     </div>
 
     <!--CONTENT-->
@@ -194,6 +294,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 </div>
 
 <script>
+  // Scroll-spy: highlight the active section in the sidebar TOC
   (function () {
     const links = [...document.querySelectorAll('.toc a')];
     const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
@@ -214,6 +315,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     if (targets.length) setActive(targets[0].id);
   })();
 </script>
+
+<script src="sptc-code.js"></script>
 
 </body>
 </html>

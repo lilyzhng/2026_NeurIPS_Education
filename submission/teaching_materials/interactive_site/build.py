@@ -49,6 +49,8 @@ content = lede_html + '\n' + body_html
 toc_items = []
 for m in re.finditer(r'<div id="([^"]+)" class="section">\s*\n*\s*<h([23])[^>]*>(.*?)</h\2>', body_html, re.S):
     sid, level, text = m.group(1), m.group(2), re.sub(r'<[^>]+>', '', m.group(3)).strip()
+    if level == '3':
+        text = re.split(r'\s+[—–-]\s+|:\s+', text, maxsplit=1)[0]  # TOC: drop the qualifier
     cls = ' class="sub"' if level == '3' else ''
     toc_items.append(f'      <li{cls}><a href="#{sid}">{text}</a></li>')
 toc = '\n'.join(toc_items)

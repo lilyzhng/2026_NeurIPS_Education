@@ -17,3 +17,4 @@ local/
 *.aux
 *.out
 *.log
+.vercel/
