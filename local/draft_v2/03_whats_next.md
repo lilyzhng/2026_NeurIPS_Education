@@ -4,19 +4,59 @@
 
 ## 定稿
 
-（待写）
+Section 2 brought awareness of lossy inference. In this section we go through the exciting new directions for speculative decoding: (3.1) multimodal speculative decoding, (3.2) speculative decoding going from tokens to tool calls, and (3.3) inference acceleration ownership.
+
+### 3.1 Multimodal Speculative Decoding
+
+Everything so far is language-model speculative decoding. We want the same acceleration for multimodal models: vision-language models decode their answers autoregressively like any LLM, and autoregressive image generators pay the same sequential cost at a larger scale.
+
+But visual data carries information at a very different density from language, and the papers doing this transfer name one wall on each side:
+
+* **Input: the context is huge.** VLM latency comes from "large model sizes and long multimodal contexts" ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)), and the prefill stage "is dominated by visual tokens whose count scales with image resolution and video length, inflating both compute and memory, especially the KV cache" ([SpecVLM, 2025](https://arxiv.org/abs/2509.11815)). The whole point of a draft model is being small, but a small model still has to consume the same visual context.
+* **Output: the tokens are ambiguous.** "Visual AR models frequently assign uniformly low probabilities to tokens, hampering the performance of speculative decoding" ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)): many neighboring patches are equally plausible, the probability mass spreads flat, and the draft's top guess rarely matches. LANTERN names this token selection ambiguity.
+
+The input side is where published fixes are furthest along. A small language model drafting for a VLM has no vision encoder, so it guesses visually grounded tokens from text alone, and methods designed for text-only LLMs measurably degrade on multimodal inputs, across 600 samples and ten algorithms in the first VLM speculative decoding benchmark ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The fixes give the drafter eyes:
+
+* **MASSV** connects the target's own vision encoder to the draft model through a lightweight projector, then distills on the target's responses: up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting ([MASSV, 2025](https://arxiv.org/abs/2505.10526)).
+* **ViSpec** trains a vision-aware drafter and reports the first substantial speedups on VLM decoding ([ViSpec, NeurIPS 2025](https://neurips.cc/virtual/2025/poster/115277)).
+
+On the output side, two answers to token selection ambiguity split exactly along Section 2's line:
+
+* **Speculative Jacobi Decoding** stays lossless: a probabilistic parallel iteration, training-free, about 2x on text-to-image generation with FID preserved ([Teng et al., 2024](https://arxiv.org/abs/2410.01699)).
+* **LANTERN** relaxes acceptance to break through the ambiguity, and pays 3.53 FID for the speedup ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)).
+
+The speed-for-distribution trade Section 2 measured in text arrives in images unchanged. The boundary travels with the technique: every new modality gets its own version of the lossless question, and needs its own benchmark to answer it.
+
+### 3.2 From Speculating Tokens to Speculating Tool Calls
+
+The draft-verify idea is not limited to tokens. In an agent harness, the expensive unit is the tool call: a sub-LLM query or an API call blocks the loop while the model is still writing the code that invokes it. Speculative programmatic tool calling applies the same bet one level up ([Zhang, 2026](https://alexzhang13.github.io/blog/2026/spec-ptc/)): while the harness is still generating, a shadow REPL executes the partial code, and any tool call whose inputs are already determined is launched ahead of time. Verification becomes a cache lookup instead of rejection sampling: when the real code runs, a speculated call that matches returns its cached result, and one that does not match is discarded and re-executed. On the OOLONG benchmark with Qwen3-30B, this overlap recovers 1 to 1.2x end to end.
+
+Section 1's three factors carry over to this level: pre-launching is the drafting time, the cache check is the verification time, and the fraction of speculated calls that get used is the acceptance length of the agent world.
+
+### 3.3 Should the Model Layer Own Inference Acceleration?
+
+Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 ([DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training ([OpenAI, 2025](https://arxiv.org/abs/2508.10925)). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)).
+
+Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer ([LosslessBench](https://lilyzh.ng/writing/losslessbench/), Figure 6).
+
+![Figure 13](figures_v4/fig13_ownership_migration.png)
+Figure 13. The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From [LosslessBench](https://lilyzh.ng/writing/losslessbench/) Figure 6, boundary redrawn as steps.
+
+This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.
+
+<!-- 弃用备份(9/2,Lily:提出的问题必须有解答,不写 unanswered limitation):quality-aware draft training 段(DistillSpec/EAGLE/LK losses/Judge Decoding 引用),原文见 git 历史 -->
 
 ## 旧版素材（原 What's Next 全文，改写来源）
 
 > <div id="next" class="section">
 > 
-> ## 4 · What's Next?
+> ## 3 · What's Next?
 > 
 > </div>
 > 
 > <div id="ownership" class="section">
 > 
-> ### 4.1 · Acceleration is moving into training
+> ### 3.1 · Acceleration is moving into training
 > 
 > The industry is already answering part of the question, not by fixing the eval but by moving the acceleration to where it can be validated before release. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 ([DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)). gpt-oss shipped MXFP4 weights with quantization-aware training ([OpenAI, 2025](https://arxiv.org/abs/2508.10925)). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 ships the speculator itself: the draft model is fine-tuned as part of post-training, against the deployment-precision target, and validated before the model leaves the factory ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)).
 > 
@@ -29,15 +69,15 @@
 > 
 > <div id="traininggap" class="section">
 > 
-> ### 4.2 · The training objective nobody has built
+> ### 3.2 · The training objective nobody has built
 > 
-> Ownership fixes who validates. It does not change what the draft is trained for. Every published draft-training objective optimizes alignment with the target or acceptance itself: distillation on target outputs in DistillSpec ([Zhou et al., 2024](https://arxiv.org/abs/2310.08461)), feature regression in EAGLE-3 ([Li et al., 2025](https://arxiv.org/abs/2503.01840)), and the LK loss that directly maximizes per-token acceptance ([Samarin et al., 2026](https://arxiv.org/abs/2602.23881)). No published objective trains a draft to preserve the target's behavior on the long tail, the high-entropy domains where Section 3.4 showed acceptance is weakest and verification is thinnest. The closest published work operates at the verification layer instead: Judge Decoding ([Bachmann et al., 2025](https://arxiv.org/abs/2501.19309)) trains the verifier to accept tokens that differ from the target but preserve quality. Quality-aware draft training does not exist yet.
+> This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described. One thing remains open: the draft's training objective. Every published draft-training objective optimizes alignment with the target or acceptance itself: distillation on target outputs in DistillSpec ([Zhou et al., 2024](https://arxiv.org/abs/2310.08461)), feature regression in EAGLE-3 ([Li et al., 2025](https://arxiv.org/abs/2503.01840)), and the LK loss that directly maximizes per-token acceptance ([Samarin et al., 2026](https://arxiv.org/abs/2602.23881)). No published objective trains a draft to preserve the target's behavior on the long tail, the high-entropy domains where Section 3.4 showed acceptance is weakest and verification is thinnest. The closest published work operates at the verification layer instead: Judge Decoding ([Bachmann et al., 2025](https://arxiv.org/abs/2501.19309)) trains the verifier to accept tokens that differ from the target but preserve quality. Quality-aware draft training does not exist yet.
 > 
 > </div>
 > 
 > <div id="proposal" class="section">
 > 
-> ### 4.3 · Proposal
+> ### 3.3 · Proposal
 > 
 > The evaluation fix is smaller than the training fix, and available today: report behavior alongside speed. A speculative-decoding eval should publish three numbers together, acceptance rate, task correctness on the same generations, and the domain coverage of the prompt set. The first is what the field already reports. The second costs one grading pass over outputs the harness already produces. The third is a list of names. Section 5 shows that a single afternoon and one GPU are enough to produce all three.
 > 
