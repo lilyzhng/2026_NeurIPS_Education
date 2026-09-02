@@ -18,3 +18,10 @@ local/
 *.out
 *.log
 .vercel/
+
+# Exception: the article drafts + our own figures go to GitHub (2026-09-01)
+!local/
+local/*
+!local/draft_v2/
+local/draft_v2/related_work/
+local/draft_v2/.claude/
