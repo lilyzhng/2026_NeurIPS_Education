@@ -20,12 +20,16 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 - Rejection sampling: the draft proposes dog 80% of the time, but the target accepts only 5 out of 8 dog proposals (p/q = 0.5/0.8) and resamples the rest, so dog still comes out 50% of the time.
 - A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.
 
+<figure>
 <img src="figures/fig7_pet_distribution.png" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
+</figure>
 <figcaption><strong>Figure 7 (mock).</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
 Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)
 
+<figure>
 <img src="figures/fig7_peeking.png" alt="A scheduler peeking at the token at position k+1 to decide whether to verify position k" />
+</figure>
 <figcaption><strong>Figure 8 (mock).</strong> Peeking at the token at k+1.</figcaption>
 
 DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:
@@ -73,7 +77,9 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 </div>
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
+<figure>
 <img src="figures/fig8_openrouter_treemap.png" alt="Treemap of OpenRouter traffic by task type: the domains tested by speculative decoding papers cover 17% of token usage" />
+</figure>
 <figcaption><strong>Figure 9 (mock).</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by spec methods.</figcaption>
 
 <u>So does lossless hold on the 83% domains/tasks that have never been measured?</u>
@@ -94,7 +100,9 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 - Coding: Terminal-Bench pass rate.
 - Agent workflow: tau3-bench long-horizon agent tasks, action match rate.
 
+<figure class="mid">
 <img src="figures/fig9_radar_five_domains.png" alt="Radar chart of GLM 5.2 quality across five domains, original vs accelerated serving" />
+</figure>
 <figcaption><strong>Figure 10.</strong> GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. Figure 11 shows one failure: the accelerated deployment renders a clean page and omits the component the prompt asked for. The other four domains showed no significant gap.
@@ -108,7 +116,9 @@ We identified a significant gap in the frontend design evaluation under a vendor
 
 We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.
 
+<figure>
 <img src="figures/fig11_threshold_sweep.png" alt="Task accuracy as the DeepSpec confidence threshold is relaxed from strict to loose" />
+</figure>
 <figcaption><strong>Figure 12 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
 
 </div>

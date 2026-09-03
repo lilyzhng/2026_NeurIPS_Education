@@ -540,11 +540,15 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <li>Rejection sampling: the draft proposes dog 80% of the time, but the target accepts only 5 out of 8 dog proposals (p/q = 0.5/0.8) and resamples the rest, so dog still comes out 50% of the time.</li>
 <li>A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.</li>
 </ul>
+<figure>
 <img src="figures/fig7_pet_distribution.png" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
+</figure>
 <figcaption><strong>Figure 7 (mock).</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
 <p>Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)</p>
+<figure>
 <img src="figures/fig7_peeking.png" alt="A scheduler peeking at the token at position k+1 to decide whether to verify position k" />
+</figure>
 <figcaption><strong>Figure 8 (mock).</strong> Peeking at the token at k+1.</figcaption>
 
 <p>DSpark (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:</p>
@@ -587,7 +591,9 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 </div>
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
+<figure>
 <img src="figures/fig8_openrouter_treemap.png" alt="Treemap of OpenRouter traffic by task type: the domains tested by speculative decoding papers cover 17% of token usage" />
+</figure>
 <figcaption><strong>Figure 9 (mock).</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by spec methods.</figcaption>
 
 <p><u>So does lossless hold on the 83% domains/tasks that have never been measured?</u></p>
@@ -605,7 +611,9 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <li>Coding: Terminal-Bench pass rate.</li>
 <li>Agent workflow: tau3-bench long-horizon agent tasks, action match rate.</li>
 </ul>
+<figure class="mid">
 <img src="figures/fig9_radar_five_domains.png" alt="Radar chart of GLM 5.2 quality across five domains, original vs accelerated serving" />
+</figure>
 <figcaption><strong>Figure 10.</strong> GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 <p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. Figure 11 shows one failure: the accelerated deployment renders a clean page and omits the component the prompt asked for. The other four domains showed no significant gap.</p>
@@ -617,7 +625,9 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <figcaption><strong>Figure 11.</strong> The same model, the same frontend prompt, left is the original model, right is with inference acceleration.</figcaption>
 
 <p>We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.</p>
+<figure>
 <img src="figures/fig11_threshold_sweep.png" alt="Task accuracy as the DeepSpec confidence threshold is relaxed from strict to loose" />
+</figure>
 <figcaption><strong>Figure 12 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
 
 </div>
@@ -656,7 +666,9 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 
 <h3 id="33-should-the-lab-own-inference-acceleration">3.3 Should the Lab Own Inference Acceleration?</h3>
 <p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<figure>
 <img src="figures/fig13_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
+</figure>
 <figcaption><strong>Figure 13 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
 
 <p>See Figure 13. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
