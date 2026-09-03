@@ -50,7 +50,7 @@ def main() -> None:
         f'''  <div class="pane"><div class="head">
     <span>{names[i]}</span><span class="stats" id="s{i}">0.0s &middot; 0 tok</span>
     <button class="tgl" id="t{i}" onclick="toggle({i})" disabled>Render</button></div>
-    <pre id="p{i}"></pre><iframe id="f{i}" style="display:none"></iframe>
+    <pre id="p{i}"></pre><div class="rwrap" id="w{i}" style="display:none"><iframe id="f{i}"></iframe></div>
     <div class="badge" id="b{i}"></div></div>'''
         for i in range(4))
 
@@ -61,16 +61,18 @@ def main() -> None:
   .grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:8px; padding:8px; height:calc(100vh - 48px); box-sizing:border-box; }
   .pane { position:relative; border:1px solid #ddd; border-radius:10px; background:#1e2a1c; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
   .badge { display:none; position:absolute; right:10px; bottom:10px; background:rgba(20,28,18,.92); color:#fff;
-           border:1px solid #4a5a44; border-radius:12px; padding:8px 16px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); }
-  .badge .big { font-size:30px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
-  .badge .sub { font-size:12px; color:#cfd8c8; margin-top:3px; }
+           border:1px solid #4a5a44; border-radius:12px; padding:6px 12px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); }
+  .badge .big { font-size:22px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+  .badge .sub { font-size:11px; color:#cfd8c8; margin-top:3px; }
   .head { padding:6px 10px; font-size:13px; font-weight:600; color:#fff; display:flex; gap:10px; align-items:center; }
   .head .stats { margin-left:auto; font-weight:400; font-size:12px; color:#b9c7b2; font-variant-numeric:tabular-nums; }
   .tgl { font-size:11px; padding:2px 10px; border-radius:8px; border:1px solid #667; background:#2b3a28; color:#fff; cursor:pointer; }
   .tgl:disabled { opacity:.35; cursor:default; }
   pre { flex:1; margin:0; padding:8px 10px; overflow-y:auto; font-family:ui-monospace,monospace; font-size:10.5px;
         line-height:1.4; color:#e8e8e3; white-space:pre-wrap; word-break:break-word; min-height:0; }
-  iframe { flex:1; border:0; background:#1e2a1c; min-height:0; }
+  .rwrap { flex:1; position:relative; min-height:0; overflow:hidden; }
+  .rwrap iframe { position:absolute; top:0; left:0; width:200%; height:200%; border:0; background:#1e2a1c;
+                  transform:scale(.5); transform-origin:0 0; }
   .bar { height:36px; display:flex; align-items:center; justify-content:center; gap:12px; }
   button.replay { font-size:13px; padding:5px 16px; border-radius:8px; border:1px solid #bbb; background:#fff; cursor:pointer; }
   .note { font-size:12px; color:#666; }
@@ -101,13 +103,14 @@ function fillBadge(i) {
 }
 function showRender(i, on) {
   document.getElementById('p'+i).style.display = on ? 'none' : 'block';
-  const f = document.getElementById('f'+i); f.style.display = on ? 'block' : 'none';
+  document.getElementById('w'+i).style.display = on ? 'block' : 'none';
+  const f = document.getElementById('f'+i);
   if (on && !f.srcdoc) f.srcdoc = extractDoc(T[i]);
   if (on) fillBadge(i);
   document.getElementById('b'+i).style.display = on ? 'block' : 'none';
   document.getElementById('t'+i).textContent = on ? 'Code' : 'Render';
 }
-function toggle(i) { showRender(i, document.getElementById('f'+i).style.display === 'none'); }
+function toggle(i) { showRender(i, document.getElementById('w'+i).style.display === 'none'); }
 function run() {
   timers.forEach(clearInterval); timers = [];
   [0,1,2,3].forEach(i => {

@@ -53,9 +53,9 @@ def main() -> None:
   .grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:8px; padding:8px; height:calc(100vh - 48px); box-sizing:border-box; }
   .pane { position:relative; border:1px solid #ddd; border-radius:10px; background:#1e2a1c; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
   .badge { display:none; position:absolute; right:10px; bottom:10px; background:rgba(20,28,18,.92); color:#fff;
-           border:1px solid #4a5a44; border-radius:12px; padding:8px 16px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); z-index:2; }
-  .badge .big { font-size:30px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
-  .badge .sub { font-size:12px; color:#cfd8c8; margin-top:3px; }
+           border:1px solid #4a5a44; border-radius:12px; padding:6px 12px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); z-index:2; }
+  .badge .big { font-size:22px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+  .badge .sub { font-size:11px; color:#cfd8c8; margin-top:3px; }
   .head { padding:6px 10px; font-size:13px; font-weight:600; color:#fff; display:flex; gap:10px; align-items:center; }
   .head .stats { margin-left:auto; font-weight:400; font-size:12px; color:#b9c7b2; font-variant-numeric:tabular-nums; }
   .tgl { font-size:11px; padding:2px 10px; border-radius:8px; border:1px solid #667; background:#2b3a28; color:#fff; cursor:pointer; }
@@ -64,7 +64,7 @@ def main() -> None:
         line-height:1.5; color:#e8e8e3; white-space:pre-wrap; word-break:break-word; min-height:0; }
   .story { flex:1; overflow-y:auto; min-height:0; padding:14px 18px; }
   .story .sheet { max-width:520px; margin:0 auto; background:#f7f4ec; border-radius:6px; padding:26px 30px;
-                  font-family:Georgia,'Times New Roman',serif; font-size:13.5px; line-height:1.65; color:#2b2b26;
+                  font-family:Georgia,'Times New Roman',serif; font-size:12.5px; line-height:1.65; color:#2b2b26;
                   box-shadow:0 6px 20px rgba(0,0,0,.35); }
   .story .sheet h2 { font-size:16px; margin:0 0 14px; }
   .story .sheet p { margin:0 0 12px; }

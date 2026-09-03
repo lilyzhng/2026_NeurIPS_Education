@@ -68,15 +68,11 @@ modal run modal_dflash_offline.py            # DFlash lane, see note below
 python3 build_race_demo.py                   # assembles the demo from your outputs
 ```
 
-**Prompt (Figure 16):** You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
-
 ![Figure 16](figures_v4/fig16_race_demo_frontend.jpg)
-**Figure 16.** The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s.
-
-**Prompt (Figure 17):** Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
+**Figure 16.** The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s. Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
 
 ![Figure 17](figures_v4/fig17_race_demo_creative.jpg)
-**Figure 17.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.
+**Figure 17.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
 
 Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
