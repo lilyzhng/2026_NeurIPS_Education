@@ -70,15 +70,15 @@ python3 build_race_demo.py                   # assembles the demo from your outp
 
 **Prompt (Figure 16):** You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
 
-<figure class="mid">
-<img src="figures/fig16_race_demo_frontend.jpg" alt="Four panes racing on the calendar brief: vanilla 8.9s, EAGLE-3 4.8s, DFlash 3.3s, DSpark 3.6s, each rendering its own calendar" />
+<figure class="wide">
+<iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
 <figcaption><strong>Figure 16.</strong> The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s.</figcaption>
 
 **Prompt (Figure 17):** Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
 
-<figure class="mid">
-<img src="figures/fig17_race_demo_creative.jpg" alt="Four panes racing on the gladiator brief: vanilla 16.9s, EAGLE-3 13.6s, DFlash 9.2s, DSpark 9.8s, each showing its typeset story" />
+<figure class="wide">
+<iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
 <figcaption><strong>Figure 17.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.</figcaption>
 
