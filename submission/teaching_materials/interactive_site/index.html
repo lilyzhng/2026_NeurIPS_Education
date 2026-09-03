@@ -672,7 +672,6 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <li><strong>Text-only drafters miss the image entirely.</strong> The standard drafter is a small language model with no component for vision input (<a href="https://arxiv.org/abs/2505.10526">MASSV, 2025</a>).</li>
 <li><strong>Small VLM does not close the gap.</strong> ViSpec's hypothesis is that a large VLM filters redundant image information layer by layer, while a small model struggles to do the same, so vision capability degrades disproportionately as the drafter shrinks (<a href="https://neurips.cc/virtual/2025/poster/115277">ViSpec, NeurIPS 2025</a>).</li>
 </ul>
-<p>Either way, the draft diverges from the vision-conditioned target and acceptance drops.</p>
 <p>The early findings converge on the same design choice: share the target's visual representations with the drafter, rather than training vision capacity into a small model from scratch. MASSV connects the target's own vision encoder to the draft model through a lightweight projector and distills on the target's responses, reaching up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting (<a href="https://arxiv.org/abs/2505.10526">MASSV, 2025</a>). ViSpec trains a vision-aware drafter and reports the first substantial speedups on VLM decoding (<a href="https://neurips.cc/virtual/2025/poster/115277">ViSpec, NeurIPS 2025</a>).</p>
 </div>
 
