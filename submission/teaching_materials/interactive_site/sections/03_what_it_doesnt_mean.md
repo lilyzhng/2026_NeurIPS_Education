@@ -101,7 +101,7 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 
 <div id="losslessbench" class="section">
 
-### 2.3 Case study: LosslessBench
+### 2.3 Introducing Lossless Bench
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math, we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 

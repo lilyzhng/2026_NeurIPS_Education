@@ -11,7 +11,7 @@
 In this teaching material, we have designed content progressively. Each section builds on the previous one:
 
 1. <u>What lossless means.</u> How does speculative decoding work? Why is it lossless in theory?
-2. <u>What it doesn't mean.</u> Does lossless inference hold true beyond the math and coding domains?
+2. <u>What it doesn't mean.</u> Introducing Losslessbench to test beyond the math and coding domains.
 3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
 4. <u>How to train, serve, and test it.</u> Run a speculative decoding model with SGLang.
 
