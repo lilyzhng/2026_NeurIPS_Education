@@ -8,24 +8,16 @@ Section 2 brought awareness of lossy inference. In this section we go through th
 
 ### 3.1 Multimodal Speculative Decoding
 
-Everything so far is language-model speculative decoding. We want the same acceleration for multimodal models: vision-language models decode their answers autoregressively like any LLM, and autoregressive image generators pay the same sequential cost at a larger scale.
+Everything so far is language-model speculative decoding, but a growing share of decode traffic is not text. Vision-language models sit under computer-use agents and video understanding, where the model reads screenshots or frames on every step of a loop, and autoregressive image generators decode thousands of visual tokens per sample. All of them generate one token at a time, so all of them pay the sequential cost that motivated speculative decoding in the first place, often at longer sequence lengths than text.
 
-But visual data carries information at a very different density from language, and the papers doing this transfer name one wall on each side:
+The technique does not transfer for free. On MMSpec, the first VLM speculative decoding benchmark (600 samples, ten algorithms), methods designed for text-only LLMs measurably degrade on multimodal inputs ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The degradation has one cause on the input side and one on the output side:
 
-* **Input: the context is huge.** VLM latency comes from "large model sizes and long multimodal contexts" ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)), and the prefill stage "is dominated by visual tokens whose count scales with image resolution and video length, inflating both compute and memory, especially the KV cache" ([SpecVLM, 2025](https://arxiv.org/abs/2509.11815)). The whole point of a draft model is being small, but a small model still has to consume the same visual context.
-* **Output: the tokens are ambiguous.** "Visual AR models frequently assign uniformly low probabilities to tokens, hampering the performance of speculative decoding" ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)): many neighboring patches are equally plausible, the probability mass spreads flat, and the draft's top guess rarely matches. LANTERN names this token selection ambiguity.
+* **Input: visual context is expensive to consume.** Visual token counts scale with image resolution and video length, inflating both compute and KV cache ([SpecVLM, 2025](https://arxiv.org/abs/2509.11815)). A draft model is only useful because it is small, but a small drafter still has to process the same visual context as the target, and a text-only drafter has no vision encoder at all, so it guesses visually grounded tokens blind.
+* **Output: visual tokens are ambiguous.** In autoregressive image generation, many neighboring patches are equally plausible, so the target spreads probability mass nearly flat and the draft's top guess rarely matches the target's sample. LANTERN names this token selection ambiguity ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)).
 
-The input side is where published fixes are furthest along. A small language model drafting for a VLM has no vision encoder, so it guesses visually grounded tokens from text alone, and methods designed for text-only LLMs measurably degrade on multimodal inputs, across 600 samples and ten algorithms in the first VLM speculative decoding benchmark ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The fixes give the drafter eyes:
+The input side already has working fixes, and they share one idea: let the drafter reuse the target's visual understanding instead of re-earning it. MASSV connects the target's own vision encoder to the draft model through a lightweight projector and distills on the target's responses, reaching up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting ([MASSV, 2025](https://arxiv.org/abs/2505.10526)). ViSpec trains a vision-aware drafter and reports the first substantial speedups on VLM decoding ([ViSpec, NeurIPS 2025](https://neurips.cc/virtual/2025/poster/115277)).
 
-* **MASSV** connects the target's own vision encoder to the draft model through a lightweight projector, then distills on the target's responses: up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting ([MASSV, 2025](https://arxiv.org/abs/2505.10526)).
-* **ViSpec** trains a vision-aware drafter and reports the first substantial speedups on VLM decoding ([ViSpec, NeurIPS 2025](https://neurips.cc/virtual/2025/poster/115277)).
-
-On the output side, two answers to token selection ambiguity split exactly along Section 2's line:
-
-* **Speculative Jacobi Decoding** stays lossless: a probabilistic parallel iteration, training-free, about 2x on text-to-image generation with FID preserved ([Teng et al., 2024](https://arxiv.org/abs/2410.01699)).
-* **LANTERN** relaxes acceptance to break through the ambiguity, and pays 3.53 FID for the speedup ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)).
-
-The speed-for-distribution trade Section 2 measured in text arrives in images unchanged. The boundary travels with the technique: every new modality gets its own version of the lossless question, and needs its own benchmark to answer it.
+The output side is the more instructive one, because the two published answers to token selection ambiguity split exactly along Section 2's line. Speculative Jacobi Decoding stays lossless: a probabilistic parallel iteration, training-free, about 2x on text-to-image generation with FID preserved ([Teng et al., 2024](https://arxiv.org/abs/2410.01699)). LANTERN relaxes acceptance to break through the ambiguity and pays 3.53 FID for the speedup ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)). The speed-for-distribution trade is not a text phenomenon; it reappears wherever the technique lands. Every new modality will re-run the same lossless question, and will need its own benchmark to answer it, with FID playing the role that task accuracy played in text.
 
 ### 3.2 From Speculating Tokens to Speculating Tool Calls
 
