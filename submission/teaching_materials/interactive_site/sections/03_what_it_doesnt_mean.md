@@ -6,7 +6,7 @@ Section 1 proved lossless in theory: verification ensures the output distributio
 
 </div>
 
-<div id="papers" class="section">
+<div id="papers" class="section" data-toc="2.1 What it doesn't mean in papers">
 
 ### 2.1 What lossless doesn't mean in papers
 
@@ -48,7 +48,7 @@ DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this
 
 </div>
 
-<div id="deployment" class="section">
+<div id="deployment" class="section" data-toc="2.2 Lossless in deployment">
 
 ### 2.2 Lossless in the paper does not mean lossless in deployment
 

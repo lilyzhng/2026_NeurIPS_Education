@@ -47,9 +47,11 @@ content = lede_html + '\n' + body_html
 
 # --- TOC: pair each <div id="X"> with the heading that follows it ---
 toc_items = []
-for m in re.finditer(r'<div id="([^"]+)" class="section">\s*\n*\s*<h([23])[^>]*>(.*?)</h\2>', body_html, re.S):
-    sid, level, text = m.group(1), m.group(2), re.sub(r'<[^>]+>', '', m.group(3)).strip()
-    if level == '3':
+for m in re.finditer(r'<div id="([^"]+)" class="section"(?: data-toc="([^"]*)")?>\s*\n*\s*<h([23])[^>]*>(.*?)</h\3>', body_html, re.S):
+    sid, custom, level, text = m.group(1), m.group(2), m.group(3), re.sub(r'<[^>]+>', '', m.group(4)).strip()
+    if custom:
+        text = custom  # data-toc overrides the heading text in the TOC
+    elif level == '3':
         text = re.split(r'\s+[—–-]\s+|:\s+', text, maxsplit=1)[0]  # TOC: drop the qualifier
     cls = ' class="sub"' if level == '3' else ''
     toc_items.append(f'      <li{cls}><a href="#{sid}">{text}</a></li>')

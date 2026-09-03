@@ -268,13 +268,13 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#dflash2">1.4 DFlash 2 (2026)</a></li>
       <li class="sub"><a href="#race">1.5 Case study</a></li>
       <li><a href="#notmean">2. What it doesn't mean</a></li>
-      <li class="sub"><a href="#papers">2.1 What lossless doesn't mean in papers</a></li>
-      <li class="sub"><a href="#deployment">2.2 Lossless in the paper does not mean lossless in deployment</a></li>
+      <li class="sub"><a href="#papers">2.1 What it doesn't mean in papers</a></li>
+      <li class="sub"><a href="#deployment">2.2 Lossless in deployment</a></li>
       <li class="sub"><a href="#losslessbench">2.3 Case study</a></li>
       <li><a href="#next">3. What's Next</a></li>
       <li class="sub"><a href="#multimodal">3.1 Multimodal Speculative Decoding</a></li>
-      <li class="sub"><a href="#toolcalls">3.2 From Speculating Tokens to Speculating Tool Calls</a></li>
-      <li class="sub"><a href="#ownership">3.3 Should the Lab Own Inference Acceleration?</a></li>
+      <li class="sub"><a href="#toolcalls">3.2 Speculating tool calls</a></li>
+      <li class="sub"><a href="#ownership">3.3 Inference acceleration ownership</a></li>
       <li><a href="#train">4. How to Train + Serve</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#citation">Citation</a></li>
@@ -527,7 +527,7 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <p>Section 1 proved lossless in theory: verification ensures the output distribution is aligned with the target model's. But when does it hold or not hold? In this section we go through the boundary of that guarantee: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
 </div>
 
-<div id="papers" class="section">
+<div id="papers" class="section" data-toc="2.1 What it doesn't mean in papers">
 
 <h3 id="21-what-lossless-doesnt-mean-in-papers">2.1 What lossless doesn't mean in papers</h3>
 <p>Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:</p>
@@ -567,7 +567,7 @@ decision independent of tk               admission of tk depends on tk itself
 <p><u>Algorithmic losslessness holds only with careful handling: a relaxed acceptance rule or a peeking scheduler shifts the output distribution, and DSpark caught its own case. We need to be more careful when deploying the spec models. So in deployment, what else does the lossless guarantee depend on?</u></p>
 </div>
 
-<div id="deployment" class="section">
+<div id="deployment" class="section" data-toc="2.2 Lossless in deployment">
 
 <h3 id="22-lossless-in-the-paper-does-not-mean-lossless-in-deployment">2.2 Lossless in the paper does not mean lossless in deployment</h3>
 <p>In production, there are many configurations a user or company can adjust, and some of them affect the lossless guarantee. vLLM and SGLang, the two major engines, put it this way:</p>
@@ -676,7 +676,7 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <p>The early findings converge on the same design choice: share the target's visual representations with the drafter, rather than training vision capacity into a small model from scratch. MASSV connects the target's own vision encoder to the draft model through a lightweight projector and distills on the target's responses, reaching up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting (<a href="https://arxiv.org/abs/2505.10526">MASSV, 2025</a>). ViSpec trains a vision-aware drafter and reports the first substantial speedups on VLM decoding (<a href="https://neurips.cc/virtual/2025/poster/115277">ViSpec, NeurIPS 2025</a>).</p>
 </div>
 
-<div id="toolcalls" class="section">
+<div id="toolcalls" class="section" data-toc="3.2 Speculating tool calls">
 
 <h3 id="32-from-speculating-tokens-to-speculating-tool-calls">3.2 From Speculating Tokens to Speculating Tool Calls</h3>
 <p>Speculative decoding so far operates on tokens. The same predict-then-verify idea extends one level up, to tool calls in agents. For an agent, the expensive unit is the tool call: a sub-LLM query or an API request takes seconds, while the code that issues it is still being generated.</p>
@@ -685,7 +685,7 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <p><u>If agent workloads keep growing, this direction will likely follow the trajectory of token-level speculative decoding: better speculation policies, acceptance rate as a first-class metric, and a shared benchmark to standardize the speedup claims.</u></p>
 </div>
 
-<div id="ownership" class="section">
+<div id="ownership" class="section" data-toc="3.3 Inference acceleration ownership">
 
 <h3 id="33-should-the-lab-own-inference-acceleration">3.3 Should the Lab Own Inference Acceleration?</h3>
 <p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>

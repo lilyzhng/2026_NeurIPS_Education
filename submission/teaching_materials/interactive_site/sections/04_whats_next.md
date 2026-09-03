@@ -27,7 +27,7 @@ The early findings converge on the same design choice: share the target's visual
 
 </div>
 
-<div id="toolcalls" class="section">
+<div id="toolcalls" class="section" data-toc="3.2 Speculating tool calls">
 
 ### 3.2 From Speculating Tokens to Speculating Tool Calls
 
@@ -41,7 +41,7 @@ Speculative programmatic tool calling is a concrete instantiation ([Zhang, 2026]
 
 </div>
 
-<div id="ownership" class="section">
+<div id="ownership" class="section" data-toc="3.3 Inference acceleration ownership">
 
 ### 3.3 Should the Lab Own Inference Acceleration?
 
