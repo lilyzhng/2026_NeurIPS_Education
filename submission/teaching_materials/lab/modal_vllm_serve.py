@@ -90,7 +90,9 @@ def _build_cmd() -> list[str]:
         "--host", "0.0.0.0",
         "--port", str(PORT),
         "--served-model-name", "default",
-        "--max-model-len", "32768" if mode == "dflash" else "8192",
+        # 32768 for ALL modes: retail tau3 episodes overflow 8192 mid-conversation
+        # (ContextWindowExceededError), and A/B arms must share the same ctx cap.
+        "--max-model-len", "32768",
         "--gpu-memory-utilization", "0.85" if mode == "dflash" else "0.90",
         # Agentic harnesses (tau3, Terminal-Bench) send tool_choice="auto";
         # hermes is vLLM's parser for Qwen3 tool calls.

@@ -126,3 +126,21 @@
 - **Lesson**: redeploy 后先对 server 连打 probe 到**连续多次稳定通过**
   (不是一次),或干脆等 `modal app logs` 出现新容器的 startup complete
   再放 harness。infra episode 按 handoff 规则:两 arm 都重跑。
+
+## R14 · vanilla task 0-4 稳定 infra:两臂 ctx 不对称(9/3 晚)
+
+- **Assumption**(R13 的定性): 8 个 infra episode 全是过渡窗口瞬态,server
+  稳定后重跑即可。
+- **Action**: 补跑 vanilla 0,1,2,3,4,7。
+- **Result**: task 7 = 1.0,但 0-4 **再次**全挂。单任务前台复跑抓到真凶:
+  `ContextWindowExceededError — maximum context length is 8192 tokens ...
+  prompt contains at least 8193 input tokens`。vanilla 8192 vs dflash 32768,
+  retail episode 中途就超 8k(Qwen3 thinking token 膨胀快)。
+- **错在哪**: ① R13 把两种不同病因(瞬态 400 + ctx 溢出)合并成一个结论,
+  没有对"重跑后仍失败"的子集单独诊断;② A/B 两臂 serve 配置本就不对称
+  (ctx cap 不同),实验设计缺一次配置 diff。
+- **Fix**: `modal_vllm_serve.py` 所有 mode 统一 `--max-model-len 32768`,
+  vanilla 重部署,等 `/v1/models` 连续 5 次报 32768 再补跑 0-4。
+- **Lesson**: **A/B 实验先 diff 两臂的全部 serve 参数,任何不对称都要么
+  消除要么写进报告**;同一批失败里混着两种病因时,重跑只能洗掉瞬态,
+  洗不掉配置病。
