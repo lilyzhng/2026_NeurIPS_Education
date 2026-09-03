@@ -113,3 +113,16 @@
   tool_call 后才重跑。
 - **Lesson**: **验收探针要模拟下游客户端的真实请求形状(带 tools/tool_choice),
   不是只发一条 chat。**烧钱量:~0(episode 未启动就被拒)。
+
+## R13 · R9 重犯:redeploy 后 7 分钟就开 harness,过渡窗口吃掉 8 个 episode(9/3 晚)
+
+- **Assumption**: probe 通过 = 容器已稳定。
+- **Action**: 15:41 重部署两 arm(加 tool flags),15:48 双 arm 开跑。
+- **Result**: vanilla task 0-4、dflash task 2-4 共 8 个 episode 400 → infra
+  error(每个重试 4 次全部落在窗口内,msgs=0)。窗口过后同样请求 200 OK,
+  dflash 后续 7 个 episode 全部正常出 reward。
+- **错在哪**: R9 明写"deploy 后 drain 45s+ 并验证容器身份",我只等了 probe
+  通过就开跑;两个 arm 的模型加载时长不同,窗口比 probe 看到的更长。
+- **Lesson**: redeploy 后先对 server 连打 probe 到**连续多次稳定通过**
+  (不是一次),或干脆等 `modal app logs` 出现新容器的 startup complete
+  再放 harness。infra episode 按 handoff 规则:两 arm 都重跑。
