@@ -24,7 +24,7 @@ There is an emerging research direction on this. Speculative Interaction Agents 
 
 Speculative programmatic tool calling is a concrete example ([Zhang, 2026](https://alexzhang13.github.io/blog/2026/spec-ptc/)): while the model is still writing its code, a second interpreter runs the partial code and launches any tool call whose inputs are already determined. When the code runs for real, a matching pre-launched call returns its stored result, and a mismatch is discarded and re-executed, so a wrong guess costs only the wasted early launch. On the OOLONG benchmark with Qwen3-30B, this recovers 1 to 1.2x end to end.
 
-Section 1's three factors carry over unchanged: pre-launching is the drafting, the comparison against the real call is the verification, and the fraction of pre-launched calls that get used is the acceptance rate of the agent world.
+As agent workloads keep growing, we expect this direction to mature the way token-level speculative decoding did: smarter speculation policies, acceptance rate as a first-class metric, and eventually a shared benchmark that keeps the speedup claims honest.
 
 ### 3.3 Should the Model Layer Own Inference Acceleration?
 
