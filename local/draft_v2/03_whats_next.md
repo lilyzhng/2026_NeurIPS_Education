@@ -10,7 +10,7 @@ Section 2 brought awareness of lossy inference. In this section we go through th
 
 Everything so far is language model-based speculative decoding, but a growing share of decoding needs is not only text. Vision-language models sit under computer-use agents and image/video understanding for front-end design, where the model reads screenshots on every agent step of the loop. The autoregressive vision-language model decodes thousands of visual tokens per sample.
 
-So the question is: can we expect the speculative decoding design for language models to work the same way for vision-language models, multimodal models, or large audio models?
+So the question is: can we expect the speculative decoding design for language models to work the same way for vision-language models?
 
 The answer so far: it does not transfer for free. On MMSpec, the first VLM speculative decoding benchmark (600 samples, ten algorithms), methods designed for text-only LLMs measurably degrade on multimodal inputs ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The degradation has one cause on the input side and one on the output side:
 
