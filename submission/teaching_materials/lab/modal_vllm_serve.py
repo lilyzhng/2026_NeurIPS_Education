@@ -82,14 +82,22 @@ app = modal.App(os.environ.get("APP_NAME", "neurips-spec-lab"))
 def _build_cmd() -> list[str]:
     mode = os.environ.get("SPEC_MODE", SPEC_MODE).strip().lower()
     target = os.environ.get("TARGET_MODEL", TARGET_MODEL)
+    # dflash mirrors the passing offline config (modal_dflash_offline.py, verbatim
+    # from vLLM's QWEN3_DFLASH acceptance test): trust-remote-code, 32k ctx (also
+    # inside spec config), gpu-mem 0.85, max-num-seqs 128. See failures.md R10.
     cmd = [
         "vllm", "serve", target,
         "--host", "0.0.0.0",
         "--port", str(PORT),
         "--served-model-name", "default",
-        "--max-model-len", "8192",
-        "--gpu-memory-utilization", "0.90",
+        "--max-model-len", "32768" if mode == "dflash" else "8192",
+        "--gpu-memory-utilization", "0.85" if mode == "dflash" else "0.90",
+        # Agentic harnesses (tau3, Terminal-Bench) send tool_choice="auto";
+        # hermes is vLLM's parser for Qwen3 tool calls.
+        "--enable-auto-tool-choice", "--tool-call-parser", "hermes",
     ]
+    if mode == "dflash":
+        cmd += ["--trust-remote-code", "--max-num-seqs", "128"]
     if os.environ.get("ENFORCE_EAGER") == "1":
         cmd += ["--enforce-eager"]
     if mode != "vanilla":
@@ -98,6 +106,8 @@ def _build_cmd() -> list[str]:
         draft = os.environ.get("DRAFT_MODEL", DRAFTS[mode])
         spec = {"model": draft, "method": mode,
                 "num_speculative_tokens": int(NUM_SPEC_TOKENS[mode])}
+        if mode == "dflash":
+            spec["max_model_len"] = 32768
         cmd += ["--speculative-config", json.dumps(spec)]
     print(f"[vllm] mode={mode} target={target}", flush=True)
     print(" ".join(cmd), flush=True)

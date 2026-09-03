@@ -85,3 +85,31 @@
 - **注意**: e2e 测试跑的是**离线 LLM 类**,不是 `vllm serve` 的 API server 路径;两条路径的默认 flag(cuda graph / sampler / enforce_eager)不同。"配方"还差最后一段路径对齐。
 - **Lesson**: 抄作业要抄到**执行路径**一致,不只是模型/参数一致。TODO: 对照 e2e runner 的 LLM 构造参数补 serve flags,或直接在 vLLM repo 搜 serve 模式的 dflash 示例。
 - **后续(9/3 12:33)**: `--enforce-eager` 也没救活 — engine core 初始化仍然失败(crash loop,app 已停)。enforce-eager 假设证伪。下一步按 Lily 定的 fallback:用 z-lab 自家 `dflash` 包(Transformers backend)serve。
+
+## R11 · serve 路径对齐修复,gate 通过(9/3 晚)
+
+- **Assumption**(handoff Path 1): offline 配方与 serve 命令差的字段补齐后 serve 能活。
+- **Action**: 对照 `modal_dflash_offline.py` 逐字段 diff,发现差的不是 2 个而是 4 个:
+  `--trust-remote-code`、`--max-model-len 32768`(顶层 + spec config 内)、
+  `--gpu-memory-utilization 0.85`(serve 原 0.90)、`--max-num-seqs 128`。
+  全部移植进 `modal_vllm_serve.py` dflash 分支,部署一次
+  (app `neurips-spec-lab-dflash`)。
+- **Result**: engine init 干净,startup complete。Gate:τ ≈ 2.53(309 accepted /
+  202 drafts + 1)≥ 2 ✓;probe ~170 tok/s over HTTP > vanilla serve ~137 ✓。
+  R10 的 device-side assert 消失。
+- **Lesson**: R5/R7 的"逐字段抄配方"落实到底就通了;handoff 里"exactly two
+  fields"的说法本身漏了两个字段,diff 要自己做,不信转述。
+
+## R12 · tau3 首跑 10/10 infra error:server 没开 tool calling(9/3 晚)
+
+- **Assumption**: serve gate(健康 + 生成 + τ)通过 = harness 可以直接打。
+- **Action**: vanilla arm 跑 retail task 0-9。
+- **Result**: 10/10 infra error,秒挂。litellm.BadRequestError:`"auto" tool
+  choice requires --enable-auto-tool-choice and --tool-call-parser to be set`。
+- **错在哪**: gate 只验了纯生成路径,没验 harness 实际用的 API 面(tool
+  calling)。agentic harness 的 smoke test 应该带 tools 字段。
+- **Fix**: serve 命令加 `--enable-auto-tool-choice --tool-call-parser hermes`
+  (Qwen3 用 hermes parser),两 arm 重部署;带 tools 的 probe 两边均返回正确
+  tool_call 后才重跑。
+- **Lesson**: **验收探针要模拟下游客户端的真实请求形状(带 tools/tool_choice),
+  不是只发一条 chat。**烧钱量:~0(episode 未启动就被拒)。
