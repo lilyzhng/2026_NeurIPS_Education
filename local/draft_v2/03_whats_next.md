@@ -18,9 +18,7 @@ The early fixes share one idea: let the drafter reuse the target's visual unders
 
 ### 3.2 From Speculating Tokens to Speculating Tool Calls
 
-Everything so far speculates tokens inside one model. In an agent, tokens are no longer where the time goes: the model writes code that calls tools, and each tool call, a sub-LLM query or an API request, takes seconds while the code that invokes it is still being written.
-
-So the question is: can the same draft-verify idea speed up tool calls?
+Everything so far talks about speculating tokens. What about going one level higher, to speculating tool calls for agents? In an agent, the expensive unit is the tool call: a sub-LLM query or an API request takes seconds while the code that invokes it is still being written.
 
 One early answer is speculative programmatic tool calling ([Zhang, 2026](https://alexzhang13.github.io/blog/2026/spec-ptc/)). While the model is still writing its code, a second interpreter runs the partial code in the background, and any tool call whose inputs are already fully determined is launched ahead of time. When the finished code runs for real, each pre-launched call is compared against the call the code actually makes: a match returns the stored result immediately, a mismatch is discarded and the call runs again. A wrong guess costs only the wasted early launch. On the OOLONG benchmark with Qwen3-30B, this overlap recovers 1 to 1.2x end to end.
 
