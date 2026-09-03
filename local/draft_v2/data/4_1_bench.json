@@ -1,0 +1,76 @@
+{
+ "vanilla": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 3.65,
+    "completion_tokens": 512,
+    "tokens_per_s": 140.4
+   },
+   {
+    "run": 1,
+    "seconds": 3.67,
+    "completion_tokens": 512,
+    "tokens_per_s": 139.4
+   },
+   {
+    "run": 2,
+    "seconds": 3.64,
+    "completion_tokens": 512,
+    "tokens_per_s": 140.7
+   },
+   {
+    "run": 3,
+    "seconds": 3.61,
+    "completion_tokens": 512,
+    "tokens_per_s": 141.6
+   },
+   {
+    "run": 4,
+    "seconds": 3.61,
+    "completion_tokens": 512,
+    "tokens_per_s": 141.8
+   }
+  ],
+  "spec_accept_length": 0.0,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-02T22:04:48"
+ },
+ "dspark": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 2.32,
+    "completion_tokens": 512,
+    "tokens_per_s": 220.6
+   },
+   {
+    "run": 1,
+    "seconds": 2.28,
+    "completion_tokens": 512,
+    "tokens_per_s": 224.1
+   },
+   {
+    "run": 2,
+    "seconds": 2.37,
+    "completion_tokens": 512,
+    "tokens_per_s": 215.6
+   },
+   {
+    "run": 3,
+    "seconds": 2.38,
+    "completion_tokens": 512,
+    "tokens_per_s": 214.7
+   },
+   {
+    "run": 4,
+    "seconds": 2.38,
+    "completion_tokens": 512,
+    "tokens_per_s": 215.4
+   }
+  ],
+  "spec_accept_length": 2.9,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-02T22:31:16"
+ }
+}

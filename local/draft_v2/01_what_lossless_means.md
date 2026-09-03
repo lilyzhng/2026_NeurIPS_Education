@@ -2,7 +2,7 @@
 
 ## Section 1 · 定稿（synced from Desktop v4, 2026-09-01）
 
-What does lossless acceleration mean for an LLM? serving Qwen3-8B on one B200, SGLang, vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), \~630 tokens per second, cutting it under 3 minutes. See figure 1 comparison.
+What does lossless acceleration mean for an LLM? Serving Qwen3-8B on one H100, SGLang, vanilla model decodes about 140 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, about twelve minutes of decoding. With a DSpark draft model, conversational text decodes about 1.5x faster (see Section 4.1 for live demo), \~215 tokens per second, cutting it under 8 minutes. See figure 1 comparison.
 
 ```text
 time ->   0s        1s        2s        3s        4s        5s        6s        7s        8s        9s
@@ -31,15 +31,15 @@ How much faster exactly, and how do we measure it? Table 1 defines the six metri
 ![Table 1](figures_v4/table1_metrics.png)
 **Table 1 (mock). The metrics of speculative decoding.** How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).
 
-Below is a math walk-through of achieving 2.3x decoding speedup.
+Below is a math walk-through with our measured numbers (H100, Section 4.1 reproduces them):
 
 ```text
-T_verify = 4.3 ms   # one target forward pass (Qwen3-8B at 230 tok/s ≈ 4.3 ms/token)
-T_draft  = 1.3 ms   # drafting cost
-τ        = 3 tokens # accepted per verification pass
+L_target = 7.1 ms   # one target forward pass (Qwen3-8B at 140 tok/s ≈ 7.1 ms/token)
+τ        = 2.9     # tokens accepted per verification pass (measured)
+L        = 4.6 ms   # per-token latency with the DSpark draft (measured, 215 tok/s)
 &nbsp;
-L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
-η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
+T_draft + T_verify = L × τ ≈ 13.5 ms   # one draft+verify cycle: ~1.9 vanilla forwards
+η = L_target / L = 7.1 / 4.6 ≈ 1.5x    # pay 1.9 forwards, get 2.9 tokens
 ```
 
 The above wraps up the measurement of speculative decoding speed. But how is it lossless in theory? How does it work exactly? The answer is the verification step. The target model checks every draft token against its own probabilities and accepts or rejects each one, a rule called rejection sampling. The output follows the target model's own distribution. Here is how rejection sampling works in pseudocode:
