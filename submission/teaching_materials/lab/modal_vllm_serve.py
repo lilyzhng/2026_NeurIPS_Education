@@ -90,6 +90,8 @@ def _build_cmd() -> list[str]:
         "--max-model-len", "8192",
         "--gpu-memory-utilization", "0.90",
     ]
+    if os.environ.get("ENFORCE_EAGER") == "1":
+        cmd += ["--enforce-eager"]
     if mode != "vanilla":
         if mode not in DRAFTS:
             raise ValueError(f"unknown SPEC_MODE={mode!r} (vanilla|eagle3|dflash|dspark)")
