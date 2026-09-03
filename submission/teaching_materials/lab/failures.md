@@ -76,3 +76,11 @@
 2. **先抄作业再创新**:engine 的验收测试 > 发布方 README > 自己猜。
 3. **用户约束是硬边界**:撞墙报告,不绕行。
 4. GPU 试错的每一轮,先问"这轮要证伪哪个具体假设" — 答不出来就不配跑。
+
+## R10 · dflash z-lab 官方配方在 serve 路径挂掉(9/3 下午)
+
+- **Assumption**: 抄 vLLM e2e 测试原配方(z-lab b16 + 16 tokens)= 必通。
+- **Action**: stable 0.28 `vllm serve` + 该配置。
+- **Result**: 引擎初始化时 `CUDA error: device-side assert triggered`。
+- **注意**: e2e 测试跑的是**离线 LLM 类**,不是 `vllm serve` 的 API server 路径;两条路径的默认 flag(cuda graph / sampler / enforce_eager)不同。"配方"还差最后一段路径对齐。
+- **Lesson**: 抄作业要抄到**执行路径**一致,不只是模型/参数一致。TODO: 对照 e2e runner 的 LLM 构造参数补 serve flags,或直接在 vLLM repo 搜 serve 模式的 dflash 示例。

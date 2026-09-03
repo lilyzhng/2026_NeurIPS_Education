@@ -1,4 +1,4 @@
-# 4. How to Train, Serve, and Test It
+# 4. Hands-On Lab
 
 <!-- 定位（Round 29 → 2026-09-02 wavemind 重设计）：读者复现正文的结果。组织原则一句话："every exercise fills in one of the article's own blanks" — 没有一个练习是为了动手而动手。SGLang serving（8/23 决定弃 vLLM），DeepSpec 现成 checkpoints（EAGLE-3 / DFlash / DSpark，Qwen3-4B/8B/14B + Gemma），target 用 Qwen3-8B 对齐 Section 1 的 230 tok/s → 2.3x 数字。不加 multimodal（VLM 对比只做 optional 脚注）。设计讨论全文：Thoughts/artifacts/20260902-neurips-section4-handson-design.md -->
 
@@ -9,7 +9,7 @@
   [ ] 真跑通 4.1（DeepSpec checkpoint + SGLang 拉起验证），跑图脚本 = lab starter code，一鱼两吃
 -->
 
-## 定稿（4.1 written 2026-09-02; numbers from our H100 runs, see data/4_1_bench.json）
+## 定稿（4.1-4.4, 2026-09-02/03; H100 实测数据见 data/）
 
 ### 4.1 Serve your first accelerated model
 
@@ -40,55 +40,47 @@ vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
   '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-Our 5 runs on one H100:
-
-| run | vanilla (tok/s) | DSpark (tok/s) |
-|---|---|---|
-| 1 | 135.1 | 230.3 |
-| 2 | 136.2 | 234.9 |
-| 3 | 135.0 | 223.9 |
-| 4 | 138.1 | 234.0 |
-| 5 | 136.9 | 233.9 |
-| **median** | **136.2** | **233.9 (1.72x)** |
+Across 5 runs on one H100, the speedup is stable (mean ± std): vanilla 136.3 ± 1.3 tok/s, DSpark 231.4 ± 4.5 tok/s — η ≈ 1.70x. (Per-run table removed 2026-09-03; replaced by Figure 14 (`fig14_runs_h100.svg`) on the site.)
 
 vLLM does not report acceptance length or per-token latency directly. Both come from our measurements: latency from the throughput above, and τ from the server's `/metrics` counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:
 
 ```text
-L_target = 1 / 136.2 tok/s ≈ 7.3 ms         # latency of the target (vanilla) model, per token
-L_dspark = 1 / 233.9 tok/s ≈ 4.3 ms         # latency with the DSpark draft, per token
+L_target = 1 / 136.3 tok/s ≈ 7.3 ms         # latency of the target (vanilla) model, per token
+L_dspark = 1 / 231.4 tok/s ≈ 4.3 ms         # latency with the DSpark draft, per token
 τ        ≈ 3.5                             # acceptance length
 &nbsp;
-T_draft + T_verify = L_dspark × τ ≈ 15.0 ms # cost of one draft+verify pass
-η = L_target / L_dspark ≈ 1.72x             # speedup
+T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
+η = L_target / L_dspark ≈ 1.70x             # speedup
 ```
 
 <!-- 作者注(不面向读者,2026-09-03 实测): 三个 DeepSpec checkpoint 只有 DSpark 双引擎可服。EAGLE-3 两边都挂(SGLang 无 Qwen3 形状 eagle3 类;vLLM 报 weights [4096,20480] vs config [4096,12288] shape mismatch,疑 checkpoint 发布件 bug,待提 issue)。DFlash SGLang 拒载(markov_rank=0),vLLM relabel 后可载但 τ≈1.03 draft 全拒(4.2 表里 0.8x 的原因)。4.3 用 SGLang 因为只有它有 accept-threshold 旋钮。 -->
 
-## 设计稿（2026-09-02 定 — 4.2-4.4 待跑通后成文）
+<!-- 设计稿存档(2026-09-02): 叙事弧 = 先爽(serve/race)、再打脸(threshold twist)、最后开放(unmeasured domain);依赖链零重复搭建;race tool 贯穿;预算 ~2h 单卡兑现 §2.3 承诺。 -->
 
-叙事弧照正文 Section 1 → 2 → 2.3 的情绪曲线排：**先爽（serve、race）、再打脸（threshold twist）、最后开放（unmeasured domain）**。依赖链零重复搭建：4.1 的 server 被 4.2 复用，4.2 的 DSpark config 被 4.3 复用，4.4 复用全部。race tool 贯穿三节逐步加泳道。总预算 ~2h 单卡，兑现 §2.3 的 "a single afternoon and one GPU"。
-
-### 4.2 The decoding race: algorithms x domains（定稿 2026-09-02，实测数据 data/4_2_race.json）
+### 4.2 The decoding race: algorithms x domains（定稿 2026-09-03，实测数据 data/4_2_race_vllm.json）
 
 Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (`race_domains.py`: coding / creative / frontend, 512 tokens each, greedy).
 
 ```bash
 SPEC_MODE=dspark modal deploy modal_vllm_serve.py
+SPEC_MODE=eagle3 modal deploy modal_vllm_serve.py   # config relabel applied in the script
 SPEC_MODE=dflash modal deploy modal_vllm_serve.py
 python3 race_domains.py --url <your-url> --label <mode>   # once per deploy
 ```
 
 Our H100 medians (tok/s, speedup over vanilla):
 
-| domain | vanilla | DSpark | DFlash |
-|---|---|---|---|
-| coding | 138.1 | 311.9 (2.3x) | 119.1 (0.86x) |
-| creative | 138.2 | 416.7 (3.0x) | 110.3 (0.80x) |
-| frontend | 137.6 | 333.1 (2.4x) | 111.1 (0.81x) |
+| domain | vanilla | DSpark | EAGLE-3 | DFlash (broken config) |
+|---|---|---|---|---|
+| coding | 138.1 | 311.9 (2.3x) | 158.8 (1.15x) | 119.1 (0.86x) |
+| creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 110.3 (0.80x) |
+| frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 111.1 (0.81x) |
 
-Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional. DFlash comes out *slower than vanilla* here, and the metrics counters say why: τ ≈ 1.03, meaning almost every draft token is rejected and each step keeps only the bonus token, so the lane pays full drafting cost for nothing (our architecture relabel loads the weights but maps them wrong). A mismatched drafter costs you speed: benchmark before you swap one in. And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+**Table 4.** The decoding race, measured: three-domain medians per lane. All draft weights are DeepSpec's; the EAGLE-3 lane needs a one-line config relabel to load (its acceptance is under-tuned, τ ≈ 1.3), and the DFlash column shows a misconfigured lane kept on purpose.
 
-<!-- TODO 4.2: race tool 动画（fig6 复刻）+ EAGLE-3 泳道（需 SGLang 格式 Qwen3-8B checkpoint，DeepSpec 的是 vLLM 格式）；temp0 creative 膨胀效应写正文前先补 temp 0.7 对照 -->
+Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional, and the same recipe ranks DSpark (τ 3.5) above EAGLE-3 (τ 1.3) on this target. DFlash comes out *slower than vanilla*, and the metrics counters say why: τ ≈ 1.03, almost every draft token rejected, so the lane pays full drafting cost for nothing. A mismatched drafter costs you speed: benchmark before you swap one in. And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+
+<!-- TODO 4.2: race tool 动画（fig6 复刻）；EAGLE-3 泳道 τ 调优（aux layer ids 待与 DeepSpec 训练值核对，t2d/d2t 缺失影响待查）；DFlash 列等 z-lab 官方配方结果落地后替换/并列；temp0 creative 膨胀效应补 temp 0.7 对照 -->
 
 
 ### 4.3 Break losslessness on purpose（定稿骨架 2026-09-03 凌晨，sweep 数据填充中 data/4_3_sweep.json）
@@ -110,6 +102,8 @@ Our H100 results (30 problems, temperature 1.0):
 | 0.7 | 128.0 | 7.2 | 0.80 |
 | 0.5 | 127.3 | 4.7 | 0.73 |
 | 0.3 | 119.4 | 4.4 | 0.73 |
+
+**Table 5.** Threshold sweep on SGLang + DSpark: acceptance responds, speed stays verification-bound, accuracy stays inside small-sample noise.
 
 The knob bites where theory says it should: acceptance length climbs as the threshold loosens (3.9 to 7.2). What does not appear is the clean speed-up-accuracy-down curve: throughput stays verification-bound at batch size 1, and accuracy at n=30 moves inside its own noise band (0.53 and 0.80 are two draws of the same coin). That absence is the lesson: on a robust domain like GSM8K, the damage from relaxed acceptance hides below small-sample noise, which is exactly why Section 2.3 needed open-ended frontend prompts and a bigger N to see the gap. This fills Figure 12 with real results, error bars and all.
 
