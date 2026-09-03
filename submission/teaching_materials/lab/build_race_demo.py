@@ -71,8 +71,8 @@ def main() -> None:
   pre { flex:1; margin:0; padding:8px 10px; overflow-y:auto; font-family:ui-monospace,monospace; font-size:10.5px;
         line-height:1.4; color:#e8e8e3; white-space:pre-wrap; word-break:break-word; min-height:0; }
   .rwrap { flex:1; position:relative; min-height:0; overflow:hidden; }
-  .rwrap iframe { position:absolute; top:0; left:0; width:200%; height:200%; border:0; background:#1e2a1c;
-                  transform:scale(.5); transform-origin:0 0; }
+  .rwrap iframe { position:absolute; top:0; left:0; width:133.4%; height:133.4%; border:0; background:#1e2a1c;
+                  transform:scale(.75); transform-origin:0 0; }
   .bar { height:36px; display:flex; align-items:center; justify-content:center; gap:12px; }
   button.replay { font-size:13px; padding:5px 16px; border-radius:8px; border:1px solid #bbb; background:#fff; cursor:pointer; }
   .note { font-size:12px; color:#666; }
