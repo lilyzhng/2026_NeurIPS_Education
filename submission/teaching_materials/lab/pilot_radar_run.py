@@ -14,12 +14,12 @@ import time
 import urllib.request
 from pathlib import Path
 
-from pilot_radar_prompts import build, build_hard
+from pilot_radar_prompts import build, build_hard, build_round2
 
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def run(base: str, arm: str, hard: bool = False) -> None:
+def run(base: str, arm: str, mode: str = "base") -> None:
     out_dir = ROOT / f"local/draft_v2/data/4_6_radar_pilot/{arm}"
     out_dir.mkdir(parents=True, exist_ok=True)
     # burn warmup on a throwaway (failures.md R9: first request pays compile)
@@ -27,7 +27,11 @@ def run(base: str, arm: str, hard: bool = False) -> None:
                  "messages": [{"role": "user", "content": "Say hi."}]})
     metaf = out_dir / "meta.json"
     meta = json.loads(metaf.read_text()) if metaf.exists() else {}
-    for it in (build_hard() if hard else build()):
+    items = {"base": build, "hard": build_hard, "round2": build_round2}[mode]()
+    for it in items:
+        if (out_dir / f"{it['domain']}_{it['id']}.txt").exists():
+            print(f"[{arm}] skip {it['domain']}_{it['id']} (exists)", flush=True)
+            continue
         t0 = time.time()
         resp = _post(base, {"model": "default", "temperature": 0,
                             "max_tokens": it["max_tokens"], "messages": it["messages"]})
@@ -55,6 +59,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True)
     ap.add_argument("--arm", required=True)
-    ap.add_argument("--hard", action="store_true")
+    ap.add_argument("--mode", default="base", choices=["base", "hard", "round2"])
     a = ap.parse_args()
-    run(a.url.rstrip("/"), a.arm, a.hard)
+    run(a.url.rstrip("/"), a.arm, a.mode)

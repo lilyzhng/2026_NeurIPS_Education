@@ -244,15 +244,19 @@ def pilot(items: list) -> dict:
 
 
 @app.local_entrypoint()
-def pilot_main(hard: bool = False):
+def pilot_main(hard: bool = False, round2: bool = False):
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from pilot_radar_prompts import build, build_hard
+    from pilot_radar_prompts import build, build_hard, build_round2
 
     ROOT = Path(__file__).resolve().parents[3]
     out_dir = ROOT / "local/draft_v2/data/4_6_radar_pilot/dflash"
     out_dir.mkdir(parents=True, exist_ok=True)
-    results = pilot.remote(build_hard() if hard else build())
+    items = build_round2() if round2 else (build_hard() if hard else build())
+    items = [it for it in items
+             if not (out_dir / f"{it['domain']}_{it['id']}.txt").exists()]
+    print("running", len(items), "items")
+    results = pilot.remote(items)
     metaf = out_dir / "meta.json"
     meta = json.loads(metaf.read_text()) if metaf.exists() else {}
     for key, r in results.items():

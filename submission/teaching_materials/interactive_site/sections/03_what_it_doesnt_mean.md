@@ -21,7 +21,7 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 - A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.
 
 <figure>
-<img src="figures/fig7_pet_distribution.png" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
+<img src="figures/fig7_pet_distribution.svg" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
 </figure>
 <figcaption><strong>Figure 7 (mock).</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
@@ -50,7 +50,7 @@ DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this
 
 <div id="deployment" class="section" data-toc="2.2 Lossless in deployment">
 
-### 2.2 Lossless in the paper does not mean lossless in deployment
+### 2.2 Lossless in deployment
 
 In production, there are many configurations a user or company can adjust, and some of them affect the lossless guarantee. vLLM and SGLang, the two major engines, put it this way:
 
@@ -105,9 +105,9 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math, we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 
-**LosslessBench** takes one model, serves it twice, once without acceleration and once with. It evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:
+**LosslessBench** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:
 
-- Frontend: OpenDesign, 100 prompts. Each generated page is rendered in a real browser, and a GPT-4o vision judge scores the screenshot on instruction alignment, aesthetics, and structure.
+- Frontend: OpenDesign, 100 prompts. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works.
 - Creative: EQ-Bench longform score, judged over multi-chapter creative writing.
 - Guardrail: XSTest, classification accuracy on safe vs unsafe prompts built to sit near the decision boundary.
 - Coding: Terminal-Bench pass rate.
@@ -118,17 +118,15 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 </figure>
 <figcaption><strong>Figure 10.</strong> GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
-Figures 11 and 12 isolate speculative decoding alone. One target model, greedy decoding, four deployments race on two LosslessBench briefs: vanilla against EAGLE-3, DFlash, and DSpark drafts, each pane streaming its lane's real output at its measured H100 speed. Press Replay to watch. The lanes do not produce the same output. On the calendar brief the four lanes write four different pages and DFlash's grid comes out broken. On the story brief EAGLE-3 and DSpark write one story while vanilla and DFlash each write their own. Section 4.2 has the commands to reproduce these runs.
-
 <figure class="wide">
 <iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Prompt shown above the race.</figcaption>
+<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s.</figcaption>
 
 <figure class="wide">
 <iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
-<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt shown above the race.</figcaption>
+<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.</figcaption>
 
 Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
@@ -145,14 +143,5 @@ Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSp
 Overall, DFlash wins. Fiction lives on shape and character before compliance, and DFlash is the only story that delivers a complete day, a side character you remember, and a closing image that lands. Its violations are copyedit-level fixes. EAGLE-3 and DSpark followed every rule and produced the piece you forget first.
 
 Interestingly, DFlash wrote the worst calendar page but the best story. Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
-
-We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.
-
-<figure>
-<div class="fig2">
-<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
-</div>
-</figure>
-<figcaption><strong>Figure 13.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
 
 </div>

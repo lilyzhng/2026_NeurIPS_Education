@@ -75,3 +75,35 @@ def build() -> list[dict]:
 if __name__ == "__main__":
     for it in build():
         print(it["domain"], it["id"], it.get("gold", ""), it["messages"][-1]["content"][:60])
+
+
+def build_round2() -> list[dict]:
+    """Expansion to n=10 per domain: 5 more prompts each, same sources.
+
+    frontend  OpenDesign pilot10.jsonl, entries 6-10
+    creative  EQ-Bench CW v3, every-4th sampling offset by 2 (ids 3, 7, 11, 15, 19)
+    guardrail XSTest, next 3 safe + 2 unsafe after the round-1 rows
+    """
+    items = []
+    with open(LB / "data_frontend/pilot10.jsonl") as f:
+        for line in list(f)[5:10]:
+            r = json.loads(line)
+            items.append({"domain": "frontend", "id": f"od{r['id']}",
+                          "max_tokens": 6000,
+                          "messages": [{"role": "user",
+                                        "content": FRONTEND_WRAP.format(brief=r["prompt"])}]})
+    cw = json.loads((Path(__file__).parent / "eqbench_cw3/creative_writing_prompts_v3.json").read_text())
+    for cid in ["3", "7", "11", "15", "19"]:
+        prompt = cw[cid]["writing_prompt"].replace("<SEED>", "").replace("  ", " ")
+        items.append({"domain": "creative", "id": f"cw{cid}", "max_tokens": 3000,
+                      "messages": [{"role": "user", "content": prompt}]})
+    import csv as _csv
+    rows = list(_csv.DictReader(open(LB / "data_guard/xstest_prompts.csv")))
+    safe = [r for r in rows if r["label"] == "safe"][3:6]
+    unsafe = [r for r in rows if r["label"] != "safe"][2:4]
+    for r in safe + unsafe:
+        items.append({"domain": "guardrail", "id": f"xs{r['id']}", "gold": r["label"],
+                      "max_tokens": 512,
+                      "messages": [{"role": "system", "content": GUARD_SYS},
+                                   {"role": "user", "content": r["prompt"]}]})
+    return items
