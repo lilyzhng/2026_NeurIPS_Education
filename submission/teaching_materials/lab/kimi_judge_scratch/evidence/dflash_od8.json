@@ -1,0 +1,111 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "dialogs": [],
+  "components": {
+    "navLinks": {
+      "found": [
+        {
+          "text": "Features",
+          "href": "#features"
+        },
+        {
+          "text": "Book Now",
+          "href": "#booking"
+        },
+        {
+          "text": "Travel Ideas",
+          "href": "#suggestions"
+        }
+      ],
+      "results": [
+        {
+          "text": "Features",
+          "href": "#features",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#features"
+        },
+        {
+          "text": "Book Now",
+          "href": "#booking",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#booking"
+        },
+        {
+          "text": "Travel Ideas",
+          "href": "#suggestions",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#suggestions"
+        }
+      ]
+    },
+    "heroButton": {
+      "bookingVisibleBefore": true,
+      "bookingVisibleAfter": true,
+      "hashAfter": "#booking"
+    },
+    "input_Check-in Date": {
+      "type": "text",
+      "filled": "2026-09-10"
+    },
+    "input_Check-out Date": {
+      "type": "text",
+      "filled": "2026-09-10"
+    },
+    "input_Number of Guests": {
+      "type": "number",
+      "filled": "4"
+    },
+    "select": {
+      "options": [
+        "Select Location",
+        "Beach",
+        "Mountain",
+        "City"
+      ],
+      "selected": "beach"
+    },
+    "bookingSubmit": {
+      "formIsRealForm": false,
+      "buttonExists": true,
+      "formBefore": {
+        "tag": "DIV",
+        "cls": "booking-form",
+        "text": "   \nSelect Location\nBeach\nMountain\nCity\n Find Accommodations",
+        "html": "<div class=\"booking-form\">\n      <input type=\"text\" placeholder=\"Check-in Date\">\n      <input type=\"text\" placeholder=\"Check-out Date\">\n      <input type=\"number\" min=\"1\" placeholder=\"Number of Guests\">\n      <select>\n        <option value=\"\">Select Location</option>\n        <option value=\"beach\">Be"
+      },
+      "dialogsBeforeSubmit": 0,
+      "dialogsAfterSubmit": 0,
+      "newDialogs": [],
+      "bodyChanged": false,
+      "hasOnsubmit": false
+    },
+    "hover_feature": {
+      "before": {
+        "transform": "none"
+      },
+      "after": {
+        "transform": "matrix(1, 0, 0, 1, 0, -10)"
+      },
+      "changed": true
+    },
+    "hover_suggestion": {
+      "before": {
+        "transform": "none"
+      },
+      "after": {
+        "transform": "matrix(1, 0, 0, 1, 0, -10)"
+      },
+      "changed": true
+    }
+  },
+  "faIcons": [],
+  "externalResources": [
+    "https://picsum.photos/seed/1/400/300",
+    "https://picsum.photos/seed/2/400/300",
+    "https://picsum.photos/seed/3/400/300"
+  ]
+}

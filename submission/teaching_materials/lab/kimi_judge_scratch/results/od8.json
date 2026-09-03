@@ -1,0 +1,44 @@
+{
+  "vanilla": {
+    "code_correctness": 36,
+    "functionality": 60,
+    "total": 96,
+    "planned_components": [
+      "nav link 'Book Now' (#booking anchor scroll)",
+      "nav link 'Suggestions' (#suggestions anchor scroll)",
+      "nav link 'Activities' (#activities anchor scroll)",
+      "hero 'Start Your Adventure' button (scroll to booking)",
+      "booking form: fill check-in/check-out, select guests, submit 'Find Your Stay'"
+    ],
+    "dead_components": [],
+    "code_issues": [
+      "Font Awesome icon classes (fas fa-users/map-marked-alt/hotel/shield-alt) used on 4 <i> elements but no Font Awesome CSS included anywhere: computed ::before content is 'none', icons render at 0 width (dead markup, -4)"
+    ],
+    "feedback": "Complete, well-formed single-file page with zero external assets and no console errors. All five interactive components work: three nav anchors scroll correctly (scrollY 0->986), hero button scrolls to booking, and booking form submits with 'Booking submitted!' alert. Only flaw: four invisible Font Awesome icons with no stylesheet."
+  },
+  "dflash": {
+    "code_correctness": 27,
+    "functionality": 51,
+    "total": 78,
+    "planned_components": [
+      "nav link 'Features' (#features anchor scroll)",
+      "nav link 'Book Now' (#booking anchor scroll)",
+      "nav link 'Travel Ideas' (#suggestions anchor scroll)",
+      "hero 'Start Your Adventure' button (scroll to booking)",
+      "booking submit 'Find Accommodations' (fill dates/guests/location, click)",
+      "feature card hover (CSS translateY lift)",
+      "suggestion card hover (CSS translateY lift)"
+    ],
+    "dead_components": [
+      {
+        "component": "booking submit 'Find Accommodations'",
+        "evidence": "booking section is a <div>, not a <form>; button has no onclick/handler. Filled check-in, check-out, guests=4, selected 'Beach', clicked button: no dialog, no DOM change (body innerHTML length identical), no navigation. Total silence."
+      }
+    ],
+    "code_issues": [
+      "3 external image URLs https://picsum.photos/seed/{1,2,3}/400/300 in suggestion cards violate the no-external-assets constraint (-10)",
+      "'Find Accommodations' button is dead code: no event handler attached and the container is a div, not a form (-3)"
+    ],
+    "feedback": "Clean markup and no console errors, nav/hero scrolling and both hover lifts all work. But three external picsum.photos images violate the single-file constraint, and the booking form is a div whose submit button has no handler at all — clicking after filling all fields produces zero feedback."
+  }
+}

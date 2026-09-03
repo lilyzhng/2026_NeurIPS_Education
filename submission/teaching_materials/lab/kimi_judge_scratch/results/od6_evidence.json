@@ -1,0 +1,250 @@
+{
+  "vanilla": {
+    "console": [],
+    "failedReqs": [],
+    "extReqs": [],
+    "tests": {
+      "nav_products": {
+        "before": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 415
+        },
+        "changed": true
+      },
+      "nav_about": {
+        "before": {
+          "hash": "#products",
+          "scrollY": 415
+        },
+        "after": {
+          "hash": "#about",
+          "scrollY": 495
+        },
+        "changed": true
+      },
+      "nav_contact": {
+        "before": {
+          "hash": "#about",
+          "scrollY": 495
+        },
+        "after": {
+          "hash": "#contact",
+          "scrollY": 495
+        },
+        "changed": true
+      },
+      "nav_home": {
+        "before": {
+          "hash": "#contact",
+          "scrollY": 495
+        },
+        "after": {
+          "hash": "#home",
+          "scrollY": 70
+        },
+        "changed": true
+      },
+      "shop_now": {
+        "clickFailed": true,
+        "reason": "</section> intercepts pointer events"
+      },
+      "add_to_cart": {
+        "before": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 415
+        },
+        "changed": true,
+        "domCheck": {
+          "cartEls": 0,
+          "buttons": 5
+        }
+      },
+      "subscribe": {
+        "before": {
+          "hash": "#products",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 415
+        },
+        "changed": true,
+        "subDom": {
+          "inputs": 0,
+          "forms": 0
+        }
+      },
+      "footer_link": {
+        "href": "#",
+        "before": {
+          "hash": "#products",
+          "scrollY": 495
+        },
+        "after": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "changed": true
+      },
+      "card_hover": {
+        "tBefore": "none",
+        "tAfter": "matrix(1, 0, 0, 1, 0, -5)",
+        "changed": true
+      }
+    },
+    "sections": {
+      "home": true,
+      "products": true,
+      "about": true,
+      "contact": true,
+      "cta": false
+    },
+    "inputsCount": 0
+  },
+  "dflash": {
+    "console": [
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED",
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED",
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED",
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED",
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED",
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED"
+    ],
+    "failedReqs": [
+      "https://via.placeholder.com/300x200?text=Dog+Toy",
+      "https://via.placeholder.com/300x200?text=Dog+Food",
+      "https://via.placeholder.com/300x200?text=Dog+Bed",
+      "https://via.placeholder.com/300x200?text=Dog+Toy",
+      "https://via.placeholder.com/300x200?text=Dog+Bed",
+      "https://via.placeholder.com/300x200?text=Dog+Food"
+    ],
+    "extReqs": [
+      "https://via.placeholder.com/300x200?text=Dog+Toy",
+      "https://via.placeholder.com/300x200?text=Dog+Bed",
+      "https://via.placeholder.com/300x200?text=Dog+Food",
+      "https://via.placeholder.com/300x200?text=Dog+Toy",
+      "https://via.placeholder.com/300x200?text=Dog+Bed",
+      "https://via.placeholder.com/300x200?text=Dog+Food"
+    ],
+    "tests": {
+      "nav_products": {
+        "before": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "changed": true
+      },
+      "nav_about": {
+        "before": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "after": {
+          "hash": "#about",
+          "scrollY": 525
+        },
+        "changed": true
+      },
+      "nav_contact": {
+        "before": {
+          "hash": "#about",
+          "scrollY": 525
+        },
+        "after": {
+          "hash": "#contact",
+          "scrollY": 528
+        },
+        "changed": true
+      },
+      "nav_home": {
+        "before": {
+          "hash": "#contact",
+          "scrollY": 528
+        },
+        "after": {
+          "hash": "#home",
+          "scrollY": 70
+        },
+        "changed": true
+      },
+      "shop_now": {
+        "before": {
+          "hash": "#home",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "changed": true
+      },
+      "add_to_cart": {
+        "before": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "changed": true,
+        "domCheck": {
+          "cartEls": 0,
+          "buttons": 5
+        }
+      },
+      "subscribe": {
+        "before": {
+          "hash": "#products",
+          "scrollY": 0
+        },
+        "after": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "changed": true,
+        "subDom": {
+          "inputs": 0,
+          "forms": 0
+        }
+      },
+      "footer_link": {
+        "href": "#",
+        "before": {
+          "hash": "#products",
+          "scrollY": 525
+        },
+        "after": {
+          "hash": "",
+          "scrollY": 0
+        },
+        "changed": true
+      },
+      "card_hover": {
+        "tBefore": "none",
+        "tAfter": "matrix(1, 0, 0, 1, 0, -5)",
+        "changed": true
+      }
+    },
+    "sections": {
+      "home": true,
+      "products": true,
+      "about": false,
+      "contact": true,
+      "cta": true
+    },
+    "inputsCount": 0
+  }
+}

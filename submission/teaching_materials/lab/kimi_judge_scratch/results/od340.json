@@ -1,0 +1,38 @@
+{
+  "vanilla": {
+    "code_correctness": 27,
+    "functionality": 0,
+    "total": 27,
+    "planned_components": [
+      "card hover 3D flip (brief, x2)"
+    ],
+    "dead_components": [
+      {
+        "component": "card hover 3D flip (brief, x2)",
+        "evidence": "page.hover('.card') does change computed transform (none -> matrix3d(-1,0,0,0,0,1,0,0,0,0,-1,0,0,0,0,1)), but neither .face is pre-rotated rotateY(180deg), so after the 180deg flip both faces are backface-hidden and the card vanishes completely (screenshot vanilla_hover.png: empty page). Wrong feedback: flip reveals a blank card, not a back face. Also the back .face is stacked on top initially, so the card shows the 'Back' broken-image alt text instead of the front photo."
+      }
+    ],
+    "code_issues": [
+      "External asset violation: two <img src=\"https://via.placeholder.com/300x200\"> (offline-hostile external URLs) (-8, incl. host being dead)",
+      "via.placeholder.com fails even with network: console error 'Failed to load resource: net::ERR_CONNECTION_CLOSED', requestfailed ERR_CONNECTION_CLOSED, img naturalWidth=0 -> no photo ever renders (-2)",
+      "Stray markdown fence '```' after </html> renders as visible text on the page (-3)",
+      "Structural CSS bug: back face missing transform: rotateY(180deg) (primary penalty taken in functionality)"
+    ],
+    "feedback": "External placeholder images that fail to load even online, a stray code fence rendered on the page, and a structurally broken flip: the back face is never pre-rotated, so hovering makes the card disappear entirely. Only the transform changes; the effect itself is wrong."
+  },
+  "dflash": {
+    "code_correctness": 27,
+    "functionality": 60,
+    "total": 87,
+    "planned_components": [
+      "card hover 3D flip (brief, x2)"
+    ],
+    "dead_components": [],
+    "code_issues": [
+      "External asset violation: background images url('https://picsum.photos/300/200') and url('https://picsum.photos/301/201') (-8)",
+      "Stray markdown fence '```' after </html> renders as visible text on the page (-3)",
+      "perspective: 1000px is set on the rotating .card itself (not a wrapper) and overflow:hidden negates transform-style: preserve-3d, so the flip renders flat with no 3D depth (-2)"
+    ],
+    "feedback": "Correct, gentle 180deg flip: hover changes computed transform through mid-transition matrix to full rotateY(180deg), front photo swaps to a properly pre-rotated back photo, unhover restores. No console errors. Docked for external picsum URLs, a rendered stray fence, and flat (perspective-less) rotation."
+  }
+}

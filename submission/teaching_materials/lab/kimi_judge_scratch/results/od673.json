@@ -1,0 +1,40 @@
+{
+  "vanilla": {
+    "code_correctness": 35,
+    "functionality": 60,
+    "total": 95,
+    "planned_components": [
+      "Open Calendar button (opens modal)",
+      "date selection (brief, x2)",
+      "close button (×)",
+      "day-cell hover feedback"
+    ],
+    "dead_components": [],
+    "code_issues": [
+      "Hardcoded April 2024 grid (daysInMonth=30, firstDay=3) while header is dynamically set to current month ('September 2026'): dates are misaligned (Sep 1 2026 is a Tuesday, grid shows it under Wednesday) (-4)",
+      "Minor dead CSS: .modal-overlay transitions transform with no base transform set; .close-btn:hover color #fff is invisible on the light modal (-1)"
+    ],
+    "feedback": "Complete single-file page, no external assets, no console errors. Modal opens/closes smoothly, translucent blur styling, day selection works with clear selected state, hover feedback present. Only flaw: hardcoded April 2024 day layout mismatched with the dynamic month header."
+  },
+  "dflash": {
+    "code_correctness": 32,
+    "functionality": 36,
+    "total": 68,
+    "planned_components": [
+      "Open Calendar button (opens modal)",
+      "date selection (brief, x2)",
+      "close affordance (backdrop click; no close button exists)",
+      "day-cell hover feedback"
+    ],
+    "dead_components": [
+      {
+        "component": "date selection (brief, x2)",
+        "evidence": "clicked day cell '1': class stayed '' before and after, no .selected element in DOM (anySelectedCount=0), no selection style defined in CSS; only background change was the :hover style from the mouse resting on the cell"
+      }
+    ],
+    "code_issues": [
+      "Invalid table structure: <td> cells appended directly to <tbody> with no <tr> rows, so the browser collapses all 32 cells into one anonymous row — calendar renders as a single horizontal strip overflowing the 368x128px modal (evidence: gridRows=0, screenshot od673_dflash_1_open.png) (-8)"
+    ],
+    "feedback": "Opens/closes via button and backdrop with translucent styling and correct current-month dates, but the calendar grid is structurally broken (tds without trs render as one overflowing row) and the brief-required date selection is entirely missing — no handler, no selected style."
+  }
+}

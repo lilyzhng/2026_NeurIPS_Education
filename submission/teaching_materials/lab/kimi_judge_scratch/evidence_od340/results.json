@@ -1,0 +1,204 @@
+[
+  {
+    "name": "vanilla",
+    "consoleMsgs": [
+      "error: Failed to load resource: net::ERR_CONNECTION_CLOSED"
+    ],
+    "failedReqs": [
+      "https://via.placeholder.com/300x200 :: net::ERR_CONNECTION_CLOSED"
+    ],
+    "before": {
+      "cardTransform": "none",
+      "cardPosition": "relative",
+      "cardRect": {
+        "x": 442,
+        "y": 300,
+        "width": 300,
+        "height": 200,
+        "top": 300,
+        "right": 742,
+        "bottom": 500,
+        "left": 442
+      },
+      "faces": [
+        {
+          "cls": "face",
+          "transform": "none",
+          "position": "absolute",
+          "backface": "hidden",
+          "rect": {
+            "x": 442,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 742,
+            "bottom": 500,
+            "left": 442
+          },
+          "bg": "none",
+          "imgCount": 1,
+          "imgComplete": [
+            {
+              "src": "https://via.placeholder.com/300x200",
+              "complete": true,
+              "nw": 0
+            }
+          ]
+        },
+        {
+          "cls": "face",
+          "transform": "none",
+          "position": "absolute",
+          "backface": "hidden",
+          "rect": {
+            "x": 442,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 742,
+            "bottom": 500,
+            "left": 442
+          },
+          "bg": "none",
+          "imgCount": 1,
+          "imgComplete": [
+            {
+              "src": "https://via.placeholder.com/300x200",
+              "complete": true,
+              "nw": 0
+            }
+          ]
+        }
+      ],
+      "bodyText": "```"
+    },
+    "midHover": "matrix3d(-0.837214, 0, -0.546875, 0, 0, 1, 0, 0, 0.546875, 0, -0.837214, 0, 0, 0, 0, 1)",
+    "after": {
+      "cardTransform": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)",
+      "facesVisible": [
+        {
+          "cls": "face",
+          "rect": {
+            "x": 442,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 742,
+            "bottom": 500,
+            "left": 442
+          }
+        },
+        {
+          "cls": "face",
+          "rect": {
+            "x": 442,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 742,
+            "bottom": 500,
+            "left": 442
+          }
+        }
+      ]
+    },
+    "unhover": "none"
+  },
+  {
+    "name": "dflash",
+    "consoleMsgs": [],
+    "failedReqs": [],
+    "before": {
+      "cardTransform": "none",
+      "cardPosition": "static",
+      "cardRect": {
+        "x": 436.90625,
+        "y": 300,
+        "width": 300,
+        "height": 200,
+        "top": 300,
+        "right": 736.90625,
+        "bottom": 500,
+        "left": 436.90625
+      },
+      "faces": [
+        {
+          "cls": "face front",
+          "transform": "none",
+          "position": "absolute",
+          "backface": "hidden",
+          "rect": {
+            "x": 436.90625,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 736.90625,
+            "bottom": 500,
+            "left": 436.90625
+          },
+          "bg": "url(\"https://picsum.photos/300/200\")",
+          "imgCount": 0,
+          "imgComplete": []
+        },
+        {
+          "cls": "face back",
+          "transform": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)",
+          "position": "absolute",
+          "backface": "hidden",
+          "rect": {
+            "x": 436.90625,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 736.90625,
+            "bottom": 500,
+            "left": 436.90625
+          },
+          "bg": "url(\"https://picsum.photos/301/201\")",
+          "imgCount": 0,
+          "imgComplete": []
+        }
+      ],
+      "bodyText": "```"
+    },
+    "midHover": "matrix3d(0.0749661, 0, -0.997186, 0, 0, 1, 0, 0, 0.997186, 0, 0.0749661, 0, 0, 0, 0, 1)",
+    "after": {
+      "cardTransform": "matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)",
+      "facesVisible": [
+        {
+          "cls": "face front",
+          "rect": {
+            "x": 436.90625,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 736.90625,
+            "bottom": 500,
+            "left": 436.90625
+          }
+        },
+        {
+          "cls": "face back",
+          "rect": {
+            "x": 436.90625,
+            "y": 300,
+            "width": 300,
+            "height": 200,
+            "top": 300,
+            "right": 736.90625,
+            "bottom": 500,
+            "left": 436.90625
+          }
+        }
+      ]
+    },
+    "unhover": "none"
+  }
+]

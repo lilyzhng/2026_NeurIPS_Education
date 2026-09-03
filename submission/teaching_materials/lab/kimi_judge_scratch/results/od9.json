@@ -1,0 +1,39 @@
+{
+  "vanilla": {
+    "code_correctness": 40,
+    "functionality": 15,
+    "total": 55,
+    "planned_components": [
+      "hero 'Get Started' button click",
+      "hero button hover feedback (CSS background change)",
+      "footer 'Privacy Policy' link",
+      "footer 'Terms of Service' link"
+    ],
+    "dead_components": [
+      { "component": "hero 'Get Started' button", "evidence": "clicked; no onclick attribute, no dialog, no DOM/hash/scroll change (bodyHTMLlen unchanged at 1300)" },
+      { "component": "footer 'Privacy Policy' link", "evidence": "href='#' placeholder; clicked from scrollY=248, only scrolled to top, no content/navigation" },
+      { "component": "footer 'Terms of Service' link", "evidence": "href='#' placeholder; clicked from scrollY=248, only scrolled to top, no content/navigation" }
+    ],
+    "code_issues": [],
+    "feedback": "Clean single-file page with no console errors, no external assets, all CSS selectors live. But the primary CTA button has zero click handler and footer links are bare '#' placeholders; only hover feedback works."
+  },
+  "dflash": {
+    "code_correctness": 40,
+    "functionality": 24,
+    "total": 64,
+    "planned_components": [
+      "hero 'Download on App Store' button click",
+      "hero button hover feedback (CSS background change)",
+      "footer 'Privacy Policy' link",
+      "footer 'Terms of Service' link",
+      "footer 'Contact Us' link"
+    ],
+    "dead_components": [
+      { "component": "footer 'Privacy Policy' link", "evidence": "href='#' placeholder; clicked from scrollY=281, only scrolled to top, no content/navigation" },
+      { "component": "footer 'Terms of Service' link", "evidence": "href='#' placeholder; clicked from scrollY=281, only scrolled to top, no content/navigation" },
+      { "component": "footer 'Contact Us' link", "evidence": "href='#' placeholder; clicked from scrollY=281, only scrolled to top, no content/navigation" }
+    ],
+    "code_issues": [],
+    "feedback": "Clean single-file page, no console errors, no external assets. CTA button correctly fires an 'App download coming soon!' alert and hover changes background; all three footer links are dead '#' placeholders."
+  }
+}

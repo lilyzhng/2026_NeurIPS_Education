@@ -1,0 +1,42 @@
+{
+  "vanilla": {
+    "code_correctness": 37,
+    "functionality": 48,
+    "total": 85,
+    "planned_components": [
+      "popup auto-display on page load (brief)",
+      "newsletter subscribe flow: enter email, submit, confirmation (brief, x2)",
+      "close button dismisses popup",
+      "email input validation (required, type=email) blocks invalid submission"
+    ],
+    "dead_components": [
+      {
+        "component": "newsletter subscribe flow — confirmation step (partial)",
+        "evidence": "Typed test@example.com, clicked Subscribe: popup hides (class 'show' removed, computed visibility hidden), but no confirmation message anywhere — body.innerText is empty after submit. Brief explicitly requires confirmation; only partial credit."
+      }
+    ],
+    "code_issues": [
+      ".modal-content::before renders a circle at top-right styled/hovered like a close button but has no click handler — misleading non-functional affordance; the real .close-btn div has no CSS at all and renders as unstyled inline text (-3)"
+    ],
+    "feedback": "Clean single-file page, zero console errors, soothing teal palette, mobile viewport + media query. Popup shows on load, close button works, invalid email blocked. Submit dismisses the popup but shows no confirmation message, costing half the double-weighted subscribe flow. Decorative pseudo-element circle looks like a close button but is inert."
+  },
+  "dflash": {
+    "code_correctness": 40,
+    "functionality": 36,
+    "total": 76,
+    "planned_components": [
+      "popup auto-display on page load (brief)",
+      "newsletter subscribe flow: enter email, submit, confirmation (brief, x2)",
+      "close button dismisses popup",
+      "email input validation (required, type=email) blocks invalid submission"
+    ],
+    "dead_components": [
+      {
+        "component": "newsletter subscribe flow (brief, x2)",
+        "evidence": "Typed test@example.com, clicked Subscribe: form onsubmit is just 'return false' — popup stays fully visible (display flex, opacity 1), DOM and text unchanged, no confirmation, no dismissal. Zero feedback for valid submission."
+      }
+    ],
+    "code_issues": [],
+    "feedback": "Well-formed single-file page, no console errors, no external assets, calm blue palette, responsive. Popup renders on load and close button works (display:none). But the subscribe button is functionally dead for valid emails — onsubmit returns false with no confirmation or state change — failing the brief's double-weighted core flow."
+  }
+}

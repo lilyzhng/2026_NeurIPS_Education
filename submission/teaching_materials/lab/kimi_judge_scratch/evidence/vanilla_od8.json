@@ -1,0 +1,133 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "dialogs": [
+    "alert: Booking submitted!"
+  ],
+  "components": {
+    "navLinks": {
+      "found": [
+        {
+          "text": "Book Now",
+          "href": "#booking"
+        },
+        {
+          "text": "Suggestions",
+          "href": "#suggestions"
+        },
+        {
+          "text": "Activities",
+          "href": "#activities"
+        }
+      ],
+      "results": [
+        {
+          "text": "Book Now",
+          "href": "#booking",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#booking"
+        },
+        {
+          "text": "Suggestions",
+          "href": "#suggestions",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#suggestions"
+        },
+        {
+          "text": "Activities",
+          "href": "#activities",
+          "visibleBefore": true,
+          "visibleAfter": true,
+          "hashAfter": "#activities"
+        }
+      ]
+    },
+    "heroButton": {
+      "bookingVisibleBefore": true,
+      "bookingVisibleAfter": true,
+      "hashAfter": "#booking"
+    },
+    "input_Check-in Date": {
+      "type": "text",
+      "filled": "2026-09-10"
+    },
+    "input_Check-out Date": {
+      "type": "text",
+      "filled": "2026-09-10"
+    },
+    "select": {
+      "options": [
+        "1 Guest",
+        "2 Guests",
+        "3 Guests",
+        "4 Guests",
+        "5+ Guests"
+      ],
+      "selected": "2 Guests"
+    },
+    "bookingSubmit": {
+      "formIsRealForm": true,
+      "buttonExists": true,
+      "formBefore": {
+        "tag": "FORM",
+        "cls": "booking-form",
+        "text": "1 Guest\n2 Guests\n3 Guests\n4 Guests\n5+ Guests\nFind Your Stay",
+        "html": "<form class=\"booking-form\" onsubmit=\"event.preventDefault(); alert('Booking submitted!');\">\n      <input type=\"text\" placeholder=\"Check-in Date\">\n      <input type=\"text\" placeholder=\"Check-out Date\">\n      <select>\n        <option>1 Guest</option>\n        <option>2 Guests</option>\n        <option>3"
+      },
+      "dialogsBeforeSubmit": 0,
+      "dialogsAfterSubmit": 1,
+      "newDialogs": [
+        "alert: Booking submitted!"
+      ],
+      "bodyChanged": false,
+      "hasOnsubmit": true
+    },
+    "hover_suggestion-card": {
+      "before": {
+        "transform": "none"
+      },
+      "after": {
+        "transform": "none"
+      },
+      "changed": false
+    },
+    "hover_activity-card": {
+      "before": {
+        "transform": "none"
+      },
+      "after": {
+        "transform": "none"
+      },
+      "changed": false
+    }
+  },
+  "faIcons": [
+    {
+      "cls": "fas fa-users",
+      "content": "none",
+      "fontFamily": "\"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif",
+      "visible": false
+    },
+    {
+      "cls": "fas fa-map-marked-alt",
+      "content": "none",
+      "fontFamily": "\"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif",
+      "visible": false
+    },
+    {
+      "cls": "fas fa-hotel",
+      "content": "none",
+      "fontFamily": "\"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif",
+      "visible": false
+    },
+    {
+      "cls": "fas fa-shield-alt",
+      "content": "none",
+      "fontFamily": "\"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif",
+      "visible": false
+    }
+  ],
+  "externalResources": []
+}

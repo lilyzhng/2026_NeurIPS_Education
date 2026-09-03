@@ -1,0 +1,127 @@
+{
+  "vanilla": {
+    "consoleMsgs": [],
+    "pageErrors": [],
+    "dialogs": [],
+    "interactions": {
+      "before": {
+        "bodyClasses": "",
+        "hash": "",
+        "scrollY": 0
+      },
+      "btnHoverBefore": "rgb(255, 255, 255) | none",
+      "btnHoverAfter": "rgb(224, 240, 255) | none",
+      "btnText": "Get Started",
+      "btnOnclickAttr": null,
+      "afterBtnClick": {
+        "hash": "",
+        "scrollY": 0,
+        "bodyHTMLlen": 1300
+      },
+      "dialogsAfterBtnClick": [],
+      "footerLinks": [
+        {
+          "text": "Privacy Policy",
+          "href": "#",
+          "beforeState": {
+            "hash": "",
+            "scrollY": 248
+          },
+          "afterState": {
+            "hash": "",
+            "scrollY": 0
+          },
+          "dialogs": []
+        },
+        {
+          "text": "Terms of Service",
+          "href": "#",
+          "beforeState": {
+            "hash": "",
+            "scrollY": 248
+          },
+          "afterState": {
+            "hash": "",
+            "scrollY": 0
+          },
+          "dialogs": []
+        }
+      ],
+      "inputCount": 0
+    }
+  },
+  "dflash": {
+    "consoleMsgs": [],
+    "pageErrors": [],
+    "dialogs": [
+      "App download coming soon!"
+    ],
+    "interactions": {
+      "before": {
+        "bodyClasses": "",
+        "hash": "",
+        "scrollY": 0
+      },
+      "btnHoverBefore": "rgb(0, 122, 255) | none",
+      "btnHoverAfter": "rgb(0, 198, 255) | none",
+      "btnText": "Download on App Store",
+      "btnOnclickAttr": "alert('App download coming soon!')",
+      "afterBtnClick": {
+        "hash": "",
+        "scrollY": 0,
+        "bodyHTMLlen": 1391
+      },
+      "dialogsAfterBtnClick": [
+        "App download coming soon!"
+      ],
+      "footerLinks": [
+        {
+          "text": "Privacy Policy",
+          "href": "#",
+          "beforeState": {
+            "hash": "",
+            "scrollY": 281
+          },
+          "afterState": {
+            "hash": "",
+            "scrollY": 0
+          },
+          "dialogs": [
+            "App download coming soon!"
+          ]
+        },
+        {
+          "text": "Terms of Service",
+          "href": "#",
+          "beforeState": {
+            "hash": "",
+            "scrollY": 281
+          },
+          "afterState": {
+            "hash": "",
+            "scrollY": 0
+          },
+          "dialogs": [
+            "App download coming soon!"
+          ]
+        },
+        {
+          "text": "Contact Us",
+          "href": "#",
+          "beforeState": {
+            "hash": "",
+            "scrollY": 281
+          },
+          "afterState": {
+            "hash": "",
+            "scrollY": 0
+          },
+          "dialogs": [
+            "App download coming soon!"
+          ]
+        }
+      ],
+      "inputCount": 0
+    }
+  }
+}

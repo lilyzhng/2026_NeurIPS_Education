@@ -34,6 +34,7 @@ def src_for(arm: str, oid: str) -> str:
 
 def main() -> None:
     scores = json.loads((D / "scores_opendesign.json").read_text())
+    inter = json.loads((D / "scores_interactive.json").read_text())
     cells, rows = [], []
     idx = 0
     for oid, brief in BRIEFS.items():
@@ -44,11 +45,13 @@ def main() -> None:
                 pair = []
                 break
             s = scores.get(arm, {}).get(oid, {})
-            sc = (f"OpenDesign judge {s.get('total_score','?')}/100 &middot; "
-                  f"align {s.get('alignment_score','?')}/40 "
-                  f"aes {s.get('aesthetics_score','?')}/30 "
-                  f"struct {s.get('structure_score','?')}/30"
+            i = inter.get(arm, {}).get(oid, {})
+            sc = (f"static {s.get('total_score','?')}/100 &middot; "
+                  f"interactive {i.get('total','?')}/100 "
+                  f"(code {i.get('code_correctness','?')}/40 func {i.get('functionality','?')}/60)"
                   if s else "not judged")
+            dead = "; ".join(x["component"] for x in i.get("dead_components", [])[:3])
+            sc += f' &middot; <span style="color:#e8b4b4">dead: {dead}</span>' if dead else ""
             pair.append(f'''<div class="cell">
   <div class="head"><b>{label}</b><span class="sc">{sc}</span>
     <button class="tgl" onclick="toggle({idx})" id="t{idx}">Code</button></div>
@@ -79,7 +82,9 @@ def main() -> None:
                word-break:break-word; }}
 </style></head><body>
 <h1>Same brief, two deployments: vanilla Qwen3-8B (left) vs + DFlash draft (right)</h1>
-<div class="sub">Live pages, interact directly (hover, click). Greedy decoding, so every difference is trajectory divergence. Scores use OpenDesign's official GPT-4o judge prompt: alignment with instruction /40, aesthetics and readability /30, structural integrity /30, total /100.</div>
+<div class="sub">Live pages, interact directly (hover, click). Greedy decoding, so every difference is trajectory divergence.
+Win count (1 point per task won): <b>interactive judge vanilla 5 : DFlash 3</b>, static judge vanilla 1 : DFlash 2 (5 ties). Neither differs from 50/50 at n=8.
+Cell scores: static = OpenDesign GPT-4o screenshot judge /100; interactive = Playwright judge, code /40 + functionality /60.</div>
 {''.join(rows)}
 <script>
 async function toggle(i) {{

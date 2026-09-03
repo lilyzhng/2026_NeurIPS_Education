@@ -1,0 +1,38 @@
+{
+  "navAbout": {
+    "before": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html",
+      "scrollY": 0,
+      "bodyChanged": 2005
+    },
+    "after": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html#",
+      "scrollY": 0
+    }
+  },
+  "quoteBtn": {
+    "before": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html#",
+      "scrollY": 0
+    },
+    "after": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html#",
+      "scrollY": 0
+    }
+  },
+  "ctaForm": {
+    "before": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html#",
+      "nameVal": "Jane Doe"
+    },
+    "after": {
+      "url": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html?#",
+      "nameVal": "",
+      "bodyText": false
+    }
+  },
+  "social": {
+    "before": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html",
+    "after": "http://127.0.0.1:8901/radar/vanilla_frontend_od5.html#"
+  }
+}

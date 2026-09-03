@@ -1,0 +1,20 @@
+{
+  "navPlans": {
+    "before": "none",
+    "after": "plans"
+  },
+  "navBenefits": {
+    "after": "benefits"
+  },
+  "quoteBtn": {
+    "before": "benefits",
+    "after": "contact",
+    "url": "http://127.0.0.1:8901/radar/dflash_frontend_od5.html#contact"
+  },
+  "contactForm": {
+    "dialogsSeen": [
+      "Thank you for contacting us!"
+    ],
+    "nameValAfter": "John Smith"
+  }
+}

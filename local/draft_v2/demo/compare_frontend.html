@@ -17,84 +17,86 @@
                word-break:break-word; }
 </style></head><body>
 <h1>Same brief, two deployments: vanilla Qwen3-8B (left) vs + DFlash draft (right)</h1>
-<div class="sub">Live pages, interact directly (hover, click). Greedy decoding, so every difference is trajectory divergence. Scores use OpenDesign's official GPT-4o judge prompt: alignment with instruction /40, aesthetics and readability /30, structural integrity /30, total /100.</div>
+<div class="sub">Live pages, interact directly (hover, click). Greedy decoding, so every difference is trajectory divergence.
+Win count (1 point per task won): <b>interactive judge vanilla 5 : DFlash 3</b>, static judge vanilla 1 : DFlash 2 (5 ties). Neither differs from 50/50 at n=8.
+Cell scores: static = OpenDesign GPT-4o screenshot judge /100; interactive = Playwright judge, code /40 + functionality /60.</div>
 <div class="brief"><b>od673</b> &middot; Stunning translucent calendar popup that smoothly blends into the interface.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 87/100 &middot; interactive 95/100 (code 35/40 func 60/60)</span>
     <button class="tgl" onclick="toggle(0)" id="t0">Code</button></div>
   <iframe id="f0" src="vanilla_raw.html" loading="lazy"></iframe>
   <pre id="p0" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 68/100 (code 32/40 func 36/60) &middot; <span style="color:#e8b4b4">dead: date selection (brief, x2)</span></span>
     <button class="tgl" onclick="toggle(1)" id="t1">Code</button></div>
   <iframe id="f1" src="dflash_raw.html" loading="lazy"></iframe>
   <pre id="p1" style="display:none"></pre>
 </div></div><div class="brief"><b>od5</b> &middot; Create a user interface for a life insurance website.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 87/100 &middot; interactive 40/100 (code 40/40 func 0/60) &middot; <span style="color:#e8b4b4">dead: nav links; hero 'Get a Quote' CTA button; CTA form submit</span></span>
     <button class="tgl" onclick="toggle(2)" id="t2">Code</button></div>
   <iframe id="f2" src="radar/vanilla_frontend_od5.html" loading="lazy"></iframe>
   <pre id="p2" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 100/100 (code 40/40 func 60/60)</span>
     <button class="tgl" onclick="toggle(3)" id="t3">Code</button></div>
   <iframe id="f3" src="radar/dflash_frontend_od5.html" loading="lazy"></iframe>
   <pre id="p3" style="display:none"></pre>
 </div></div><div class="brief"><b>od6</b> &middot; Landing page selling dog-related products.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 87/100 &middot; interactive 68/100 (code 35/40 func 33/60) &middot; <span style="color:#e8b4b4">dead: hero Shop Now button; Add to Cart buttons; Subscribe Now button</span></span>
     <button class="tgl" onclick="toggle(4)" id="t4">Code</button></div>
   <iframe id="f4" src="radar/vanilla_frontend_od6.html" loading="lazy"></iframe>
   <pre id="p4" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 61/100 (code 28/40 func 33/60) &middot; <span style="color:#e8b4b4">dead: nav About link; Add to Cart buttons; Subscribe Now button</span></span>
     <button class="tgl" onclick="toggle(5)" id="t5">Code</button></div>
   <iframe id="f5" src="radar/dflash_frontend_od6.html" loading="lazy"></iframe>
   <pre id="p5" style="display:none"></pre>
 </div></div><div class="brief"><b>od8</b> &middot; Revamped Airbnb homepage for group adventures.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 66/100 &middot; align 28/40 aes 18/30 struct 20/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 66/100 &middot; interactive 96/100 (code 36/40 func 60/60)</span>
     <button class="tgl" onclick="toggle(6)" id="t6">Code</button></div>
   <iframe id="f6" src="radar/vanilla_frontend_od8.html" loading="lazy"></iframe>
   <pre id="p6" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 78/100 (code 27/40 func 51/60) &middot; <span style="color:#e8b4b4">dead: booking submit 'Find Accommodations'</span></span>
     <button class="tgl" onclick="toggle(7)" id="t7">Code</button></div>
   <iframe id="f7" src="radar/dflash_frontend_od8.html" loading="lazy"></iframe>
   <pre id="p7" style="display:none"></pre>
 </div></div><div class="brief"><b>od9</b> &middot; Mobile application for vehicle loans and financing on iOS devices.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 87/100 &middot; interactive 55/100 (code 40/40 func 15/60) &middot; <span style="color:#e8b4b4">dead: hero 'Get Started' button; footer 'Privacy Policy' link; footer 'Terms of Service' link</span></span>
     <button class="tgl" onclick="toggle(8)" id="t8">Code</button></div>
   <iframe id="f8" src="radar/vanilla_frontend_od9.html" loading="lazy"></iframe>
   <pre id="p8" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 64/100 (code 40/40 func 24/60) &middot; <span style="color:#e8b4b4">dead: footer 'Privacy Policy' link; footer 'Terms of Service' link; footer 'Contact Us' link</span></span>
     <button class="tgl" onclick="toggle(9)" id="t9">Code</button></div>
   <iframe id="f9" src="radar/dflash_frontend_od9.html" loading="lazy"></iframe>
   <pre id="p9" style="display:none"></pre>
 </div></div><div class="brief"><b>od10</b> &middot; Homepage for an animation studio, Studio Ghibli inspired.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 70/100 &middot; align 30/40 aes 22/30 struct 18/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 70/100 &middot; interactive 83/100 (code 38/40 func 45/60) &middot; <span style="color:#e8b4b4">dead: Contact form submit</span></span>
     <button class="tgl" onclick="toggle(10)" id="t10">Code</button></div>
   <iframe id="f10" src="radar/vanilla_frontend_od10.html" loading="lazy"></iframe>
   <pre id="p10" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 63/100 &middot; align 25/40 aes 20/30 struct 18/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 63/100 &middot; interactive 67/100 (code 37/40 func 30/60) &middot; <span style="color:#e8b4b4">dead: CTA 'Explore Our Work' button click; Contact form submit</span></span>
     <button class="tgl" onclick="toggle(11)" id="t11">Code</button></div>
   <iframe id="f11" src="radar/dflash_frontend_od10.html" loading="lazy"></iframe>
   <pre id="p11" style="display:none"></pre>
 </div></div><div class="brief"><b>od340</b> &middot; Photo card interface, hover triggers a gentle 3D flip effect.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 30/100 &middot; align 10/40 aes 10/30 struct 10/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 30/100 &middot; interactive 27/100 (code 27/40 func 0/60) &middot; <span style="color:#e8b4b4">dead: card hover 3D flip (brief, x2)</span></span>
     <button class="tgl" onclick="toggle(12)" id="t12">Code</button></div>
   <iframe id="f12" src="radar/vanilla_frontend_od340.html" loading="lazy"></iframe>
   <pre id="p12" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 63/100 &middot; align 25/40 aes 18/30 struct 20/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 63/100 &middot; interactive 87/100 (code 27/40 func 60/60)</span>
     <button class="tgl" onclick="toggle(13)" id="t13">Code</button></div>
   <iframe id="f13" src="radar/dflash_frontend_od340.html" loading="lazy"></iframe>
   <pre id="p13" style="display:none"></pre>
 </div></div><div class="brief"><b>od341</b> &middot; Newsletter registration pop-up, soothing hues, smartphone optimized.</div><div class="pair"><div class="cell">
-  <div class="head"><b>vanilla</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>vanilla</b><span class="sc">static 87/100 &middot; interactive 85/100 (code 37/40 func 48/60) &middot; <span style="color:#e8b4b4">dead: newsletter subscribe flow — confirmation step (partial)</span></span>
     <button class="tgl" onclick="toggle(14)" id="t14">Code</button></div>
   <iframe id="f14" src="radar/vanilla_frontend_od341.html" loading="lazy"></iframe>
   <pre id="p14" style="display:none"></pre>
 </div><div class="cell">
-  <div class="head"><b>DFlash</b><span class="sc">OpenDesign judge 87/100 &middot; align 35/40 aes 25/30 struct 27/30</span>
+  <div class="head"><b>DFlash</b><span class="sc">static 87/100 &middot; interactive 76/100 (code 40/40 func 36/60) &middot; <span style="color:#e8b4b4">dead: newsletter subscribe flow (brief, x2)</span></span>
     <button class="tgl" onclick="toggle(15)" id="t15">Code</button></div>
   <iframe id="f15" src="radar/dflash_frontend_od341.html" loading="lazy"></iframe>
   <pre id="p15" style="display:none"></pre>

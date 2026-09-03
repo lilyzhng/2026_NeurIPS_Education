@@ -1,0 +1,76 @@
+{
+  "vanilla": {
+    "console_errors": [],
+    "popup_visible_on_load": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "w": 390,
+      "h": 844
+    },
+    "before_dom": "<div class=\"popup show\" id=\"popup\">\n    <div class=\"modal-content\">\n      <div class=\"close-btn\" onclick=\"document.getElementById('popup').classList.remove('show')\">×</div>\n      <h2>Subscribe to Our Newsletter</h2>\n      <p>Stay updated with the latest news and offers.</p>\n      <form onsubmit=\"document.getElementById('popup').classList.remove('show'); return false;\">\n        <input type=\"email\" placeholder=\"Enter your email\" required=\"\">\n        <button type=\"submit\">Subscribe</button>\n      </form>\n    </div>\n  </div>",
+    "email_typed": "test@example.com",
+    "after_submit": {
+      "popup_exists": true,
+      "popup_display": "flex",
+      "popup_visibility": "hidden",
+      "popup_opacity": "0",
+      "popup_classes": "popup",
+      "body_text": ""
+    },
+    "after_submit_dom": "\n  <div class=\"popup\" id=\"popup\">\n    <div class=\"modal-content\">\n      <div class=\"close-btn\" onclick=\"document.getElementById('popup').classList.remove('show')\">×</div>\n      <h2>Subscribe to Our Newsletter</h2>\n      <p>Stay updated with the latest news and offers.</p>\n      <form onsubmit=\"document.getElementById('popup').classList.remove('show'); return false;\">\n        <input type=\"email\" placeholder=\"Enter your email\" required=\"\">\n        <button type=\"submit\">Subscribe</button>\n      </form>\n    </div>\n  </div>\n\n  <script>\n    // Show popup on page load\n    document.getElementById('popup').classList.add('show');\n  </script>\n\n",
+    "before_close": {
+      "visibility": "visible",
+      "display": "flex",
+      "opacity": "1"
+    },
+    "after_close": {
+      "visibility": "hidden",
+      "display": "flex",
+      "opacity": "0",
+      "classes": "popup"
+    },
+    "invalid_email": {
+      "valid": false,
+      "popup_visibility": "visible",
+      "popup_display": "flex"
+    }
+  },
+  "dflash": {
+    "console_errors": [],
+    "popup_visible_on_load": {
+      "display": "flex",
+      "visibility": "visible",
+      "opacity": "1",
+      "w": 399,
+      "h": 231
+    },
+    "before_dom": "<div class=\"popup\">\n    <button class=\"close-btn\" onclick=\"document.querySelector('.popup').style.display='none'\">×</button>\n    <h2>Subscribe to Our Newsletter</h2>\n    <p>Stay updated with the latest news and offers.</p>\n    <form onsubmit=\"return false;\">\n      <input type=\"email\" placeholder=\"Enter your email\" required=\"\">\n      <button type=\"submit\">Subscribe</button>\n    </form>\n  </div>",
+    "email_typed": "test@example.com",
+    "after_submit": {
+      "popup_exists": true,
+      "popup_display": "flex",
+      "popup_visibility": "visible",
+      "popup_opacity": "1",
+      "popup_classes": "popup",
+      "body_text": "×\nSubscribe to Our Newsletter\n\nStay updated with the latest news and offers.\n\nSubscribe"
+    },
+    "after_submit_dom": "\n  <div class=\"popup\">\n    <button class=\"close-btn\" onclick=\"document.querySelector('.popup').style.display='none'\">×</button>\n    <h2>Subscribe to Our Newsletter</h2>\n    <p>Stay updated with the latest news and offers.</p>\n    <form onsubmit=\"return false;\">\n      <input type=\"email\" placeholder=\"Enter your email\" required=\"\">\n      <button type=\"submit\">Subscribe</button>\n    </form>\n  </div>\n\n",
+    "before_close": {
+      "visibility": "visible",
+      "display": "flex",
+      "opacity": "1"
+    },
+    "after_close": {
+      "visibility": "visible",
+      "display": "none",
+      "opacity": "1",
+      "classes": "popup"
+    },
+    "invalid_email": {
+      "valid": false,
+      "popup_visibility": "visible",
+      "popup_display": "flex"
+    }
+  }
+}
