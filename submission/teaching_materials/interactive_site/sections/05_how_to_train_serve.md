@@ -59,6 +59,10 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 ### 4.2 The decoding race: algorithms x domains
 
+First, watch it. Both panes decode the same coding brief (the Figure 11 calendar popup), with real outputs replayed at each lane's measured speed:
+
+<iframe src="race_demo.html" style="width:100%;height:430px;border:1px solid var(--line);border-radius:10px;background:#faf9f7;" title="Speculative decoding live comparison"></iframe>
+
 Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (`race_domains.py`: coding / creative / frontend, 512 tokens each, greedy).
 
 ```bash

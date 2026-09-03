@@ -74,7 +74,7 @@ Figure 9. (mock). OpenRouter traffic by task type. And 83% of tasks have never b
 
 So does lossless hold on the 83% domains/tasks that have never been measured?
 
-### 2.3 Case study: LosslessBench
+### 2.3 Introducing Lossless Bench
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math,  we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 
@@ -144,7 +144,7 @@ We also designed an experiment to show that relaxing an acceptance parameter can
 4. **DeepSpec `--confidence-threshold` 旋钮**：超阈值即免验直收。lossless-for-speed 的交易浓缩在一个官方 flag 里。
 5. **生产 stack 的 lossy/lossless 分类**（§1 Round 72 挪来的素材，三连句式复活）：quantized weights lossy、KV-cache compression lossy、speculative decoding——Lossless，但仅指 exact verification 那一步。定理盖一步，生产 stack 比一步长（fp4 + kv routing + pd disagg + relaxed acceptance 全在证明假设之外）。
 
-### 2.3 Case study: LosslessBench
+### 2.3 Introducing Lossless Bench
 
 <!-- 2.3 开场备选（8/31）：Theoretical losslessness (Section 1) and algorithmic losslessness (Section 2.2) are covered; this section measures output stability, the layer no engine guarantees. 不提"借鉴 vLLM"，我们有自己的思路。 -->
 

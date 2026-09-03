@@ -11,7 +11,7 @@ Today, speculative decoding runs under nearly every hosted LLM, and agent workfl
 In this teaching material, we have designed content progressively. Each section builds on the previous one:
 
 1. What lossless means. How does speculative decoding work? Why is it lossless in theory?  
-2. What it doesn't mean. Does lossless inference hold true beyond the math and coding domains?  
+2. What it doesn't mean. Introducing Losslessbench to test beyond the math and coding domains.  
 3. What's next? What are the exciting new directions in accelerated inference?  
 4. How to train, serve, and test it. Run a speculative decoding model with SGLang.
 

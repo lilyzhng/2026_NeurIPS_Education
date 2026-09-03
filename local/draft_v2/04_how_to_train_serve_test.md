@@ -68,7 +68,12 @@ SPEC_MODE=dflash modal deploy modal_vllm_serve.py
 python3 race_domains.py --url <your-url> --label <mode>   # once per deploy
 ```
 
-Our H100 medians (tok/s, speedup over vanilla):
+First, the race itself. Every lane gets the same task: continue Figure 1's passage ("It does not do to dwell on dreams and forget to live.") in plain conversational prose, 512 tokens, greedy, timed on the same H100 (median of 5 runs).
+
+![Figure 15](figures_v4/fig15_race_real.png)
+**Figure 15.** The decoding race, run for real: same passage, four lanes. DSpark wins; an under-tuned EAGLE-3 and a misconfigured DFlash finish behind the vanilla model they were supposed to beat.
+
+The race is one passage. Whether the ranking holds across kinds of text is the per-domain question:
 
 | domain | vanilla | DSpark | EAGLE-3 | DFlash (broken config) |
 |---|---|---|---|---|

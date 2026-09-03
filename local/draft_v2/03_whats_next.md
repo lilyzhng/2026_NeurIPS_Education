@@ -8,7 +8,7 @@ Section 2 brought awareness of lossy inference. In this section we go through th
 
 ### 3.1 Multimodal Speculative Decoding
 
-The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and in chat the same vision-language models parse user-uploaded documents, charts, and videos.
+The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and parsing User uploaded documents, charts, and videos in the chat.
 
 So the question is: can we expect speculative decoding to work for multimodal language models as well?
 

@@ -744,6 +744,9 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="race42" class="section" data-toc="4.2 The decoding race">
 
 <h3 id="42-the-decoding-race-algorithms-x-domains">4.2 The decoding race: algorithms x domains</h3>
+<p>First, watch it. Both panes decode the same coding brief (the Figure 11 calendar popup), with real outputs replayed at each lane's measured speed:</p>
+<iframe src="race_demo.html" style="width:100%;height:430px;border:1px solid var(--line);border-radius:10px;background:#faf9f7;" title="Speculative decoding live comparison"></iframe>
+
 <p>Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (<code>race_domains.py</code>: coding / creative / frontend, 512 tokens each, greedy).</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>dspark <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>eagle3 <span class="ex">modal</span> deploy modal_vllm_serve.py   <span class="co"># config relabel applied in the script</span></span>
