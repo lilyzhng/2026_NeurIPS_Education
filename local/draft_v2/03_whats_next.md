@@ -23,9 +23,13 @@ The output side is the more instructive one, because the two published answers t
 
 ### 3.2 From Speculating Tokens to Speculating Tool Calls
 
-The draft-verify idea is not limited to tokens. In an agent harness, the expensive unit is the tool call: a sub-LLM query or an API call blocks the loop while the model is still writing the code that invokes it. Speculative programmatic tool calling applies the same bet one level up ([Zhang, 2026](https://alexzhang13.github.io/blog/2026/spec-ptc/)): while the harness is still generating, a shadow REPL executes the partial code, and any tool call whose inputs are already determined is launched ahead of time. Verification becomes a cache lookup instead of rejection sampling: when the real code runs, a speculated call that matches returns its cached result, and one that does not match is discarded and re-executed. On the OOLONG benchmark with Qwen3-30B, this overlap recovers 1 to 1.2x end to end.
+Everything so far speculates tokens inside one model. In an agent, tokens are no longer where the time goes: the model writes code that calls tools, and each tool call, a sub-LLM query or an API request, takes seconds while the code that invokes it is still being written.
 
-Section 1's three factors carry over to this level: pre-launching is the drafting time, the cache check is the verification time, and the fraction of speculated calls that get used is the acceptance length of the agent world.
+So the question is: can the same draft-verify idea speed up tool calls?
+
+One early answer is speculative programmatic tool calling ([Zhang, 2026](https://alexzhang13.github.io/blog/2026/spec-ptc/)). While the model is still writing its code, a second interpreter runs the partial code in the background, and any tool call whose inputs are already fully determined is launched ahead of time. When the finished code runs for real, each pre-launched call is compared against the call the code actually makes: a match returns the stored result immediately, a mismatch is discarded and the call runs again. A wrong guess costs only the wasted early launch. On the OOLONG benchmark with Qwen3-30B, this overlap recovers 1 to 1.2x end to end.
+
+Section 1's three factors carry over unchanged: pre-launching is the drafting, the comparison against the real call is the verification, and the fraction of pre-launched calls that get used is the acceptance rate of the agent world.
 
 ### 3.3 Should the Model Layer Own Inference Acceleration?
 
