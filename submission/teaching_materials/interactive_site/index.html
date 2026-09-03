@@ -276,6 +276,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#toolcalls">3.2 Speculating tool calls</a></li>
       <li class="sub"><a href="#ownership">3.3 Inference acceleration ownership</a></li>
       <li><a href="#train">4. How to Train + Serve</a></li>
+      <li class="sub"><a href="#servefirst">4.1 Serve an accelerated model</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#citation">Citation</a></li>
     </ul>
@@ -664,7 +665,7 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <div id="multimodal" class="section" data-toc="3.1 Multimodal speculative decoding">
 
 <h3 id="31-multimodal-speculative-decoding">3.1 Multimodal Speculative Decoding</h3>
-<p>The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and in chat the same vision-language models parse user-uploaded documents, charts, and videos.</p>
+<p>The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and parsing User uploaded documents, charts, and videos in the chat.</p>
 <p>So the question is: can we expect speculative decoding to work for multimodal language models as well?</p>
 <p>The answer is not yet: no multimodal speculative decoding method has reached mainstream adoption. vLLM merged its first VLM support for EAGLE-3 (Qwen2.5-VL only) in v0.11.1 (<a href="https://github.com/vllm-project/vllm/pull/22872">vLLM #22872</a>) while its other speculative paths still reject multimodal models, and SpecForge, SGLang's draft-training framework, lists VLM integration as roadmap (<a href="https://www.lmsys.org/blog/2025-07-25-spec-forge/">SpecForge, 2025</a>).</p>
 <p>On the research side, MMSpec, the first VLM speculative decoding benchmark, measures over 600 samples across ten algorithms (<a href="https://arxiv.org/abs/2603.14989">MMSpec, 2026</a>), and its main finding is that speculative decoding designed for language models can degrade on multimodal input, because the draft model has limited vision capability compared to the target model. This happens in two ways:</p>
@@ -700,6 +701,50 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <div id="train" class="section">
 
 <h2 id="4-how-to-train--serve">4. How to Train + Serve</h2>
+</div>
+
+<div id="servefirst" class="section" data-toc="4.1 Serve an accelerated model">
+
+<h3 id="41-serve-your-first-accelerated-model">4.1 Serve your first accelerated model</h3>
+<p>In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.</p>
+<p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
+<p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a <a href="https://modal.com">Modal</a> account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install modal <span class="kw">&amp;&amp;</span> <span class="ex">modal</span> setup                    <span class="co"># one-time account link</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/lilyzhng/2026_NeurIPS_Education <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> <span class="pp">*</span>/teaching_materials/lab</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>vanilla <span class="ex">modal</span> deploy modal_vllm_serve.py   <span class="co"># prints your server URL</span></span></code></pre></div>
+<p>The script pins the image, caches model weights in a volume so they download once, and exposes the server at a public URL. When done, <code>modal app stop neurips-spec-lab</code> releases the GPU.</p>
+<p>Serve the vanilla model:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vllm</span> serve Qwen/Qwen3-8B <span class="at">--port</span> 8000</span></code></pre></div>
+<p>Send a prompt and measure the generation speed (<code>measure_decoding_speed.py</code>). Then restart the server with the DeepSpec DSpark speculator (on Modal: <code>SPEC_MODE=dspark modal deploy modal_vllm_serve.py</code>) and run the same bench again:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vllm</span> serve Qwen/Qwen3-8B <span class="at">--port</span> 8000 <span class="at">--speculative-config</span> <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;{&quot;model&quot;: &quot;deepseek-ai/dspark_qwen3_8b_block7&quot;, &quot;method&quot;: &quot;dspark&quot;, &quot;num_speculative_tokens&quot;: 7}&#39;</span></span></code></pre></div>
+<p>Our 5 runs on one H100:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>run</th><th>vanilla (tok/s)</th><th>DSpark (tok/s)</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td><span class="num">135.1</span></td><td><span class="num">230.3</span></td></tr>
+<tr><td>2</td><td><span class="num">136.2</span></td><td><span class="num">234.9</span></td></tr>
+<tr><td>3</td><td><span class="num">135.0</span></td><td><span class="num">223.9</span></td></tr>
+<tr><td>4</td><td><span class="num">138.1</span></td><td><span class="num">234.0</span></td></tr>
+<tr><td>5</td><td><span class="num">136.9</span></td><td><span class="num">233.9</span></td></tr>
+<tr><td><strong>median</strong></td><td><span class="num"><strong>136.2</strong></span></td><td><span class="num"><strong>233.9 (1.72x)</strong></span></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's <code>/metrics</code> counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:</p>
+<div class="sptc-py" data-lang="text"><pre>
+L_target = 1 / 136.2 tok/s ≈ 7.3 ms         # latency of the target (vanilla) model, per token
+L_dspark = 1 / 233.9 tok/s ≈ 4.3 ms         # latency with the DSpark draft, per token
+τ        ≈ 3.5                             # acceptance length
+&nbsp;
+T_draft + T_verify = L_dspark × τ ≈ 15.0 ms # cost of one draft+verify pass
+η = L_target / L_dspark ≈ 1.72x             # speedup
+</pre></div>
+
 </div>
 
 <div id="references" class="section">

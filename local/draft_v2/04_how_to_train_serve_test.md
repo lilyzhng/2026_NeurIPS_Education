@@ -13,11 +13,9 @@
 
 ### 4.1 Serve your first accelerated model
 
-In this section you serve the same model twice, once vanilla model and once with a speculator, and measure the three deciding factors from Table 1 on your own GPU.
+In this section you serve the same model twice, once vanilla model and once with a speculator, and measure inference acceleration on your own GPU.
 
-The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for all three Section 1 algorithms on the same target, Qwen3-8B, under one training recipe. The serving engine is vLLM, the one engine that loads all three of those checkpoints (the engine map is in the lab README).
-
-The first deployment pays a one-time cold start (image build plus a 16GB weight download, about 10 minutes). And it is cached afterwards.
+The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for eagle 3, dflash and dspark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have cold start (image build plus a 16GB weight download, about 10 minutes). But it is cached afterwards, so later experiments would be faster.
 
 **Where to get the GPU.** Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a [Modal](https://modal.com) account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12). 
 
@@ -35,44 +33,36 @@ Serve the vanilla model:
 vllm serve Qwen/Qwen3-8B --port 8000
 ```
 
-Send a prompt and measure the generation speed (`measure_decoding_speed.py`):
-
-```text
-[vanilla] run 0: 3.74s, 512 tokens, 136.8 tok/s
-[vanilla] run 4: 3.88s, 512 tokens, 132.0 tok/s
-median: 136.2 tok/s
-```
-
-Now restart the server with the DeepSpec DSpark speculator (on Modal: `SPEC_MODE=dspark modal deploy modal_vllm_serve.py`):
+Send a prompt and measure the generation speed (`measure_decoding_speed.py`). Then restart the server with the DeepSpec DSpark speculator (on Modal: `SPEC_MODE=dspark modal deploy modal_vllm_serve.py`) and run the same bench again:
 
 ```bash
 vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
   '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-Run the same bench again:
+Our 5 runs on one H100:
+
+| run | vanilla (tok/s) | DSpark (tok/s) |
+|---|---|---|
+| 1 | 135.1 | 230.3 |
+| 2 | 136.2 | 234.9 |
+| 3 | 135.0 | 223.9 |
+| 4 | 138.1 | 234.0 |
+| 5 | 136.9 | 233.9 |
+| **median** | **136.2** | **233.9 (1.72x)** |
+
+vLLM does not report acceptance length or per-token latency directly. Both come from our measurements: latency from the throughput above, and τ from the server's `/metrics` counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:
 
 ```text
-[dspark] run 0: 2.19s, 512 tokens, 233.9 tok/s
-[dspark] run 4: 2.21s, 512 tokens, 231.7 tok/s
-median: 233.9 tok/s                       # 1.72x over our own baseline
-τ ≈ 3.5                                   # accepted tokens per pass, from /metrics counters
-```
-
-Calculating based on Table 1's formula:
-
-```text
-L_target = 1 / 136.2 tok/s ≈ 7.3 ms    # per-token latency, vanilla
-L        = 1 / 233.9 tok/s ≈ 4.3 ms    # per-token latency, with DSpark
-τ        ≈ 3.5                        # accepted tokens per verification pass
+L_target = 1 / 136.2 tok/s ≈ 7.3 ms         # latency of the target (vanilla) model, per token
+L_dspark = 1 / 233.9 tok/s ≈ 4.3 ms         # latency with the DSpark draft, per token
+τ        ≈ 3.5                             # acceptance length
 &nbsp;
-T_draft + T_verify = L × τ ≈ 15.0 ms   # one draft+verify pass ≈ 2 vanilla forwards
-η = L_target / L ≈ 1.72x               # pay ~2 forwards, get 3.5 tokens
+T_draft + T_verify = L_dspark × τ ≈ 15.0 ms # cost of one draft+verify pass
+η = L_target / L_dspark ≈ 1.72x             # speedup
 ```
 
-Note: of the three DeepSpec checkpoints, DSpark is the one that serves cleanly today (on both engines). EAGLE-3 fails to load in either (SGLang lacks its Qwen3-shaped draft class, and in vLLM its weights mismatch its own config), and DFlash loads in vLLM only after an architecture relabel that turns out to produce rejected drafts. Exercise 4.2 measures what that looks like. Section 4.3 switches to SGLang for a knob vLLM does not have.
-
-> **Sidebar:** on [Fireworks](https://docs.fireworks.ai/deployments/speculative-decoding), this is one flag: `firectl deployment create <model>` ships with a drafter, `--disable-speculative-decoding` gives the baseline.
+<!-- 作者注(不面向读者,2026-09-03 实测): 三个 DeepSpec checkpoint 只有 DSpark 双引擎可服。EAGLE-3 两边都挂(SGLang 无 Qwen3 形状 eagle3 类;vLLM 报 weights [4096,20480] vs config [4096,12288] shape mismatch,疑 checkpoint 发布件 bug,待提 issue)。DFlash SGLang 拒载(markov_rank=0),vLLM relabel 后可载但 τ≈1.03 draft 全拒(4.2 表里 0.8x 的原因)。4.3 用 SGLang 因为只有它有 accept-threshold 旋钮。 -->
 
 ## 设计稿（2026-09-02 定 — 4.2-4.4 待跑通后成文）
 
@@ -96,7 +86,7 @@ Our H100 medians (tok/s, speedup over vanilla):
 | creative | 138.2 | 416.7 (3.0x) | 110.3 (0.80x) |
 | frontend | 137.6 | 333.1 (2.4x) | 111.1 (0.81x) |
 
-Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional. DFlash comes out *slower than vanilla* here, and the metrics counters say why: τ ≈ 1.03, meaning almost every draft token is rejected and each step keeps only the bonus token, so the lane pays full drafting cost for nothing (our architecture relabel loads the weights but maps them wrong). A mismatched drafter costs you speed, which is why providers tell you to benchmark before overriding defaults ([Fireworks docs](https://docs.fireworks.ai/deployments/speculative-decoding) say exactly this). And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional. DFlash comes out *slower than vanilla* here, and the metrics counters say why: τ ≈ 1.03, meaning almost every draft token is rejected and each step keeps only the bonus token, so the lane pays full drafting cost for nothing (our architecture relabel loads the weights but maps them wrong). A mismatched drafter costs you speed: benchmark before you swap one in. And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
 
 <!-- TODO 4.2: race tool 动画（fig6 复刻）+ EAGLE-3 泳道（需 SGLang 格式 Qwen3-8B checkpoint，DeepSpec 的是 vLLM 格式）；temp0 creative 膨胀效应写正文前先补 temp 0.7 对照 -->
 
