@@ -1,6 +1,6 @@
 # Section 4 Hands-on Lab — code
 
-Scripts behind the article's Section 4 ("How to Train, Serve, and Test It"). One H100 (or A100-80GB), one afternoon, all draft weights from the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) release (one training recipe across algorithms, so cross-algorithm comparisons stay controlled).
+Scripts behind the article's Section 4 ("Hands-On Lab"). One H100 (or A100-80GB), one afternoon, all draft weights from the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) release (one training recipe across algorithms, so cross-algorithm comparisons stay controlled).
 
 ## Engine map (verified 2026-09-02, the hard-won part)
 
