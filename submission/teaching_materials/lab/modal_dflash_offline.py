@@ -199,6 +199,69 @@ def race() -> dict:
     return results
 
 
+@app.function(
+    image=image,
+    gpu="H100",
+    timeout=45 * 60,
+    volumes={"/root/.cache/huggingface": hf_cache},
+    secrets=_secrets,
+)
+def pilot(items: list) -> dict:
+    """Radar-pilot prompts on the DFlash lane (greedy, warmup burned)."""
+    import time
+
+    from vllm import LLM, SamplingParams
+
+    llm = LLM(
+        model="Qwen/Qwen3-8B",
+        trust_remote_code=True,
+        speculative_config={
+            "method": "dflash",
+            "model": "z-lab/Qwen3-8B-DFlash-b16",
+            "num_speculative_tokens": 16,
+            "max_model_len": 32768,
+        },
+        max_model_len=32768,
+        max_num_seqs=128,
+        gpu_memory_utilization=0.85,
+        enforce_eager=False,
+        disable_log_stats=False,
+    )
+    llm.chat([{"role": "user", "content": "Say hi."}], SamplingParams(max_tokens=16))
+    out = {}
+    for it in items:
+        t0 = time.time()
+        r = llm.chat(it["messages"], SamplingParams(temperature=0, max_tokens=it["max_tokens"]))[0]
+        dt = time.time() - t0
+        tokens = len(r.outputs[0].token_ids)
+        key = f"{it['domain']}_{it['id']}"
+        out[key] = {"text": r.outputs[0].text, "seconds": round(dt, 1),
+                    "completion_tokens": tokens,
+                    "tokens_per_s": round(tokens / dt, 1),
+                    **({"gold": it["gold"]} if "gold" in it else {})}
+        print(f"[dflash] {key}: {tokens} tok in {dt:.1f}s", flush=True)
+    return out
+
+
+@app.local_entrypoint()
+def pilot_main(hard: bool = False):
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from pilot_radar_prompts import build, build_hard
+
+    ROOT = Path(__file__).resolve().parents[3]
+    out_dir = ROOT / "local/draft_v2/data/4_6_radar_pilot/dflash"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    results = pilot.remote(build_hard() if hard else build())
+    metaf = out_dir / "meta.json"
+    meta = json.loads(metaf.read_text()) if metaf.exists() else {}
+    for key, r in results.items():
+        (out_dir / f"{key}.txt").write_text(r.pop("text"))
+        meta[key] = r
+    metaf.write_text(json.dumps(meta, indent=1))
+    print("saved", len(meta), "items ->", out_dir)
+
+
 @app.local_entrypoint()
 def race_main():
     ROOT = Path(__file__).resolve().parents[3]

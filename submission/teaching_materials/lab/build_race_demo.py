@@ -19,11 +19,19 @@ OUT = ROOT / "local/draft_v2/demo/race_demo.html"
 
 # 2x2 order: top-left, top-right, bottom-left, bottom-right
 LANES = [
-    ("vanilla", "vanilla", "#8a4a2b"),
+    ("vanilla", "Vanilla model", "#8a4a2b"),
     ("eagle3", "EAGLE-3", "#39598c"),
     ("dflash", "DFlash", "#97662a"),
     ("dspark", "DSpark", "#2c5f2d"),
 ]
+
+PROMPT_HTML = (
+    "LosslessBench L101, Frontend Design, Translucent Calendar Popup. "
+    "You are a frontend engineer. Produce a complete single-file HTML page "
+    "(inline CSS, no external assets) for the following brief. Output only "
+    "the HTML, starting with &lt;!DOCTYPE html&gt;. <b>Brief: Stunning "
+    "translucent calendar popup that smoothly blends into the interface.</b>"
+)
 
 
 def js_str(t: str) -> str:
@@ -57,8 +65,10 @@ def main() -> None:
     page = """<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>The decoding race, live</title>
 <style>
-  body { margin:0; font-family:-apple-system,'Inter',sans-serif; background:#faf9f7; }
-  .grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:8px; padding:8px; height:calc(100vh - 48px); box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,'Inter',sans-serif; background:#faf9f7; display:flex; flex-direction:column; height:100vh; }
+  .prompt { padding:10px 14px 4px; font:12.5px/1.5 Georgia,'Times New Roman',serif; color:#3a3a34; }
+  .prompt .plabel { font:700 10px ui-monospace,Menlo,monospace; letter-spacing:.12em; color:#9a9a8e; margin-right:10px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:8px; padding:8px; flex:1; min-height:0; box-sizing:border-box; }
   .pane { position:relative; border:1px solid #ddd; border-radius:10px; background:#1e2a1c; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
   .badge { display:none; position:absolute; right:10px; bottom:10px; background:rgba(20,28,18,.92); color:#fff;
            border:1px solid #4a5a44; border-radius:12px; padding:6px 12px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); }
@@ -77,6 +87,7 @@ def main() -> None:
   button.replay { font-size:13px; padding:5px 16px; border-radius:8px; border:1px solid #bbb; background:#fff; cursor:pointer; }
   .note { font-size:12px; color:#666; }
 </style></head><body>
+<div class="prompt"><span class="plabel">PROMPT</span>__PROMPT__</div>
 <div class="grid">
 __PANES__
 </div>
@@ -137,6 +148,7 @@ function showFinal() {
 }
 window.addEventListener('load', showFinal);
 </script></body></html>"""
+    page = page.replace("__PROMPT__", PROMPT_HTML)
     page = page.replace("__PANES__", panes)
     page = page.replace("__TEXTS__", "[" + ",".join(js_str(t) for t in texts) + "]")
     page = page.replace("__SPEEDS__", json.dumps(speeds))

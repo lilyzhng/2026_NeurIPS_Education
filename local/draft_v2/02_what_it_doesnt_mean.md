@@ -98,10 +98,10 @@ Figure 10.  GLM 5.2 quality across five domains. Axes are independently scaled, 
 Figures 11 and 12 isolate speculative decoding alone. One target model, greedy decoding, four deployments race on two LosslessBench briefs: vanilla against EAGLE-3, DFlash, and DSpark drafts, each pane streaming its lane's real output at its measured H100 speed. Press Replay to watch. The lanes do not produce the same output. On the calendar brief the four lanes write four different pages and DFlash's grid comes out broken. On the story brief EAGLE-3 and DSpark write one story while vanilla and DFlash each write their own. Section 4.2 has the commands to reproduce these runs.
 
 ![Figure 11](figures_v4/fig16_race_demo_frontend.jpg)
-**Figure 11.** The decoding race on the LosslessBench calendar brief (OpenDesign id 673). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html). Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
+**Figure 11.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html), prompt shown above the race.
 
 ![Figure 12](figures_v4/fig17_race_demo_creative.jpg)
-**Figure 12.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html). Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
+**Figure 12.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html), prompt shown above the race.
 
 Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
@@ -124,11 +124,7 @@ We identified a significant gap in the frontend design evaluation under a vendor
 </figure>![Figure 13](figures_v4/fig10_calendar_comparison.png)
 **Figure 13.** The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.
 
-We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.
-
-
-![Figure 12](figures_v4/fig11_threshold_sweep.png)
-**Figure 14 (mock, TBD original results)**
+<!-- threshold-sweep 段与 mock 图删除（2026-09-03，Lily）：实测 accuracy 在噪声带，见 parked_4_3_threshold_sweep.md -->
 
 ## 框架（定稿骨架，2026-08-27）
 

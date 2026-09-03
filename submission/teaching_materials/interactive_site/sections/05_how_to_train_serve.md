@@ -35,12 +35,12 @@ vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
   '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 16):
+Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 15):
 
 <figure class="mid">
 <img src="figures/fig14_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption><strong>Figure 16.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 15.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's `/metrics` counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:
 

@@ -123,12 +123,12 @@ Figures 11 and 12 isolate speculative decoding alone. One target model, greedy d
 <figure class="wide">
 <iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (OpenDesign id 673). Vanilla takes 8.9s, DFlash 3.3s. Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with <code>&lt;!DOCTYPE html&gt;</code>. Brief: Stunning translucent calendar popup that smoothly blends into the interface.</figcaption>
+<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Prompt shown above the race.</figcaption>
 
 <figure class="wide">
 <iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
-<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.</figcaption>
+<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt shown above the race.</figcaption>
 
 Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
@@ -154,19 +154,5 @@ We identified a significant gap in the frontend design evaluation under a vendor
 </div>
 </figure>
 <figcaption><strong>Figure 13.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
-
-We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.
-
-<pre><code>DEEPSPEC CONFIDENCE THRESHOLD SWEEP: strict -&gt; loose
-
-threshold    1.0      0.9      0.7      0.5      0.3
-             strict ----------------------------- loose
-
-speed        |##      |###     |####    |#####   |######    faster -&gt;
-accuracy     |#####   |#####   |####    |###     |##        (TBD results)
-
-             ^ lossless
-               guarantee ends where relaxation begins</code></pre>
-<figcaption><strong>Figure 14 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
 
 </div>

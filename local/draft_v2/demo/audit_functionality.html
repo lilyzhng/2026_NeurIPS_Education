@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>functionality audit</title>
+<style>body{font-family:ui-monospace,monospace;font-size:12px;padding:16px}
+#frame{position:fixed;left:-3000px;width:1200px;height:800px}
+td,th{padding:3px 8px;border-bottom:1px solid #ddd;text-align:left}</style></head><body>
+<h3>Interaction audit: click every control, count real DOM responses</h3>
+<table id="out"><tr><th>page</th><th>controls</th><th>responsive</th><th>dead</th><th>notes</th></tr></table>
+<pre id="json"></pre>
+<iframe id="frame"></iframe>
+<script>
+const PAGES = [];
+for (const arm of ['vanilla','dflash']) {
+  PAGES.push([arm+'_calendar', arm+'_raw.html']);
+  for (const oid of ['od5','od6','od8','od9','od10','od340','od341'])
+    PAGES.push([arm+'_'+oid, 'radar/'+arm+'_frontend_'+oid+'.html']);
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const results = {};
+
+async function auditPage(name, src) {
+  const f = document.getElementById('frame');
+  await new Promise(res => { f.onload = res; f.src = src + '?t=' + Date.now(); });
+  await sleep(400);
+  const doc = f.contentDocument, win = f.contentWindow;
+  // candidate controls: buttons, links, clickable-looking cells (short numeric/word text with cursor/handler)
+  const ctrls = [...doc.querySelectorAll('button, a, input, select, [onclick]')];
+  // calendar day cells and card-like clickables
+  for (const e of doc.querySelectorAll('td,div,span')) {
+    if (/^\d{1,2}$/.test(e.textContent.trim()) && e.children.length === 0 && ctrls.length < 60)
+      ctrls.push(e);
+  }
+  let responsive = 0, dead = 0, notes = [];
+  for (const e of ctrls.slice(0, 40)) {
+    const tag = e.tagName.toLowerCase();
+    if (tag === 'input') {   // type into it, count as responsive if value sticks
+      try { e.value = 'test@x.com'; responsive += (e.value === 'test@x.com') ? 1 : 0; } catch (err) { dead += 1; }
+      continue;
+    }
+    const before = doc.body.innerHTML;
+    const beforeClass = e.className;
+    try { e.click(); } catch (err) { dead += 1; continue; }
+    await sleep(120);
+    const changed = doc.body.innerHTML !== before || e.className !== beforeClass;
+    if (changed) responsive += 1;
+    else { dead += 1;
+      const label = (e.textContent || e.value || tag).trim().slice(0, 18);
+      if (notes.length < 6) notes.push(label || tag); }
+  }
+  results[name] = { controls: Math.min(ctrls.length, 40), responsive, dead, dead_examples: notes };
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${name}</td><td>${results[name].controls}</td><td>${responsive}</td><td>${dead}</td><td>${notes.join(', ')}</td>`;
+  document.getElementById('out').appendChild(tr);
+}
+
+(async () => {
+  for (const [name, src] of PAGES) { try { await auditPage(name, src); } catch (e) { results[name] = {error: String(e)}; } }
+  document.getElementById('json').textContent = 'AUDIT_DONE ' + JSON.stringify(results);
+})();
+</script></body></html>
