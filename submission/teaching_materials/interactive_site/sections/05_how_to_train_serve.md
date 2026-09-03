@@ -35,12 +35,12 @@ vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
   '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 14):
+Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 16):
 
 <figure class="mid">
 <img src="figures/fig14_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption><strong>Figure 14.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 16.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's `/metrics` counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:
 
@@ -68,19 +68,11 @@ modal run modal_dflash_offline.py            # DFlash lane, see note below
 python3 build_race_demo.py                   # assembles the demo from your outputs
 ```
 
-<figure class="wide">
-<iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
-</figure>
-<figcaption><strong>Figure 16.</strong> The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s. Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with <code>&lt;!DOCTYPE html&gt;</code>. Brief: Stunning translucent calendar popup that smoothly blends into the interface.</figcaption>
+These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
 
-<figure class="wide">
-<iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
-</figure>
-<figcaption><strong>Figure 17.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.</figcaption>
+Look closely at Figure 11 in Section 2.3: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
-Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
-
-Figure 17 is the evaluation result on creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
+Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
 | story | instruction following | Latin vocabulary | writing style |
 |---|---|---|---|

@@ -635,13 +635,24 @@ decision independent of tk               admission of tk depends on tk itself
 </figure>
 <figcaption><strong>Figure 10.</strong> GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
-<p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. Figure 11 shows one failure: the accelerated deployment renders a clean page and omits the component the prompt asked for. The other four domains showed no significant gap.</p>
+<p>Figures 11 and 12 isolate speculative decoding alone. One target model, greedy decoding, four deployments race on two LosslessBench briefs: vanilla against EAGLE-3, DFlash, and DSpark drafts, each pane streaming its lane's real output at its measured H100 speed. Press Replay to watch. The lanes do not produce the same output. On the calendar brief the four lanes write four different pages and DFlash's grid comes out broken. On the story brief EAGLE-3 and DSpark write one story while vanilla and DFlash each write their own. Section 4.2 reproduces these runs and scores the outputs.</p>
+<figure class="wide">
+<iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
+</figure>
+<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (OpenDesign id 673). Vanilla takes 8.9s, DFlash 3.3s. Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with <code>&lt;!DOCTYPE html&gt;</code>. Brief: Stunning translucent calendar popup that smoothly blends into the interface.</figcaption>
+
+<figure class="wide">
+<iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
+</figure>
+<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.</figcaption>
+
+<p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.</p>
 <figure>
 <div class="fig2">
 <img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
 </div>
 </figure>
-<figcaption><strong>Figure 11.</strong> The same model, the same frontend prompt, left is the original model, right is with inference acceleration.</figcaption>
+<figcaption><strong>Figure 13.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
 
 <p>We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.</p>
 <pre><code>DEEPSPEC CONFIDENCE THRESHOLD SWEEP: strict -&gt; loose
@@ -655,7 +666,7 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
              ^ lossless
                guarantee ends where relaxation begins</code></pre>
 
-<figcaption><strong>Figure 12 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
+<figcaption><strong>Figure 14 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
 
 </div>
 
@@ -695,9 +706,9 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <figure>
 <img src="figures/fig13_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
 </figure>
-<figcaption><strong>Figure 13 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
+<figcaption><strong>Figure 15 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
 
-<p>See Figure 13. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
+<p>See Figure 15. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
 <p><u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u></p>
 </div>
 
@@ -721,11 +732,11 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <p>Send a prompt and measure the generation speed (<code>measure_decoding_speed.py</code>). Then restart the server with the DeepSpec DSpark speculator (on Modal: <code>SPEC_MODE=dspark modal deploy modal_vllm_serve.py</code>) and run the same bench again:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vllm</span> serve Qwen/Qwen3-8B <span class="at">--port</span> 8000 <span class="at">--speculative-config</span> <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;{&quot;model&quot;: &quot;deepseek-ai/dspark_qwen3_8b_block7&quot;, &quot;method&quot;: &quot;dspark&quot;, &quot;num_speculative_tokens&quot;: 7}&#39;</span></span></code></pre></div>
-<p>Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 14):</p>
+<p>Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 16):</p>
 <figure class="mid">
 <img src="figures/fig14_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption><strong>Figure 14.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 16.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 <p>vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's <code>/metrics</code> counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:</p>
 <div class="sptc-py" data-lang="text"><pre>
@@ -747,18 +758,9 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>dspark <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">modal</span> run modal_dflash_offline.py            <span class="co"># DFlash lane, see note below</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> build_race_demo.py                   <span class="co"># assembles the demo from your outputs</span></span></code></pre></div>
-<figure class="wide">
-<iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
-</figure>
-<figcaption><strong>Figure 16.</strong> The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s. Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with <code>&lt;!DOCTYPE html&gt;</code>. Brief: Stunning translucent calendar popup that smoothly blends into the interface.</figcaption>
-
-<figure class="wide">
-<iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
-</figure>
-<figcaption><strong>Figure 17.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.</figcaption>
-
-<p>Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
-<p>Figure 17 is the evaluation result on creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
+<p>These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).</p>
+<p>Look closely at Figure 11 in Section 2.3: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
+<p>Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>
 <tr>

@@ -89,22 +89,30 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 ![Figure 10 radar](figures_v4/fig9_radar_five_domains.png) 
 Figure 10.  GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.
 
-We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. Figure 11 shows one failure: the accelerated deployment renders a clean page and omits the component the prompt asked for. The other four domains showed no significant gap.
-
 <!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 11 example degradation was caused by quantization. -->
 
 <figure>
 <div class="fig2">
 <img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
 </div>
-</figure>![Figure 11](figures_v4/fig10_calendar_comparison.png)
-**Figure 11.** The same model, the same frontend prompt, left is the original model, right is with inference acceleration.
+Figures 11 and 12 isolate speculative decoding alone. One target model, greedy decoding, four deployments race on two LosslessBench briefs: vanilla against EAGLE-3, DFlash, and DSpark drafts, each pane streaming its lane's real output at its measured H100 speed. Press Replay to watch. The lanes do not produce the same output. On the calendar brief the four lanes write four different pages and DFlash's grid comes out broken. On the story brief EAGLE-3 and DSpark write one story while vanilla and DFlash each write their own. Section 4.2 reproduces these runs and scores the outputs.
+
+![Figure 11](figures_v4/fig16_race_demo_frontend.jpg)
+**Figure 11.** The decoding race on the LosslessBench calendar brief (OpenDesign id 673). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html). Prompt: You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
+
+![Figure 12](figures_v4/fig17_race_demo_creative.jpg)
+**Figure 12.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html). Prompt: Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
+
+We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.
+
+</figure>![Figure 13](figures_v4/fig10_calendar_comparison.png)
+**Figure 13.** The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.
 
 We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.
 
 
 ![Figure 12](figures_v4/fig11_threshold_sweep.png)
-**Figure 12 (mock, TBD original results)**
+**Figure 14 (mock, TBD original results)**
 
 ## 框架（定稿骨架，2026-08-27）
 
