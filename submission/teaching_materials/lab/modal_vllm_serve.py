@@ -26,10 +26,10 @@ SPEC_MODE = os.environ.get("SPEC_MODE", "vanilla").strip().lower()
 TARGET_MODEL = os.environ.get("TARGET_MODEL", "Qwen/Qwen3-8B")
 DRAFTS = {
     "eagle3": "deepseek-ai/eagle3_qwen3_8b_ttt7",
-    "dflash": "deepseek-ai/dflash_qwen3_8b_block7",
+    "dflash": "z-lab/Qwen3-8B-DFlash-b16",  # vLLM e2e acceptance-test recipe
     "dspark": "deepseek-ai/dspark_qwen3_8b_block7",
 }
-NUM_SPEC_TOKENS = {"eagle3": "3", "dflash": "7", "dspark": "7"}  # block7 drafts
+NUM_SPEC_TOKENS = {"eagle3": "3", "dflash": "16", "dspark": "7"}  # dflash b16 per vLLM e2e test
 DRAFT_MODEL = os.environ.get("DRAFT_MODEL", DRAFTS.get(SPEC_MODE, ""))
 PORT = 8000
 MINUTES = 60
@@ -54,7 +54,14 @@ _secrets = [modal.Secret.from_dict({"HF_TOKEN": _hf_token})] if _hf_token else [
 vllm_image = (
     modal.Image.from_registry("nvidia/cuda:12.8.1-devel-ubuntu22.04", add_python="3.12")
     .apt_install("git", "curl", "build-essential", "ca-certificates", "libnuma1")
-    .pip_install("vllm>=0.11.1", "huggingface_hub")
+    .pip_install(
+        *(["vllm", "huggingface_hub"] if os.environ.get("VLLM_NIGHTLY") != "1"
+          else ["huggingface_hub"]),
+    )
+    .run_commands(
+        "pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly"
+        if os.environ.get("VLLM_NIGHTLY") == "1" else "true"
+    )
     .env(
         {
             "HF_HOME": "/root/.cache/huggingface",
@@ -68,7 +75,8 @@ vllm_image = (
     )
 )
 
-app = modal.App("neurips-spec-lab")
+# APP_NAME lets two lanes run on separate GPUs in parallel (e.g. neurips-spec-lab-b).
+app = modal.App(os.environ.get("APP_NAME", "neurips-spec-lab"))
 
 
 def _build_cmd() -> list[str]:
@@ -108,6 +116,24 @@ def _build_cmd() -> list[str]:
 def serve():
     cmd = _build_cmd()
     mode = os.environ.get("SPEC_MODE", SPEC_MODE).strip().lower()
+    if mode == "eagle3":
+        # DeepSpec's eagle3 fuses FIVE target layers (fc is [4096, 5*4096]); vLLM
+        # defaults to 3 unless the draft config names the aux layers. Patch it in.
+        from huggingface_hub import snapshot_download
+
+        draft = os.environ.get("DRAFT_MODEL", DRAFTS["eagle3"])
+        local = snapshot_download(draft)
+        cfg_path = f"{local}/config.json"
+        cfg = json.load(open(cfg_path))
+        cfg["architectures"] = ["Eagle3Qwen3ForCausalLM"]  # stable vLLM's Qwen3 eagle3 class
+        cfg["eagle_aux_hidden_state_layer_ids"] = [1, 9, 17, 25, 33]
+        cfg["num_aux_layers"] = 5
+        json.dump(cfg, open(cfg_path, "w"), indent=1)
+        print(f"[patch] {draft}: arch -> Eagle3Qwen3ForCausalLM, aux 5 layers", flush=True)
+        i = cmd.index("--speculative-config") + 1
+        spec = json.loads(cmd[i])
+        spec["model"] = local
+        cmd[i] = json.dumps(spec)
     if mode == "dflash":
         # DeepSpec's dflash checkpoint carries the DSpark arch tag; vLLM's dflash
         # path expects DFlashDraftModel (both are in vLLM's registry). Relabel.
@@ -117,10 +143,16 @@ def serve():
         local = snapshot_download(draft)
         cfg_path = f"{local}/config.json"
         cfg = json.load(open(cfg_path))
-        if cfg.get("architectures") != ["DFlashDraftModel"]:
+        if "deepseek-ai" in draft and ("dflash_config" not in cfg or cfg.get("architectures") != ["DFlashDraftModel"]):
             cfg["architectures"] = ["DFlashDraftModel"]
+            # vLLM reads these via the nested dflash_config (z-lab layout);
+            # DeepSpec ships them flat at top level, so re-wrap them.
+            cfg["dflash_config"] = {
+                "mask_token_id": cfg.get("mask_token_id", 151669),
+                "target_layer_ids": cfg.get("target_layer_ids", [1, 9, 17, 25, 33]),
+            }
             json.dump(cfg, open(cfg_path, "w"), indent=1)
-            print(f"[patch] {draft}: architectures -> DFlashDraftModel", flush=True)
+            print(f"[patch] {draft}: arch relabel + nested dflash_config", flush=True)
         i = cmd.index("--speculative-config") + 1
         spec = json.loads(cmd[i])
         spec["model"] = local
