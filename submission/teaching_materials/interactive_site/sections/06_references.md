@@ -18,6 +18,20 @@
 <li>NVIDIA (2026). Boost Inference Performance up to 15x on NVIDIA Blackwell Using DFlash Speculative Decoding. <a href="https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/">developer.nvidia.com</a></li>
 <li>OpenAI (2026). Announcing a Major Price Drop for 5.6 Terra and Luna and Fast Mode for 5.6-Sol. <a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">community.openai.com</a></li>
 <li>RedHatAI (2026). GLM-5.2 DSpark Speculator (preview). Hugging Face model card. <a href="https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview">huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview</a></li>
+<li>DeepSeek-AI (2024). DeepSeek-V3 Technical Report. <a href="https://arxiv.org/abs/2412.19437">arxiv.org/abs/2412.19437</a></li>
+<li>MASSV (2025). Multimodal Adaptation and Self-Data Distillation for Speculative Decoding of Vision-Language Models. <a href="https://arxiv.org/abs/2505.10526">arxiv.org/abs/2505.10526</a></li>
+<li>OpenAI (2025). gpt-oss-120b &amp; gpt-oss-20b Model Card. <a href="https://arxiv.org/abs/2508.10925">arxiv.org/abs/2508.10925</a></li>
+<li>ViSpec (2025). Vision-Aware Speculative Decoding for Vision-Language Models. <em>NeurIPS 2025</em>. <a href="https://neurips.cc/virtual/2025/poster/115277">neurips.cc/virtual/2025/poster/115277</a></li>
+<li>OOLONG (2025). A Benchmark for Long-Context Agent Workloads. <a href="https://arxiv.org/abs/2511.02817">arxiv.org/abs/2511.02817</a></li>
+<li>SGLang Team (2025). SpecForge: Train Your Own Speculative Decoding Models. LMSYS blog. <a href="https://www.lmsys.org/blog/2025-07-25-spec-forge/">lmsys.org/blog/2025-07-25-spec-forge</a></li>
+<li>MMSpec (2026). A Benchmark for Speculative Decoding on Vision-Language Models. <a href="https://arxiv.org/abs/2603.14989">arxiv.org/abs/2603.14989</a></li>
+<li>Hooper, C. et al. (2026). Speculative Interaction Agents. <a href="https://arxiv.org/abs/2605.13360">arxiv.org/abs/2605.13360</a></li>
+<li>Ji, K. et al. (2026). Act While Thinking: Pre-Executing Tool Calls from Reasoning Traces. <a href="https://arxiv.org/abs/2603.18897">arxiv.org/abs/2603.18897</a></li>
+<li>Zhang, A. (2026). Speculative Programmatic Tool Calling. <a href="https://alexzhang13.github.io/blog/2026/spec-ptc/">alexzhang13.github.io/blog/2026/spec-ptc</a></li>
+<li>Zhang, L. (2026). LosslessBench: Does Inference Acceleration Hold Beyond Math and Coding? <a href="https://lilyzh.ng/writing/losslessbench/">lilyzh.ng/writing/losslessbench</a></li>
+<li>OpenRouter (2026). LLM Rankings: Traffic by Task Type. <a href="https://openrouter.ai/rankings">openrouter.ai/rankings</a></li>
+<li>SGLang docs. Speculative Decoding. <a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html">docs.sglang.ai</a></li>
+<li>vLLM docs. Speculative Decoding. <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">docs.vllm.ai</a></li>
 </ol>
 
 </div>

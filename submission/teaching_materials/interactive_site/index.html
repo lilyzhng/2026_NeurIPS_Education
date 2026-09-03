@@ -268,7 +268,13 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#dflash2">1.4 DFlash 2 (2026)</a></li>
       <li class="sub"><a href="#race">1.5 Case study</a></li>
       <li><a href="#notmean">2. What it doesn't mean</a></li>
+      <li class="sub"><a href="#papers">2.1 What lossless doesn't mean in papers</a></li>
+      <li class="sub"><a href="#deployment">2.2 Lossless in the paper does not mean lossless in deployment</a></li>
+      <li class="sub"><a href="#losslessbench">2.3 Case study</a></li>
       <li><a href="#next">3. What's Next</a></li>
+      <li class="sub"><a href="#multimodal">3.1 Multimodal Speculative Decoding</a></li>
+      <li class="sub"><a href="#toolcalls">3.2 From Speculating Tokens to Speculating Tool Calls</a></li>
+      <li class="sub"><a href="#ownership">3.3 Should the Lab Own Inference Acceleration?</a></li>
       <li><a href="#train">4. How to Train + Serve</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#citation">Citation</a></li>
@@ -518,11 +524,143 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <div id="notmean" class="section">
 
 <h2 id="2-what-it-doesnt-mean">2. What it doesn't mean</h2>
+<p>Section 1 proved lossless in theory: verification ensures the output distribution is aligned with the target model's. But when does it hold or not hold? In this section we go through the boundary of that guarantee: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
+</div>
+
+<div id="papers" class="section">
+
+<h3 id="21-what-lossless-doesnt-mean-in-papers">2.1 What lossless doesn't mean in papers</h3>
+<p>Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:</p>
+<ul>
+<li>At temperature 0, decoding is deterministic: the target model selects its highest-probability next token, a draft token is accepted only when it matches, and it's lossless.</li>
+<li>At temperature 1, decoding is random: one position can have multiple valid answers. A method like Medusa accepts any draft tokens that clear a target probability threshold, so the mix of answers follows the draft's preference instead of the target's. The output distribution shifts and is no longer lossless (<a href="https://arxiv.org/abs/2401.10774">Cai et al., 2024</a>).</li>
+</ul>
+<p>Taking a prompt with two valid continuations: "The best pet is a ___". Say the target model assigns cat 0.5 and dog 0.5, and the draft model prefers dog:</p>
+<ul>
+<li>Rejection sampling: the draft proposes dog 80% of the time, but the target accepts only 5 out of 8 dog proposals (p/q = 0.5/0.8) and resamples the rest, so dog still comes out 50% of the time.</li>
+<li>A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.</li>
+</ul>
+<img src="figures/fig7_pet_distribution.png" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
+<figcaption><strong>Figure 7 (mock).</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
+
+<p>Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)</p>
+<img src="figures/fig7_peeking.png" alt="A scheduler peeking at the token at position k+1 to decide whether to verify position k" />
+<figcaption><strong>Figure 8 (mock).</strong> Peeking at the token at k+1.</figcaption>
+
+<p>DSpark (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:</p>
+<ol type="1">
+<li><strong>The precondition.</strong> As noted above, lossless speculative decoding requires non-anticipating admission: deciding whether to verify position k may use only the prefix through 1 to k - 1.</li>
+<li><strong>What's wrong in DSpark's scheduler.</strong> DSpark's scheduler ranks candidate draft tokens by their estimated probability of passing verification, then admits them one at a time while updating expected throughput. Scoring token k+1 from the preceding token k is ordinary. The problem arises because DSpark schedules the whole draft block jointly: its decision to admit token k can depend on the score of token k+1, and that score was computed from the proposed token k. The admission decision for k thus indirectly depends on k itself, violating non-anticipating admission, which the paper calls selection bias (Section 3.2.2, counterexample in Appendix A).</li>
+<li><strong>DSpark's fix.</strong> DSpark stops the search as soon as expected throughput declines. This makes the truncation decision depend only on the prefix processed so far, eliminating the selection bias.</li>
+</ol>
+<p><u>Algorithmic losslessness holds only with careful handling: a relaxed acceptance rule or a peeking scheduler shifts the output distribution, and DSpark caught its own case. We need to be more careful when deploying the spec models. So in deployment, what else does the lossless guarantee depend on?</u></p>
+</div>
+
+<div id="deployment" class="section">
+
+<h3 id="22-lossless-in-the-paper-does-not-mean-lossless-in-deployment">2.2 Lossless in the paper does not mean lossless in deployment</h3>
+<p>In production, there are many configurations a user or company can adjust, and some of them affect the lossless guarantee. vLLM and SGLang, the two major engines, put it this way:</p>
+<ul>
+<li><strong>SGLang</strong> keeps strict verification as the default: its acceptance thresholds ship at 1.0 (<a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html">SGLang docs</a>). A user can lower them to accept more tokens aggressively, and once they trade quality for speed this way, lossless is no longer guaranteed.</li>
+<li><strong>vLLM</strong> splits losslessness into three layers (<a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM docs</a>): (1) theoretical losslessness holds up to the precision limits of hardware numerics; (2) algorithmic losslessness is validated by convergence tests on the rejection sampler; (3) output stability is not guaranteed. Layers 1 and 2 are covered by the paper's proof and the engine's tests, but layer 3 is not: a simple change in batch size can change logprobs, shifting the output distribution.</li>
+</ul>
+<p>DSpark is a concrete example. When DeepSeek deployed it in production, the scheduler exposed two conflicts with real-world infrastructure (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>, Section 5.2), and they had to redesign around both to keep the lossless guarantee:</p>
+<ol type="1">
+<li>The algorithm assumes a smooth hardware capacity curve, but real GPU throughput is jagged. The fix is removing the early stop and searching over the whole jagged curve.</li>
+<li>The algorithm decides how many draft tokens to verify at each step, but the serving engine needs the batch size to be fixed. The fix is scheduling asynchronously, using confidence predictions from two steps earlier to set the batch size. This also keeps the decision from seeing the current tokens, so the wider search in the first fix stays lossless.</li>
+</ol>
+<p>Lastly, the production stack is complicated: it accelerates inference well beyond speculative decoding. Weights are quantized (lossy). KV caches are compressed (lossy). The serving system adds KV-cache-aware routing and prefill-decode disaggregation on top. With this many factors stacked together, whether the deployment as a whole is still lossless is hard to gauge.</p>
+<p>Suppose a deployment gets everything above right: strict thresholds, a non-anticipating scheduler, a redesign for every engine constraint. How do we verify it still serves the end user's goal across all the different domains? Evidence for losslessness is limited to the domains where it was tested.</p>
+<p>The state-of-the-art speculative decoding methods are all evaluated on: coding, chat, and mathematics. EAGLE-3, DFlash, and DSpark report acceptance length and speedup on GSM8K, MATH-500, AIME25, HumanEval, MBPP, LiveCodeBench, MT-Bench, Alpaca, and Arena-Hard. DeepSpec uses the same nine benchmarks (Table 3). These benchmarks cover only a small slice of real-world tasks. Outside them, the empirical evidence for losslessness is simply absent. Figure 9 shows the 29 task types in OpenRouter's real traffic (<a href="https://openrouter.ai/rankings">OpenRouter, 2026</a>): the tested domains account for only 17% of token usage, and the other 83% has never been measured.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Method</th><th>Math</th><th>Code</th><th>Chat / instruction</th><th>Other</th></tr>
+</thead>
+<tbody>
+<tr><td>EAGLE-3 (2025)</td><td>GSM8K</td><td>HumanEval</td><td>MT-Bench, Alpaca</td><td>CNN/Daily Mail (summarization)</td></tr>
+<tr><td>DFlash (2026)</td><td>GSM8K, MATH-500, AIME25</td><td>HumanEval, MBPP, LiveCodeBench</td><td>MT-Bench, Alpaca</td><td>—</td></tr>
+<tr><td>DSpark (2026)</td><td>GSM8K, MATH-500, AIME25</td><td>HumanEval, MBPP, LiveCodeBench</td><td>MT-Bench, Alpaca, Arena-Hard</td><td>DeepSeek-V4 live traffic (speed only)</td></tr>
+<tr><td>DeepSpec harness</td><td>gsm8k, math500, aime25</td><td>humaneval, mbpp, livecodebench</td><td>mt-bench, alpaca, arena-hard-v2</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
+
+<img src="figures/fig8_openrouter_treemap.png" alt="Treemap of OpenRouter traffic by task type: the domains tested by speculative decoding papers cover 17% of token usage" />
+<figcaption><strong>Figure 9 (mock).</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by spec methods.</figcaption>
+
+<p><u>So does lossless hold on the 83% domains/tasks that have never been measured?</u></p>
+</div>
+
+<div id="losslessbench" class="section">
+
+<h3 id="23-case-study-losslessbench">2.3 Case study: LosslessBench</h3>
+<p>The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math, we built the <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>.</p>
+<p><strong>LosslessBench</strong> takes one model, serves it twice, once without acceleration and once with. It evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:</p>
+<ul>
+<li>Frontend: OpenDesign, 100 prompts. Each generated page is rendered in a real browser, and a GPT-4o vision judge scores the screenshot on instruction alignment, aesthetics, and structure.</li>
+<li>Creative: EQ-Bench longform score, judged over multi-chapter creative writing.</li>
+<li>Guardrail: XSTest, classification accuracy on safe vs unsafe prompts built to sit near the decision boundary.</li>
+<li>Coding: Terminal-Bench pass rate.</li>
+<li>Agent workflow: tau3-bench long-horizon agent tasks, action match rate.</li>
+</ul>
+<img src="figures/fig9_radar_five_domains.png" alt="Radar chart of GLM 5.2 quality across five domains, original vs accelerated serving" />
+<figcaption><strong>Figure 10.</strong> GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
+
+<p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. Figure 11 shows one failure: the accelerated deployment renders a clean page and omits the component the prompt asked for. The other four domains showed no significant gap.</p>
+<figure>
+<div class="fig2">
+<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
+</div>
+</figure>
+<figcaption><strong>Figure 11.</strong> The same model, the same frontend prompt, left is the original model, right is with inference acceleration.</figcaption>
+
+<p>We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.</p>
+<img src="figures/fig11_threshold_sweep.png" alt="Task accuracy as the DeepSpec confidence threshold is relaxed from strict to loose" />
+<figcaption><strong>Figure 12 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
+
 </div>
 
 <div id="next" class="section">
 
 <h2 id="3-whats-next">3. What's Next</h2>
+<p>Section 2 brought awareness of lossy inference. In this section we go through the exciting new directions for speculative decoding: (3.1) multimodal speculative decoding, (3.2) speculative decoding going from tokens to tool calls, and (3.3) inference acceleration ownership.</p>
+</div>
+
+<div id="multimodal" class="section">
+
+<h3 id="31-multimodal-speculative-decoding">3.1 Multimodal Speculative Decoding</h3>
+<p>The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and in chat the same vision-language models parse user-uploaded documents, charts, and videos.</p>
+<p>So the question is: can we expect speculative decoding to work for multimodal language models as well?</p>
+<p>The answer is not yet: no multimodal speculative decoding method has reached mainstream adoption. vLLM merged its first VLM support for EAGLE-3 (Qwen2.5-VL only) in v0.11.1 (<a href="https://github.com/vllm-project/vllm/pull/22872">vLLM #22872</a>) while its other speculative paths still reject multimodal models, and SpecForge, SGLang's draft-training framework, lists VLM integration as roadmap (<a href="https://www.lmsys.org/blog/2025-07-25-spec-forge/">SpecForge, 2025</a>).</p>
+<p>On the research side, MMSpec, the first VLM speculative decoding benchmark, measures over 600 samples across ten algorithms (<a href="https://arxiv.org/abs/2603.14989">MMSpec, 2026</a>), and its main finding is that speculative decoding designed for language models can degrade on multimodal input, because the draft model has limited vision capability compared to the target model. This happens in two ways:</p>
+<ul>
+<li><strong>Text-only drafters miss the image entirely.</strong> The standard drafter is a small language model with no component for vision input (<a href="https://arxiv.org/abs/2505.10526">MASSV, 2025</a>).</li>
+<li><strong>Small VLM does not close the gap.</strong> ViSpec's hypothesis is that a large VLM filters redundant image information layer by layer, while a small model struggles to do the same, so vision capability degrades disproportionately as the drafter shrinks (<a href="https://neurips.cc/virtual/2025/poster/115277">ViSpec, NeurIPS 2025</a>).</li>
+</ul>
+<p>Either way, the draft diverges from the vision-conditioned target and acceptance drops.</p>
+<p>The early findings converge on the same design choice: share the target's visual representations with the drafter, rather than training vision capacity into a small model from scratch. MASSV connects the target's own vision encoder to the draft model through a lightweight projector and distills on the target's responses, reaching up to 30% longer accepted length and 1.46x end-to-end speedup over text-only drafting (<a href="https://arxiv.org/abs/2505.10526">MASSV, 2025</a>). ViSpec trains a vision-aware drafter and reports the first substantial speedups on VLM decoding (<a href="https://neurips.cc/virtual/2025/poster/115277">ViSpec, NeurIPS 2025</a>).</p>
+</div>
+
+<div id="toolcalls" class="section">
+
+<h3 id="32-from-speculating-tokens-to-speculating-tool-calls">3.2 From Speculating Tokens to Speculating Tool Calls</h3>
+<p>Speculative decoding so far operates on tokens. The same predict-then-verify idea extends one level up, to tool calls in agents. For an agent, the expensive unit is the tool call: a sub-LLM query or an API request takes seconds, while the code that issues it is still being generated.</p>
+<p>Early work has started to formalize this. Speculative Interaction Agents define speculative tool calling as a way to cut time-to-first-token (<a href="https://arxiv.org/abs/2605.13360">Hooper et al., 2026</a>), and Act While Thinking pre-executes tool calls predicted from patterns in the reasoning trace (<a href="https://arxiv.org/abs/2603.18897">Ji et al., 2026</a>). A shared benchmark is still missing: each paper evaluates on its own setup, either borrowing OOLONG (<a href="https://arxiv.org/abs/2511.02817">2025</a>) or building a private task corpus.</p>
+<p>Speculative programmatic tool calling is a concrete instantiation (<a href="https://alexzhang13.github.io/blog/2026/spec-ptc/">Zhang, 2026</a>). While the model is still writing code, a second interpreter runs the partial program and launches any tool call whose inputs are already determined. When the code executes for real, a matching pre-launched call returns its stored result, and a mismatched one is discarded and re-executed. A wrong guess costs only the wasted early launch. On OOLONG with Qwen3-30B, this yields 1 to 1.2x end-to-end speedup.</p>
+<p><u>If agent workloads keep growing, this direction will likely follow the trajectory of token-level speculative decoding: better speculation policies, acceptance rate as a first-class metric, and a shared benchmark to standardize the speedup claims.</u></p>
+</div>
+
+<div id="ownership" class="section">
+
+<h3 id="33-should-the-lab-own-inference-acceleration">3.3 Should the Lab Own Inference Acceleration?</h3>
+<p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<img src="figures/fig13_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
+<figcaption><strong>Figure 13 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
+
+<p>See Figure 13. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
+<p><u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u></p>
 </div>
 
 <div id="train" class="section">
@@ -549,6 +687,20 @@ DFLASH 2 |It does not do to dwell on dreams and forget to live|                 
 <li>NVIDIA (2026). Boost Inference Performance up to 15x on NVIDIA Blackwell Using DFlash Speculative Decoding. <a href="https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/">developer.nvidia.com</a></li>
 <li>OpenAI (2026). Announcing a Major Price Drop for 5.6 Terra and Luna and Fast Mode for 5.6-Sol. <a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">community.openai.com</a></li>
 <li>RedHatAI (2026). GLM-5.2 DSpark Speculator (preview). Hugging Face model card. <a href="https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview">huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview</a></li>
+<li>DeepSeek-AI (2024). DeepSeek-V3 Technical Report. <a href="https://arxiv.org/abs/2412.19437">arxiv.org/abs/2412.19437</a></li>
+<li>MASSV (2025). Multimodal Adaptation and Self-Data Distillation for Speculative Decoding of Vision-Language Models. <a href="https://arxiv.org/abs/2505.10526">arxiv.org/abs/2505.10526</a></li>
+<li>OpenAI (2025). gpt-oss-120b &amp; gpt-oss-20b Model Card. <a href="https://arxiv.org/abs/2508.10925">arxiv.org/abs/2508.10925</a></li>
+<li>ViSpec (2025). Vision-Aware Speculative Decoding for Vision-Language Models. <em>NeurIPS 2025</em>. <a href="https://neurips.cc/virtual/2025/poster/115277">neurips.cc/virtual/2025/poster/115277</a></li>
+<li>OOLONG (2025). A Benchmark for Long-Context Agent Workloads. <a href="https://arxiv.org/abs/2511.02817">arxiv.org/abs/2511.02817</a></li>
+<li>SGLang Team (2025). SpecForge: Train Your Own Speculative Decoding Models. LMSYS blog. <a href="https://www.lmsys.org/blog/2025-07-25-spec-forge/">lmsys.org/blog/2025-07-25-spec-forge</a></li>
+<li>MMSpec (2026). A Benchmark for Speculative Decoding on Vision-Language Models. <a href="https://arxiv.org/abs/2603.14989">arxiv.org/abs/2603.14989</a></li>
+<li>Hooper, C. et al. (2026). Speculative Interaction Agents. <a href="https://arxiv.org/abs/2605.13360">arxiv.org/abs/2605.13360</a></li>
+<li>Ji, K. et al. (2026). Act While Thinking: Pre-Executing Tool Calls from Reasoning Traces. <a href="https://arxiv.org/abs/2603.18897">arxiv.org/abs/2603.18897</a></li>
+<li>Zhang, A. (2026). Speculative Programmatic Tool Calling. <a href="https://alexzhang13.github.io/blog/2026/spec-ptc/">alexzhang13.github.io/blog/2026/spec-ptc</a></li>
+<li>Zhang, L. (2026). LosslessBench: Does Inference Acceleration Hold Beyond Math and Coding? <a href="https://lilyzh.ng/writing/losslessbench/">lilyzh.ng/writing/losslessbench</a></li>
+<li>OpenRouter (2026). LLM Rankings: Traffic by Task Type. <a href="https://openrouter.ai/rankings">openrouter.ai/rankings</a></li>
+<li>SGLang docs. Speculative Decoding. <a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html">docs.sglang.ai</a></li>
+<li>vLLM docs. Speculative Decoding. <a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">docs.vllm.ai</a></li>
 </ol>
 
 </div>
