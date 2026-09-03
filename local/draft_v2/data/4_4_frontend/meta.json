@@ -13,9 +13,9 @@
  },
  "dflash": {
   "label": "dflash",
-  "seconds": 22.1,
-  "completion_tokens": 2606,
-  "tokens_per_s": 117.8
+  "seconds": 8.9,
+  "completion_tokens": 3048,
+  "tokens_per_s": 341.0
  },
  "eagle3": {
   "label": "eagle3",

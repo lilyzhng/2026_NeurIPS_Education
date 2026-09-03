@@ -84,3 +84,4 @@
 - **Result**: 引擎初始化时 `CUDA error: device-side assert triggered`。
 - **注意**: e2e 测试跑的是**离线 LLM 类**,不是 `vllm serve` 的 API server 路径;两条路径的默认 flag(cuda graph / sampler / enforce_eager)不同。"配方"还差最后一段路径对齐。
 - **Lesson**: 抄作业要抄到**执行路径**一致,不只是模型/参数一致。TODO: 对照 e2e runner 的 LLM 构造参数补 serve flags,或直接在 vLLM repo 搜 serve 模式的 dflash 示例。
+- **后续(9/3 12:33)**: `--enforce-eager` 也没救活 — engine core 初始化仍然失败(crash loop,app 已停)。enforce-eager 假设证伪。下一步按 Lily 定的 fallback:用 z-lab 自家 `dflash` 包(Transformers backend)serve。

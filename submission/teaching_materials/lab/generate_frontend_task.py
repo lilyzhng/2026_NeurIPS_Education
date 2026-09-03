@@ -23,7 +23,7 @@ PROMPT = (
 )
 
 
-def run(base: str, label: str, out_dir: Path, max_tokens: int) -> None:
+def run(base: str, label: str, out_dir: Path, max_tokens: int, suffix: str = ".html") -> None:
     req = urllib.request.Request(
         f"{base}/v1/chat/completions",
         data=json.dumps({"model": "default",
@@ -38,7 +38,7 @@ def run(base: str, label: str, out_dir: Path, max_tokens: int) -> None:
     text = resp["choices"][0]["message"]["content"]
     usage = resp.get("usage", {})
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"{label}.html").write_text(text)
+    (out_dir / f"{label}{suffix}").write_text(text)
     meta = {"label": label, "seconds": round(dt, 1),
             "completion_tokens": usage.get("completion_tokens"),
             "tokens_per_s": round(usage.get("completion_tokens", 0) / dt, 1)}

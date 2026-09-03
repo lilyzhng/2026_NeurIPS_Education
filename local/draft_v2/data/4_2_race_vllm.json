@@ -323,5 +323,37 @@
    "tau_cumulative_after": null,
    "tau_cumulative_before": null
   }
+ },
+ "dflash_zlab_offline": {
+  "coding": {
+   "tokens_per_s_median": 311.3,
+   "runs": [
+    279.8,
+    311.3,
+    311.3,
+    311.4,
+    311.3
+   ]
+  },
+  "creative": {
+   "tokens_per_s_median": 265.6,
+   "runs": [
+    265.3,
+    265.3,
+    265.6,
+    265.7,
+    265.6
+   ]
+  },
+  "frontend": {
+   "tokens_per_s_median": 274.0,
+   "runs": [
+    274.8,
+    274.0,
+    274.0,
+    274.0,
+    274.1
+   ]
+  }
  }
 }

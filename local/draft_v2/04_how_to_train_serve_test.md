@@ -57,62 +57,52 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <!-- 设计稿存档(2026-09-02): 叙事弧 = 先爽(serve/race)、再打脸(threshold twist)、最后开放(unmeasured domain);依赖链零重复搭建;race tool 贯穿;预算 ~2h 单卡兑现 §2.3 承诺。 -->
 
-### 4.2 The decoding race: algorithms x domains（定稿 2026-09-03，实测数据 data/4_2_race_vllm.json）
+### 4.2 The decoding race（定稿重写 2026-09-03，文风对齐 4.1）
 
-Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (`race_domains.py`: coding / creative / frontend, 512 tokens each, greedy).
+In this section you watch four deployments race on the same prompt: the vanilla model against EAGLE-3, DFlash, and DSpark, all on H100. The point is to let the reader get a sense of what inference acceleration does on real-world tasks.
 
 ```bash
+SPEC_MODE=eagle3 modal deploy modal_vllm_serve.py
 SPEC_MODE=dspark modal deploy modal_vllm_serve.py
-SPEC_MODE=eagle3 modal deploy modal_vllm_serve.py   # config relabel applied in the script
-SPEC_MODE=dflash modal deploy modal_vllm_serve.py
-python3 race_domains.py --url <your-url> --label <mode>   # once per deploy
+modal run modal_dflash_offline.py            # DFlash lane, see note below
+python3 build_race_demo.py                   # assembles the demo from your outputs
 ```
 
-First, the race itself. Every lane gets the same task: continue Figure 1's passage ("It does not do to dwell on dreams and forget to live.") in plain conversational prose, 512 tokens, greedy, timed on the same H100 (median of 5 runs).
+**Prompt (Figure 16):** You are a frontend engineer. Produce a complete single-file HTML page (inline CSS, no external assets) for the following brief. Output only the HTML, starting with `<!DOCTYPE html>`. Brief: Stunning translucent calendar popup that smoothly blends into the interface.
 
-![Figure 15](figures_v4/fig15_race_real.png)
-**Figure 15.** The decoding race, run for real: same passage, four lanes. DSpark wins; an under-tuned EAGLE-3 and a misconfigured DFlash finish behind the vanilla model they were supposed to beat.
+![Figure 16](figures_v4/fig16_race_demo_frontend.jpg)
+**Figure 16.** The race on the Figure 11 calendar brief. Vanilla takes 8.9s, DFlash 3.3s.
 
-The race is one passage. Whether the ranking holds across kinds of text is the per-domain question:
+**Prompt (Figure 17):** Historical Fiction: Write a scene from a story set during the height of the Roman Empire, a slice of a day in the life of a gladiator. No combat scene. Use sensory details, the gladiator's thoughts, the politics of the time. First person, past tense, 1000 words.
 
-| domain | vanilla | DSpark | EAGLE-3 | DFlash (broken config) |
-|---|---|---|---|---|
-| coding | 138.1 | 311.9 (2.3x) | 158.8 (1.15x) | 119.1 (0.86x) |
-| creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 110.3 (0.80x) |
-| frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 111.1 (0.81x) |
+![Figure 17](figures_v4/fig17_race_demo_creative.jpg)
+**Figure 17.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.
 
-**Table 4.** The decoding race, measured: three-domain medians per lane. All draft weights are DeepSpec's; the EAGLE-3 lane needs a one-line config relabel to load (its acceptance is under-tuned, τ ≈ 1.3), and the DFlash column shows a misconfigured lane kept on purpose.
+Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
-Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional, and the same recipe ranks DSpark (τ 3.5) above EAGLE-3 (τ 1.3) on this target. DFlash comes out *slower than vanilla*, and the metrics counters say why: τ ≈ 1.03, almost every draft token rejected, so the lane pays full drafting cost for nothing. A mismatched drafter costs you speed: benchmark before you swap one in. And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+Figure 17 is the evaluation result on creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
-<!-- TODO 4.2: race tool 动画（fig6 复刻）；EAGLE-3 泳道 τ 调优（aux layer ids 待与 DeepSpec 训练值核对，t2d/d2t 缺失影响待查）；DFlash 列等 z-lab 官方配方结果落地后替换/并列；temp0 creative 膨胀效应补 temp 0.7 对照 -->
-
-
-### 4.3 Break losslessness on purpose（定稿骨架 2026-09-03 凌晨，sweep 数据填充中 data/4_3_sweep.json）
-
-Section 2.1 showed that a relaxed acceptance rule only shifts the output distribution when you sample. So this experiment runs at temperature 1.0, and it runs on SGLang: the acceptance threshold (`--speculative-accept-threshold-single/acc`) is an SGLang serving flag, and vLLM exposes no equivalent. Which engine you serve on decides which lossless-breaking knobs you can even reach. That is Section 2.2 in one sentence.
-
-For each threshold from 1.0 (strict, lossless) to 0.3, `sweep_threshold.py` redeploys the DSpark server, runs a GSM8K subset, and records speed, acceptance length, and accuracy:
-
-```bash
-python3 sweep_threshold.py --url <your-sglang-url> --n 30
-```
-
-Our H100 results (30 problems, temperature 1.0):
-
-| threshold | tokens/s | τ | accuracy |
+| story | instruction following | Latin vocabulary | writing style |
 |---|---|---|---|
-| 1.0 (lossless) | 127.1 | 3.9 | 0.70 |
-| 0.9 | 121.2 | 4.8 | 0.53 |
-| 0.7 | 128.0 | 7.2 | 0.80 |
-| 0.5 | 127.3 | 4.7 | 0.73 |
-| 0.3 | 119.4 | 4.4 | 0.73 |
+| vanilla · 7/10 | 979 words. Ends entering the fight, close to violating the no-combat rule. | Correct, restrained. | Strongest sensory detail. Named cast. Ending falls back on a generic freedom monologue. |
+| EAGLE-3 / DSpark · 6/10 | Best. 998 words, all constraints met. | Correct, sparse. | Weakest as fiction. Restates one thesis three times. No named characters. Explains politics rather than dramatizing it. |
+| DFlash · 7.5/10 | Worst. 1,092 words, 9% over. Invents a sacrae bell. | Inaccurate, decorative. | Best structure. Full dawn-to-night arc, one side character with a backstory, strongest closing image. |
 
-**Table 5.** Threshold sweep on SGLang + DSpark: acceptance responds, speed stays verification-bound, accuracy stays inside small-sample noise.
+**Table 4.** The three distinct gladiator stories, judged on the brief's own constraints. Same target model, greedy decoding: the differences are trajectory divergence, not different models.
 
-The knob bites where theory says it should: acceptance length climbs as the threshold loosens (3.9 to 7.2). What does not appear is the clean speed-up-accuracy-down curve: throughput stays verification-bound at batch size 1, and accuracy at n=30 moves inside its own noise band (0.53 and 0.80 are two draws of the same coin). That absence is the lesson: on a robust domain like GSM8K, the damage from relaxed acceptance hides below small-sample noise, which is exactly why Section 2.3 needed open-ended frontend prompts and a bigger N to see the gap. This fills Figure 12 with real results, error bars and all.
+Overall, DFlash wins. Fiction lives on shape and character before compliance, and DFlash is the only story that delivers a complete day, a side character you remember, and a closing image that lands. Its violations are copyedit-level fixes. EAGLE-3 and DSpark followed every rule and produced the piece you forget first.
 
-One negative result worth keeping: we first ran this sweep greedy, and every threshold produced identical τ and accuracy: at temperature 0 a draft token is accepted only on exact match, so the threshold never fires. The knob only exists where sampling exists, which is exactly Section 2.1's temperature bullet.
+The cross-domain twist: DFlash wrote the worst calendar page and the best story. A lane's trajectory can land well in one domain and badly in another, and nothing in the serving stack tells you which you got.
+
+Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
+
+<sub>Note: `vllm serve` crashes on DFlash in stable 0.28.0, and only the offline `LLM()` path is CI-tested, so `modal_dflash_offline.py` runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub>
+
+<!-- TODO 4.2: demo 页面 race_demo.html / creative_race_demo.html 在 local/draft_v2/demo/，上线待 Lily 批准；EAGLE-3 τ 调优；Figure 15 旧图已撤，待重绘或废弃 -->
+
+<!-- 作者注：DFlash 翻案时间线（9/3）：serve 崩 → enforce-eager 证伪 → 官方离线配方一次通过（trust_remote_code + spec max_model_len 32768 为 serve 缺失字段，Hypothesis）。τ≈2.54 由 counters 反推。旧 broken 列存档：coding 119.1 / creative 110.3 / frontend 111.1，DeepSpec relabel τ≈1.03，见 failures.md R5/R6/R10。 -->
+
+<!-- 4.3 parked: see parked_4_3_threshold_sweep.md (redesign queued: frontend A/B) -->
 
 ### 4.4 The Figure 11 task, on your own server（定稿 2026-09-03，data/4_4_frontend/）
 
@@ -133,7 +123,19 @@ vanilla vs dspark:  identical for 8,299 chars (76% of the page),
 
 This is not the theorem failing. The guarantee is about distributions, not trajectories: the speculative path runs different kernels, the numerics shift by a hair, and a near-tie token (0.2s vs 0.3s was evidently one) falls the other way. vLLM's own docs drew this boundary in Section 2.2: theoretical losslessness holds "up to the precision limits of hardware numerics," and output stability is layer three, the one nobody guarantees. Both pages render, both satisfy the brief, and they are different pages. If your product depends on reproducing an exact output, lossless-in-distribution is not the property you think it is.
 
-Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race and the sweep, and report three numbers together: acceptance rate, task correctness, domain coverage. If the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?
+Speed has the same domain dependence as the outputs. The per-domain rates (`race_domains.py`, one prompt per domain, 512 tokens, greedy, median of 5 repeat runs):
+
+| domain | vanilla | DSpark | EAGLE-3 | DFlash |
+|---|---|---|---|---|
+| coding | 138.1 | 311.9 (2.3x) | 158.8 (1.15x) | 311.3 (2.25x) |
+| creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 265.6 (1.92x) |
+| frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 274.0 (1.99x) |
+
+**Table 5.** Per-domain decoding rates, tokens per second. One prompt per domain, so this is a probe of domain-conditional acceptance, not a benchmark. DSpark and EAGLE-3 use DeepSpec drafts on `vllm serve`. DFlash uses the z-lab draft on the offline path, which carries slightly less HTTP overhead.
+
+Vanilla is flat across domains, the speculators are not: acceptance is domain-conditional, so the same draft buys different speedups on different text (DSpark: 3.0x on creative, 2.3x on coding). The ranking is recipe-dependent too: DSpark (τ 3.5) leads, DFlash (τ 2.2 to 2.5, domain-dependent) follows, EAGLE-3 trails (τ 1.3, under-tuned in our relabeled config rather than at its ceiling). A caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+
+Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race, and report three numbers together: acceptance rate, task correctness, domain coverage. LosslessBench samples 100 such tasks across the full OpenRouter distribution if you want a ready-made prompt set. If the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?
 
 ### 贯穿件与呈现格式
 

@@ -1,0 +1,26 @@
+{
+ "vanilla": {
+  "label": "vanilla",
+  "seconds": 15.2,
+  "completion_tokens": 2163,
+  "tokens_per_s": 142.7
+ },
+ "eagle3": {
+  "label": "eagle3",
+  "seconds": 12.0,
+  "completion_tokens": 2148,
+  "tokens_per_s": 179.1
+ },
+ "dspark": {
+  "label": "dspark",
+  "seconds": 8.7,
+  "completion_tokens": 2120,
+  "tokens_per_s": 245.1
+ },
+ "dflash": {
+  "label": "dflash",
+  "seconds": 8.5,
+  "completion_tokens": 2029,
+  "tokens_per_s": 239.6
+ }
+}

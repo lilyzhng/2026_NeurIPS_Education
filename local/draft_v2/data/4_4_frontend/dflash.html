@@ -5,59 +5,112 @@ First, I need to make sure it's all in one file, so no external CSS or JS. Inlin
 
 Let me start with the structure. The HTML will have a button to trigger the calendar. Then a modal container that's hidden by default. Inside the modal, the calendar itself. Maybe using a table for the calendar layout since that's common.
 
-For styling, I'll use inline CSS. The body should have a light background. The modal needs a backdrop with opacity, maybe a fixed position covering the whole screen. The calendar should be centered, with some padding. Translucent could be achieved with rgba for the backdrop color. Transitions on the modal's visibility to make it smooth.
+For styling, I'll use inline CSS. The body should have a light background. The modal needs a backdrop with opacity, maybe a fixed position covering the whole screen. The modal content should be centered, with some padding. The calendar table should have a translucent background, maybe rgba for the background color. The days of the week and dates should be styled with appropriate fonts and colors.
 
-Wait, the user mentioned "smoothly blends into the interface." Maybe the calendar should have a subtle animation when it appears, like a fade-in or slide-in. Also, the calendar's design should be clean, maybe with a border or shadow to make it stand out but still blend in.
+Transitions: When the modal appears, it should fade in. Maybe using opacity and transform for smooth entrance. Also, the backdrop should fade in when the modal is shown. Maybe using CSS transitions on the modal and backdrop.
 
-I need to make sure the calendar is responsive. Maybe using flexbox to center it. The days of the week and dates should be styled appropriately. Maybe using a grid for the days, but a table might be easier for the structure.
+I need to handle the visibility with JavaScript. Since it's a single file, I'll include a script that toggles a class on the modal and backdrop when the button is clicked. Also, maybe close the modal when clicking outside the content area.
 
-For the popup, when the button is clicked, the modal should appear. I'll use JavaScript to toggle a class that shows the modal. But since it's a single file, I'll include the script inline.
+Wait, the user mentioned "smoothly blends into the interface". Maybe the calendar should have a subtle animation when it appears. Also, the translucent effect should make it blend with the background without being too distracting.
 
-Wait, the user didn't mention interactivity beyond the popup. Maybe just a basic show/hide with a button. But the brief says "stunning," so maybe some hover effects or transitions on the calendar elements.
+Let me think about the colors. A light gray for the backdrop, maybe 0.5 opacity. The calendar itself could have a white background with some transparency. The days and dates should be readable.
 
-Also, the calendar should display the current month. So I need to generate the dates dynamically. But since it's a single file, maybe hardcoding a sample calendar for simplicity. Or using JavaScript to generate it. However, the user might not want complex JS. Let me think.
+For the calendar, I'll need to generate the days of the week and the dates. Since it's static for now, maybe just a sample month. But the user might want it dynamic, but since it's a single file, perhaps a static example is better. Or maybe use JavaScript to generate the dates. But the user didn't specify dynamic, so maybe a static example is okay.
 
-If I hardcode a sample calendar, it's easier. But maybe the user expects some interactivity. Hmm. The brief doesn't specify, so maybe a static calendar is okay for the example. But to make it more dynamic, perhaps using JavaScript to generate the current month's dates. However, that might complicate things. Let me check the user's brief again.
+Wait, the user said "stunning", so maybe some nice effects. Maybe the calendar has a slight shadow, rounded corners, and a smooth transition when opening.
 
-The brief says "stunning translucent calendar popup that smoothly blends into the interface." It doesn't mention interactivity beyond the popup. So maybe a static calendar is acceptable. But to make it more realistic, perhaps include some basic interactivity like selecting a date.
-
-Alternatively, maybe just a visually appealing calendar with a translucent background and smooth transitions. Let me focus on the visual aspects first.
-
-So, the modal will have a backdrop with opacity, the calendar container with a border, shadow, and maybe a subtle animation. The calendar days should be styled with hover effects, maybe a light background on selected dates.
+Testing the code: Need to make sure the modal is hidden by default, and when the button is clicked, it shows. Also, the backdrop should cover the entire screen. The calendar should be centered, with proper spacing.
 
 Let me outline the HTML structure:
 
 - A button to open the calendar.
-- A modal div with a backdrop and the calendar content.
+- A div for the backdrop (modal-backdrop) with a class that's hidden.
+- A div for the modal content (modal) with a class that's hidden.
 - Inside the modal, a table for the calendar.
 
-Styling the modal with a semi-transparent background, centered, and transitions. The calendar table should have a clean look, maybe with a border, padding, and hover effects on the days.
+CSS for the backdrop: position fixed, top 0, left 0, width 100%, height 100%, background rgba(0,0,0,0.5), opacity 0, transition. When shown, opacity 1.
 
-For the translucent effect, the backdrop can be a div with rgba(0,0,0,0.5) or similar. The modal itself can have a white background with some opacity, but maybe not. Wait, the calendar should be translucent, but the popup itself should be visible. Maybe the backdrop is translucent, and the calendar is a semi-transparent overlay. Or maybe the calendar has a translucent background. Need to clarify.
+CSS for the modal: position absolute, top 50%, left 50%, transform translate(-50%, -50%), background white with some opacity, padding, border-radius, box-shadow, transition.
 
-The user said "translucent calendar popup," so the popup itself should be translucent. So the modal's content (the calendar) has a semi-transparent background, allowing the underlying interface to show through. But maybe the backdrop is a semi-transparent overlay, and the calendar is a white box with some opacity. Or the calendar has a translucent background. Let me think.
+The calendar table: border-collapse, maybe some spacing between cells. Days of the week in a different color, dates in another.
 
-Probably, the backdrop is a semi-transparent overlay, and the calendar is a white box with a shadow. But the user might want the calendar itself to be translucent. Maybe the calendar's background is a light color with some opacity. Let me go with a semi-transparent backdrop and a white calendar with a shadow.
+JavaScript: Add event listeners to the button and the backdrop to close the modal when clicking outside.
 
-Now, for the CSS transitions. When the modal is shown, it should fade in or slide in. So adding a transition on opacity and transform.
+Wait, the user said "no external assets", so all CSS and JS must be inline. Also, the HTML should start with <!DOCTYPE html>.
 
-Also, the calendar should have a smooth appearance. Maybe using a subtle gradient or a border.
+Let me start writing the code step by step.
 
-Testing the code: the modal should be hidden by default, and when the button is clicked, it becomes visible with a transition.
+First, the doctype and html structure. Then the head with title. Then the body with the button, backdrop, and modal.
 
-Including the JavaScript to toggle the modal's visibility. The button's onclick will add a class to show the modal.
+In the head, include the inline CSS. Then the script at the end of the body.
 
-Putting it all together. Let me draft the code.
+Testing the transitions: When the modal is shown, the backdrop and modal should fade in. When closed, fade out.
 
-Start with the doctype, html, head, body. The button, then the modal. The modal has a backdrop and the calendar. The CSS is inline, and the JS is inline.
+For the calendar, maybe use a table with thead and tbody. The days of the week as th elements, and the dates as td elements. For a sample month, let's say April 2023. Need to calculate the starting day and the number of days. But since it's static, maybe just hardcode the dates. Alternatively, use JavaScript to generate them. But since the user didn't specify dynamic, maybe a static example is better for simplicity.
 
-Wait, the user said "no external assets," so all CSS and JS must be inline. Also, the output should start with <!DOCTYPE html> and only the HTML, no markdown.
+But if I use JavaScript, it's more dynamic. Let me think. The user might want a functional calendar, but since it's a single file, maybe a static example is easier. However, the user said "stunning", so maybe a more polished look.
 
-So, the final code will have the HTML structure, inline CSS, and inline JS.
+Alternatively, use a simple table with some dates. Let me create a sample calendar for April 2023. April 1st is a Saturday. So the first row would have empty cells for the first five days (since April 1 is Saturday, so the first row would have 5 empty cells, then the dates from 1 to 7). Wait, no. Let me check: April 1, 2023 is a Saturday. So the first row would have the days from Saturday to Friday, but the first week might have some empty cells. Maybe it's easier to hardcode the dates for a month.
 
-Let me make sure the calendar is centered, has a translucent backdrop, and the calendar itself is styled with a border, shadow, and maybe a subtle animation.
+Alternatively, use JavaScript to generate the calendar. But that would require some code. Let me try that.
 
-I think that's a solid plan. Now, code it.
+In the script, create a function to generate the calendar. But since the user wants a single file, maybe include the code.
+
+But the user might not want the calendar to be dynamic. However, for a more realistic example, it's better to have a dynamic calendar. Let me proceed with that.
+
+So, in the script, I'll generate the current month's calendar. But since the user didn't specify, maybe use a static example for simplicity. Let me go with a static example for now.
+
+Wait, but the user wants a "stunning" calendar. Maybe a more visually appealing design. Let me focus on the styling first.
+
+The backdrop should have a semi-transparent black, the modal has a white background with some opacity, maybe 0.95. The calendar table has a light background, maybe with a subtle gradient or shadow.
+
+Also, the modal should have a smooth transition when appearing. So, using opacity and transform.
+
+Now, putting it all together.
+
+The HTML structure:
+
+<button id="openCalendar">Open Calendar</button>
+
+<div class="modal-backdrop" id="backdrop"></div>
+<div class="modal" id="calendarModal">
+  <div class="calendar">
+    <table>
+      <thead>
+        <tr>
+          <th>Sun</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dates go here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+In the CSS, the modal-backdrop and modal have transitions. The modal is hidden by default, and when the button is clicked, the backdrop and modal are shown with opacity 1.
+
+The JavaScript toggles the 'show' class on the backdrop and modal.
+
+Wait, but the user wants the calendar to be a popup that smoothly blends. So maybe the backdrop fades in when the modal is shown, and the modal slides in or fades in.
+
+Also, the calendar should have a translucent effect. Maybe the modal has a background with some opacity, like rgba(255,255,255,0.95).
+
+Now, for the calendar table, the days and dates can be styled with different colors. Maybe the current day is highlighted.
+
+But for simplicity, maybe just a basic table.
+
+Putting all together, the code would have the HTML, inline CSS, and inline JS.
+
+Testing the code: When the button is clicked, the modal and backdrop appear with a fade-in effect. Clicking outside the modal closes it.
+
+I think that's a solid approach. Now, let me write the code accordingly.
 </think>
 
 <!DOCTYPE html>
@@ -74,186 +127,182 @@ I think that's a solid plan. Now, code it.
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
     }
 
-    .calendar-button {
+    #openCalendar {
       padding: 12px 24px;
       font-size: 16px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
+      background: #4a90e2;
       color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       transition: all 0.3s ease;
     }
 
-    .calendar-button:hover {
-      background: rgba(255, 255, 255, 0.2);
+    #openCalendar:hover {
+      background: #357ab0;
       transform: scale(1.05);
     }
 
-    .modal-overlay {
+    .modal-backdrop {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
       opacity: 0;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1000;
     }
 
-    .modal-overlay.show {
-      display: flex;
+    .modal-backdrop.show {
       opacity: 1;
-      transform: scale(1);
+      visibility: visible;
     }
 
-    .calendar-container {
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       padding: 24px;
-      width: 300px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       backdrop-filter: blur(8px);
-      animation: fadeIn 0.5s ease;
+      z-index: 1001;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal.show {
+      display: block;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     }
 
-    .calendar-header {
+    .calendar {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .calendar table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .calendar th {
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-
-    .calendar-day {
       padding: 12px;
+      background: #e0e0e0;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .calendar td {
+      padding: 10px;
       text-align: center;
       font-size: 14px;
-      border-radius: 8px;
+      color: #333;
+      cursor: pointer;
       transition: background 0.2s ease;
     }
 
-    .calendar-day:hover {
-      background: rgba(0, 0, 0, 0.05);
+    .calendar td:hover {
+      background: #f0f4f8;
     }
 
-    .calendar-day.today {
-      background: rgba(255, 255, 255, 0.8);
-      font-weight: bold;
-    }
-
-    .calendar-day.selected {
-      background: #007bff;
+    .calendar .today {
+      background: #4a90e2;
       color: white;
       border-radius: 50%;
     }
 
-    .close-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #888;
-      transition: color 0.3s ease;
-    }
-
-    .close-btn:hover {
-      color: #fff;
+    .calendar .inactive {
+      color: #aaa;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <button class="calendar-button" onclick="toggleCalendar()">Open Calendar</button>
+  <button id="openCalendar">Open Calendar</button>
 
-  <div class="modal-overlay" id="calendarModal">
-    <div class="calendar-container">
-      <div class="calendar-header" id="calendarHeader">April 2024</div>
-      <button class="close-btn" onclick="toggleCalendar()">×</button>
-      <div class="calendar-grid" id="calendarGrid">
-        <!-- Days of the week -->
-        <div>Su</div>
-        <div>Mo</div>
-        <div>Tu</div>
-        <div>We</div>
-        <div>Th</div>
-        <div>Fr</div>
-        <div>Sa</div>
-        <!-- Dates will be populated here -->
-      </div>
+  <div class="modal-backdrop" id="backdrop"></div>
+  <div class="modal" id="calendarModal">
+    <div class="calendar">
+      <table>
+        <thead>
+          <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+          </tr>
+        </thead>
+        <tbody id="calendarBody">
+          <!-- Dates will be injected here -->
+        </tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    function toggleCalendar() {
-      const modal = document.getElementById('calendarModal');
-      modal.classList.toggle('show');
-    }
-
-    // Sample calendar data for April 2024
-    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-    const dates = [];
     const today = new Date();
-    const month = 3; // April
-    const year = 2024;
-
-    // Generate calendar
+    const month = today.getMonth();
+    const year = today.getFullYear();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startDay = firstDay.getDay();
-    const totalDays = lastDay.getDate();
+    const daysInMonth = lastDay.getDate();
+    const firstDayOfWeek = firstDay.getDay();
 
-    for (let i = 0; i < startDay; i++) {
-      dates.push('');
-    }
+    const calendarBody = document.getElementById('calendarBody');
+    calendarBody.innerHTML = '';
 
-    for (let i = 1; i <= totalDays; i++) {
-      dates.push(i);
-    }
-
-    const grid = document.getElementById('calendarGrid');
-    grid.innerHTML = '';
-
-    // Populate days of the week
-    days.forEach(day => {
-      const cell = document.createElement('div');
-      cell.textContent = day;
-      grid.appendChild(cell);
-    });
-
-    // Populate dates
-    dates.forEach(date => {
-      const cell = document.createElement('div');
-      cell.textContent = date;
-      cell.classList.add('calendar-day');
-      if (date === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-        cell.classList.add('today');
+    // Generate calendar
+    for (let i = 0; i < daysInMonth + firstDayOfWeek; i++) {
+      const cell = document.createElement('td');
+      if (i < firstDayOfWeek) {
+        cell.classList.add('inactive');
+      } else {
+        const date = i - firstDayOfWeek + 1;
+        const cellDate = new Date(year, month, date);
+        if (cellDate.toDateString() === today.toDateString()) {
+          cell.classList.add('today');
+        }
+        cell.textContent = date;
       }
-      grid.appendChild(cell);
+      calendarBody.appendChild(cell);
+    }
+
+    // Modal toggle
+    const openBtn = document.getElementById('openCalendar');
+    const backdrop = document.getElementById('backdrop');
+    const modal = document.getElementById('calendarModal');
+
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+      backdrop.classList.add('show');
     });
 
-    // Set header
-    document.getElementById('calendarHeader').textContent = `${new Date(year, month, 1).toLocaleString('default', { month: 'long' })} ${year}`;
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        modal.classList.remove('show');
+        backdrop.classList.remove('show');
+      }
+    });
   </script>
 </body>
 </html>
