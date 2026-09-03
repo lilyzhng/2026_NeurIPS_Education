@@ -12,7 +12,7 @@ Everything so far is language model-based speculative decoding, but a growing sh
 
 So the question is: can we expect speculative decoding to work for multimodal language models as well?
 
-Not out of the box. MMSpec, the first VLM speculative decoding benchmark, measures over 600 samples across ten algorithms ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The main finding from this benchmark is that speculative decoding designed for language models can degrade on multimodal input, for two reasons:
+The answer is that it does not work out of the box. MMSpec, the first VLM speculative decoding benchmark, measures over 600 samples across ten algorithms ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The main finding from this benchmark is that speculative decoding designed for language models can degrade on multimodal input, for two reasons:
 
 * **Input: visual context is expensive to consume.** Visual token counts scale with image resolution and video length, inflating both compute and KV cache ([SpecVLM, 2025](https://arxiv.org/abs/2509.11815)). A draft model is only useful because it is small, but a small drafter still has to process the same visual context as the target, and a text-only drafter has no vision encoder at all, so it guesses visually grounded tokens blind.
 * **Output: visual tokens are ambiguous.** In autoregressive image generation, many neighboring patches are equally plausible, so the target spreads probability mass nearly flat and the draft's top guess rarely matches the target's sample. LANTERN names this token selection ambiguity ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)).
