@@ -1,48 +1,44 @@
 # Section 4 Hands-on Lab — code
 
-Scripts behind the article's Section 4 ("How to Train, Serve, and Test It"). One H100 (or A100-80GB), one afternoon. Design log: `local/draft_v2/04_how_to_train_serve_test.md` + wavemind artifact `20260902-neurips-section4-handson-design.md`.
+Scripts behind the article's Section 4 ("How to Train, Serve, and Test It"). One H100 (or A100-80GB), one afternoon, all draft weights from the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) release (one training recipe across algorithms, so cross-algorithm comparisons stay controlled).
+
+## Engine map (verified 2026-09-02, the hard-won part)
+
+| DeepSpec checkpoint | SGLang | vLLM |
+|---|---|---|
+| `dspark_qwen3_8b_block7` | ✅ | ✅ |
+| `eagle3_qwen3_8b_ttt7` | ❌ no Qwen3-shaped EAGLE3 draft class | ✅ `qwen3_eagle3` |
+| `dflash_qwen3_8b_block7` | ❌ rejected (`markov_rank=0`) | ✅ with a one-line arch relabel (done in the serve script) |
+
+So: **4.1 / 4.2 / 4.4 run on vLLM** (`modal_vllm_serve.py`, app `neurips-spec-lab`), **4.3 runs on SGLang** (`modal_sglang_serve.py`) because only SGLang exposes the acceptance-threshold knob (`--speculative-accept-threshold-*`); vLLM has none. That asymmetry is itself Section 2.2's lesson.
 
 ## Files
 
-- `modal_sglang_serve.py` — SGLang server on Modal. `SPEC_MODE=vanilla` (baseline) or `SPEC_MODE=eagle3` (DeepSpec EAGLE-3 speculator `deepseek-ai/eagle3_qwen3_8b_ttt7` on target `Qwen/Qwen3-8B`).
-- `bench_41.py` — stdlib bench: waits for `/health`, 1 warmup + N timed generations of the Figure-1 passage prompt, tokens/s per run, scrapes `/metrics` for `spec_accept_length` (τ), incremental-saves to `local/draft_v2/data/4_1_bench.json`.
+- `modal_vllm_serve.py` — vLLM server on Modal. `SPEC_MODE=vanilla|eagle3|dflash|dspark`.
+- `modal_sglang_serve.py` — SGLang server (dspark lane + 4.3 threshold knob via `ACCEPT_THRESHOLD`).
+- `measure_decoding_speed.py` — send a prompt, report tokens/s (+ τ from /metrics when exposed).
+- `race_domains.py` — same measurement across coding / creative / frontend prompt sets.
+- `sweep_threshold.py` — 4.3: redeploy per threshold, GSM8K subset at temperature 1.0 (thresholds only bite when sampling), accuracy + speed + τ per step.
+- `generate_frontend_task.py` — 4.4: OpenDesign id 673 (the Figure 11 calendar brief), greedy; lossless ⇒ byte-identical HTML across lanes.
+- `plot_lab.py` — figures from the collected JSONs in `local/draft_v2/data/`.
 
-## 4.1 steps (as run for the article's numbers)
+## Run
 
 ```bash
-# 0. launch FIRST, read the article while it warms (cold start ≈ 10 min once:
-#    image build ~6 min + 16GB weight download into the HF cache volume ~4 min;
-#    both are cached afterwards)
-SPEC_MODE=vanilla uvx --with modal modal deploy modal_sglang_serve.py
-
-# 1. baseline numbers
-python3 bench_41.py --url https://<you>--neurips-lab-sglang-serve.modal.run --label vanilla
-
-# 2. redeploy with the speculator (image + weights now cached: fast)
-SPEC_MODE=eagle3 uvx --with modal modal deploy modal_sglang_serve.py
-python3 bench_41.py --url https://<you>--neurips-lab-sglang-serve.modal.run --label eagle3
-
-# 3. STOP the app — the server holds the GPU until you do
-uvx --with modal modal app stop neurips-lab-sglang
+pip install modal && modal setup
+SPEC_MODE=vanilla modal deploy modal_vllm_serve.py     # cold start ~10 min once, then cached
+python3 measure_decoding_speed.py --url https://<you>--neurips-spec-lab-serve.modal.run --label vanilla
+SPEC_MODE=dspark modal deploy modal_vllm_serve.py      # swap the speculator, rerun
+# ... race_domains.py per lane, sweep_threshold.py for 4.3, generate_frontend_task.py for 4.4
+modal app stop neurips-spec-lab                        # the server holds the GPU until stopped
 ```
 
-## Cold-start playbook (for workshop / readers)
+Get $30 free credits by signing up for a [Modal](https://modal.com) account; an H100 is ~$4/hour and the full lab uses $8-12.
 
-- **Launch first, learn while it warms.** The lab's step 0 is the deploy command; the ~10 min cold start overlaps with reading. In a live workshop: everyone runs step 0 at the session open, hands-on happens at the end.
-- **Shared warm endpoint** (workshop day): we pre-deploy one endpoint so people can `curl` immediately while their own deploy warms.
-- Phase 2: publish a pre-built Docker image to cut image build to a registry pull.
+## Cold-start playbook
 
-## SGLang flags used (from [SGLang speculative decoding docs](https://docs.sglang.io/advanced_features/speculative_decoding.html))
+**Launch first, read while it warms.** Step 0 is the deploy command; the ~10 min cold start overlaps with reading. Workshop mode: everyone deploys at the session open, hands-on runs at the end. We also keep one pre-warmed shared endpoint on workshop day.
 
-```
---speculative-algorithm EAGLE3
---speculative-draft-model-path deepseek-ai/eagle3_qwen3_8b_ttt7
---speculative-num-steps 3 --speculative-eagle-topk 4 --speculative-num-draft-tokens 16
-```
+## Extension
 
-DFlash: `--speculative-algorithm DFLASH` is supported by SGLang (used in 4.2). DSpark serving support: not in SGLang docs as of 2026-09; 4.2 will document what works.
-
-## Notes
-
-- GPU numbers scale with hardware. The article's Section 1 walkthrough is B200; these runs are H100. **The ratios are what should match, not the absolute tokens/s.**
-- Modal free tier ($30/month credits) covers the afternoon; a full 4.1 run is a few dollars.
+Want DFlash2 (Section 1.4) or an SGLang-native EAGLE3 for this target? No public checkpoint exists — train your own with [SpecForge](https://github.com/sgl-project/SpecForge) (`configs/qwen3-8b-eagle3.json` ships in the repo; its EAGLE3 export is SGLang-servable by construction).

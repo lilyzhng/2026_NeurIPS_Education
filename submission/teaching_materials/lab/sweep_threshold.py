@@ -2,10 +2,10 @@
 """Section 4.3: sweep the acceptance threshold from strict to loose.
 
 For each threshold: redeploy the DSpark server with ACCEPT_THRESHOLD, wait for
-health, run a GSM8K subset (greedy), record tokens/s + accept length + accuracy.
+health, run a GSM8K subset at temperature 1.0 (thresholds only bite when sampling, see 2.1), record tokens/s + accept length + accuracy.
 Strict (1.0) keeps the lossless guarantee; anything lower trades quality for speed.
 
-  python3 sweep_43.py --url https://<you>--neurips-lab-sglang-serve.modal.run
+  python3 sweep_threshold.py --url https://<you>--neurips-lab-sglang-serve.modal.run
 """
 from __future__ import annotations
 
@@ -97,7 +97,7 @@ def run(base: str, n_problems: int, out: Path) -> None:
             t0 = time.time()
             resp = _post(f"{base}/v1/completions", {
                 "model": "default", "prompt": PROMPT_TMPL.format(q=p["q"]),
-                "max_tokens": 512, "temperature": 0,
+                "max_tokens": 512, "temperature": 1.0,
             })
             dt = time.time() - t0
             text = resp["choices"][0]["text"]

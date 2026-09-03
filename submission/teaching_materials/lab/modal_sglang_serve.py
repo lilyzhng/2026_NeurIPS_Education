@@ -105,11 +105,32 @@ def _build_cmd() -> list[str]:
             "--speculative-algorithm", mode.upper(),
             "--speculative-draft-model-path", draft,
         ]
-    elif mode != "vanilla":
+    elif mode not in ("vanilla", "eagle3"):
         raise ValueError(f"unknown SPEC_MODE={mode!r} (vanilla|eagle3|dflash|dspark)")
     print(f"[sglang] mode={mode} target={target}", flush=True)
     print(" ".join(cmd), flush=True)
     return cmd
+
+
+def _patch_draft_arch(draft_repo: str, new_arch: str) -> str:
+    """Download the DeepSpec draft and relabel its architecture for SGLang.
+
+    DeepSpec trained on SpecForge (SGLang's own draft framework), so the weights
+    match SGLang's draft classes; only the config.json architecture tag differs.
+    Returns a local path with the tag rewritten.
+    """
+    import json as _json
+
+    from huggingface_hub import snapshot_download
+
+    local = snapshot_download(draft_repo)
+    cfg_path = f"{local}/config.json"
+    cfg = _json.load(open(cfg_path))
+    if cfg.get("architectures") != [new_arch]:
+        cfg["architectures"] = [new_arch]
+        _json.dump(cfg, open(cfg_path, "w"), indent=1)
+        print(f"[patch] {draft_repo}: architectures -> {new_arch}", flush=True)
+    return local
 
 
 @app.function(
@@ -124,4 +145,11 @@ def _build_cmd() -> list[str]:
 )
 @modal.web_server(port=PORT, startup_timeout=15 * MINUTES)
 def serve():
-    subprocess.Popen(_build_cmd())
+    cmd = _build_cmd()
+    mode = os.environ.get("SPEC_MODE", SPEC_MODE).strip().lower()
+    # SGLang arch names for the SpecForge-lineage draft weights.
+    relabel = {"eagle3": "LlamaForCausalLMEagle3", "dflash": "DFlashDraftModel"}
+    if mode in relabel and "--speculative-draft-model-path" in cmd:
+        i = cmd.index("--speculative-draft-model-path") + 1
+        cmd[i] = _patch_draft_arch(cmd[i], relabel[mode])
+    subprocess.Popen(cmd)

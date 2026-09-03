@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Section 4.2 race bench: one algorithm at a time, three prompt domains.
 
-Same measurement core as bench_41.py, but the prompt set is split into
+Same measurement core as measure_decoding_speed.py, but the prompt set is split into
 coding / creative / frontend so per-domain acceptance (τ) is visible.
 Run once per deployed SPEC_MODE; results accumulate in 4_2_race.json.
 
 Usage (after `SPEC_MODE=eagle3 modal deploy modal_sglang_serve.py`):
-  python3 bench_race.py --url https://<you>--neurips-lab-sglang-serve.modal.run --label eagle3
+  python3 race_domains.py --url https://<you>--neurips-lab-sglang-serve.modal.run --label eagle3
 """
 from __future__ import annotations
 

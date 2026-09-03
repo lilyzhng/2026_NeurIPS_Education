@@ -5,7 +5,7 @@ Stdlib only. Waits for the server, runs N timed generations of the same prompt,
 scrapes /metrics for the speculative accept length, and appends results to a JSON file.
 
 Usage:
-  python3 bench_41.py --url https://lilyzhng--neurips-lab-sglang-serve.modal.run \
+  python3 measure_decoding_speed.py --url https://lilyzhng--neurips-lab-sglang-serve.modal.run \
       --label vanilla --out ../../..//local/draft_v2/data/4_1_bench.json
 """
 from __future__ import annotations
