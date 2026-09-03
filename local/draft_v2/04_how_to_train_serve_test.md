@@ -13,115 +13,138 @@
 
 ### 4.1 Serve your first accelerated model
 
-Everything in Sections 1 through 3 can be reproduced on one GPU. In this section you will serve the same model twice, once plain and once with a speculator, and watch the three deciding factors from Table 1 show up in your own terminal.
+In this section you serve the same model twice, once vanilla model and once with a speculator, and measure the three deciding factors from Table 1 on your own GPU.
 
-We use SGLang as the serving engine and the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) checkpoints, which cover all three algorithms from Section 1 (EAGLE-3, DFlash, DSpark) on the same target models, so no training is needed. The target is Qwen3-8B, the same model as Section 1's walkthrough. One note on hardware: our numbers below are from one H100, and Section 1's walkthrough is a B200. Numbers scale with your GPU; the ratios are what should match.
+The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for all three Section 1 algorithms on the same target, Qwen3-8B, under one training recipe. The serving engine is vLLM, the one engine that loads all three of those checkpoints (the engine map is in the lab README).
 
-**Launch first, read while it warms.** The first deployment pays a one-time cold start (image build plus a 16GB weight download, about 10 minutes). Start it now and keep reading; both are cached afterwards.
+The first deployment pays a one-time cold start (image build plus a 16GB weight download, about 10 minutes). And it is cached afterwards.
 
-**Where to get the GPU.** Any box with one H100/A100 works. If you don't have one: get $30 free credits by signing up for a [Modal](https://modal.com) account — that covers this whole lab (an H100 is ~$4/hour, and the full afternoon uses $8-12). Our lab repo ships a ready launch script — three commands, no infra to write:
+**Where to get the GPU.** Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a [Modal](https://modal.com) account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12). 
 
 ```bash
 pip install modal && modal setup                    # one-time account link
 git clone https://github.com/lilyzhng/2026_NeurIPS_Education && cd */teaching_materials/lab
-SPEC_MODE=vanilla modal deploy modal_sglang_serve.py   # prints your server URL
+SPEC_MODE=vanilla modal deploy modal_vllm_serve.py   # prints your server URL
 ```
 
-The script pins the image, caches the model weights in a volume so you download them once, and exposes the server at a public URL. When you're done for the day, `modal app stop neurips-lab-sglang` releases the GPU.
+The script pins the image, caches model weights in a volume so they download once, and exposes the server at a public URL. When done, `modal app stop neurips-spec-lab` releases the GPU.
 
-Under the hood (or on your own machine) the vanilla server is one SGLang command:
+Serve the vanilla model:
 
 ```bash
-python3 -m sglang.launch_server --model-path Qwen/Qwen3-8B \
-  --host 0.0.0.0 --port 30000 --mem-fraction-static 0.85 --enable-metrics
+vllm serve Qwen/Qwen3-8B --port 8000
 ```
 
-Send it the same passage Figure 1 decodes and time the generation (our `bench_41.py` does this: one warmup, then five timed runs of 512 tokens):
+Send a prompt and measure the generation speed (`measure_decoding_speed.py`):
 
 ```text
-[vanilla] run 0: 3.65s, 512 tokens, 140.4 tok/s
-[vanilla] run 4: 3.61s, 512 tokens, 141.8 tok/s
-median: 140.7 tok/s        # your number scales with your GPU
+[vanilla] run 0: 3.74s, 512 tokens, 136.8 tok/s
+[vanilla] run 4: 3.88s, 512 tokens, 132.0 tok/s
+median: 136.2 tok/s
 ```
 
-Now restart the server with the DeepSpec DSpark speculator attached — the same speculator DeepSeek runs in production (Section 1.3), and the same server Section 4.3's threshold sweep will reuse. This is the only change:
+Now restart the server with the DeepSpec DSpark speculator (on Modal: `SPEC_MODE=dspark modal deploy modal_vllm_serve.py`):
 
 ```bash
-python3 -m sglang.launch_server --model-path Qwen/Qwen3-8B \
-  --host 0.0.0.0 --port 30000 --mem-fraction-static 0.85 --enable-metrics \
-  --speculative-algorithm DSPARK \
-  --speculative-draft-model-path deepseek-ai/dspark_qwen3_8b_block7
+vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
+  '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-(With the Modal script: `SPEC_MODE=dspark modal deploy modal_sglang_serve.py`.)
-
-Run the same bench again. Our H100 run:
+Run the same bench again:
 
 ```text
-[dspark] run 0: 2.32s, 512 tokens, 220.6 tok/s
-[dspark] run 4: 2.38s, 512 tokens, 215.4 tok/s
-median: 215.6 tok/s                       # 1.53x over our own baseline
-sglang:spec_accept_length τ = 2.9         # from /metrics
-sglang:spec_accept_rate    = 0.27
+[dspark] run 0: 2.19s, 512 tokens, 233.9 tok/s
+[dspark] run 4: 2.21s, 512 tokens, 231.7 tok/s
+median: 233.9 tok/s                       # 1.72x over our own baseline
+τ ≈ 3.5                                   # accepted tokens per pass, from /metrics counters
 ```
 
-That 1.53x on conversational text sits where the DSpark paper's own 60-85% per-user gains predict, on the low end because open-ended prose is harder to draft than code — Section 2's domain point, already visible in exercise one.
+Calculating based on Table 1's formula:
 
-**Close the loop with Table 1's formula.** You now hold measured values of every quantity Section 1 defined. Per-token latency is `L = 1 / (tokens per second)`: the vanilla run gives `L_target = 7.1 ms`, the speculative run gives `L = 4.6 ms`. Table 1 says `L = (T_draft + T_verify) / τ`, so the combined draft-plus-verify cost per verification pass is `L × τ = 4.6 × 2.9 ≈ 13.5 ms` — nearly twice a vanilla forward pass, but it emits 2.9 tokens instead of one. That is the whole trade in one line: pay ~1.9 forward passes, get 2.9 tokens, net `η = L_target / L = 1.53x`. This fills Figure 1 with your own lanes.
+```text
+L_target = 1 / 136.2 tok/s ≈ 7.3 ms    # per-token latency, vanilla
+L        = 1 / 233.9 tok/s ≈ 4.3 ms    # per-token latency, with DSpark
+τ        ≈ 3.5                        # accepted tokens per verification pass
+&nbsp;
+T_draft + T_verify = L × τ ≈ 15.0 ms   # one draft+verify pass ≈ 2 vanilla forwards
+η = L_target / L ≈ 1.72x               # pay ~2 forwards, get 3.5 tokens
+```
 
-**A compatibility note you will hit if you swap checkpoints.** The DeepSpec DSpark checkpoint loads natively in SGLang (its `Qwen3DSparkModel` architecture is registered in the engine, which was built to read DeepSpec checkpoints). The DeepSpec EAGLE-3 checkpoint uses an architecture registered in vLLM instead, and the DeepSpec DFlash checkpoint carries the DSpark architecture tag with the Markov head disabled, which SGLang's DSpark loader rejects (`markov_rank=0`) — for a DFlash lane, use the official [z-lab drafters](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16). Engine support is part of what "production-ready" means for a speculator: Section 1.5 made this point with a table, and here it decides what you can serve tonight.
+Note: of the three DeepSpec checkpoints, DSpark is the one that serves cleanly today (on both engines). EAGLE-3 fails to load in either (SGLang lacks its Qwen3-shaped draft class, and in vLLM its weights mismatch its own config), and DFlash loads in vLLM only after an architecture relabel that turns out to produce rejected drafts. Exercise 4.2 measures what that looks like. Section 4.3 switches to SGLang for a knob vLLM does not have.
 
-**Close the loop with Table 1's formula.** You now hold measured values of the quantities Section 1 defined. Per-token latency is `L = 1 / (tokens per second)`, so the vanilla run gives `L_target = ⟨L_TARGET⟩ ms` and the speculative run gives `L = ⟨L_SPEC⟩ ms`. The formula `L = (T_draft + T_verify) / τ` then tells you the combined draft-plus-verify cost per verification pass: `T_draft + T_verify = L × τ = ⟨T_SUM⟩ ms`, against a single vanilla forward pass of `⟨L_TARGET⟩ ms`. The speedup you measured, `η = L_target / L = ⟨SPEEDUP⟩`, is the same number Table 1's definition predicts. This fills Figure 1 with your own lanes.
-
-> **Sidebar: feel it in two commands first.** Production platforms package this whole section behind one flag. On [Fireworks](https://docs.fireworks.ai/deployments/speculative-decoding), dedicated deployments ship with a default drafter already attached: `firectl deployment create <model> --wait` serves an accelerated model, and `--disable-speculative-decoding` gives you the baseline for comparison. A five-minute detour if you want the feeling before the mechanics; the SGLang server you started above is the one the rest of this lab builds on.
+> **Sidebar:** on [Fireworks](https://docs.fireworks.ai/deployments/speculative-decoding), this is one flag: `firectl deployment create <model>` ships with a drafter, `--disable-speculative-decoding` gives the baseline.
 
 ## 设计稿（2026-09-02 定 — 4.2-4.4 待跑通后成文）
 
 叙事弧照正文 Section 1 → 2 → 2.3 的情绪曲线排：**先爽（serve、race）、再打脸（threshold twist）、最后开放（unmeasured domain）**。依赖链零重复搭建：4.1 的 server 被 4.2 复用，4.2 的 DSpark config 被 4.3 复用，4.4 复用全部。race tool 贯穿三节逐步加泳道。总预算 ~2h 单卡，兑现 §2.3 的 "a single afternoon and one GPU"。
 
-### 4.1 Serve your first accelerated model（SGLang，~20 min）
-
-- 做什么：SGLang 两条命令 — 先 vanilla Qwen3-8B，再挂 DeepSpec 的 EAGLE-3 checkpoint。同一段文本各跑一遍，记录 tokens/s、τ、T_draft、T_verify。
-- 产出：race tool 单人版（vanilla vs spec 两条泳道）= 个人版 Figure 1；再用 Table 1 公式亲手算 η，和实测对账（复现 Section 1 的数学 walkthrough）。
-- 填的空：Figure 1 的个人复现。
-- TBD：SGLang 命令（替换旧版 vLLM 命令）、实测数字范围。
-
 ### 4.2 The decoding race: algorithms x domains（定稿 2026-09-02，实测数据 data/4_2_race.json）
 
-The server you started is one lane. Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (`bench_race.py`: coding / creative / frontend, 512 tokens each, greedy).
+Now race the algorithms across domains: redeploy with a different draft, rerun the same three-domain prompt set (`race_domains.py`: coding / creative / frontend, 512 tokens each, greedy).
 
 ```bash
-SPEC_MODE=dspark modal deploy modal_sglang_serve.py   # DeepSpec checkpoint
-SPEC_MODE=dflash DRAFT_MODEL=z-lab/Qwen3-8B-DFlash-b16 modal deploy modal_sglang_serve.py
-python3 bench_race.py --url <your-url> --label <mode>   # once per deploy
+SPEC_MODE=dspark modal deploy modal_vllm_serve.py
+SPEC_MODE=dflash modal deploy modal_vllm_serve.py
+python3 race_domains.py --url <your-url> --label <mode>   # once per deploy
 ```
 
 Our H100 medians (tok/s, speedup over vanilla):
 
 | domain | vanilla | DSpark | DFlash |
 |---|---|---|---|
-| coding | 133.7 | 278.0 (2.1x) | 293.6 (2.2x) |
-| creative | 131.8 | 354.4 (2.7x) | 482.9 (3.7x) |
-| frontend | 131.7 | 294.1 (2.2x) | 386.1 (2.9x) |
+| coding | 138.1 | 311.9 (2.3x) | 119.1 (0.86x) |
+| creative | 138.2 | 416.7 (3.0x) | 110.3 (0.80x) |
+| frontend | 137.6 | 333.1 (2.4x) | 111.1 (0.81x) |
 
-Vanilla is flat across domains; the speculators are not — acceptance is domain-conditional, and the spread between columns is Section 1's architecture story in your own numbers. One caveat before you over-read the creative row: at temperature 0, open-ended prose tends to loop, and repetitive text is easy to draft. Rerun that lane at temperature 0.7 and watch the gap change — that observation is exercise 4.4 in miniature.
+Three readings. Vanilla is flat across domains; the speculators are not: acceptance is domain-conditional. DFlash comes out *slower than vanilla* here, and the metrics counters say why: τ ≈ 1.03, meaning almost every draft token is rejected and each step keeps only the bonus token, so the lane pays full drafting cost for nothing (our architecture relabel loads the weights but maps them wrong). A mismatched drafter costs you speed, which is why providers tell you to benchmark before overriding defaults ([Fireworks docs](https://docs.fireworks.ai/deployments/speculative-decoding) say exactly this). And a caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
 
 <!-- TODO 4.2: race tool 动画（fig6 复刻）+ EAGLE-3 泳道（需 SGLang 格式 Qwen3-8B checkpoint，DeepSpec 的是 vLLM 格式）；temp0 creative 膨胀效应写正文前先补 temp 0.7 对照 -->
 
 
-### 4.3 Break losslessness on purpose（~30 min，反转）
+### 4.3 Break losslessness on purpose（定稿骨架 2026-09-03 凌晨，sweep 数据填充中 data/4_3_sweep.json）
 
-- 前菜（5 min）：同一 prompt，batch size 1 vs 32，diff logprobs — 亲眼验证 vLLM layer-3 "output stability is not guaranteed"（§2.2）。
-- 正菜：DeepSpec `--confidence-threshold` 从 1.0 拧到 0.3，每档跑小 task set（gsm8k 子集），另跑一个 grading pass 记 accuracy。plot acceptance vs accuracy。
-- 产出：真实 Figure 12（speed 上行、accuracy 下行）。
-- 填的空：Figure 12。放在 race 之后才有戏剧性：刚庆祝完速度，现在看代价。
-- TBD：sweep 脚本 + grading 脚本 + 曲线。
+Section 2.1 showed that a relaxed acceptance rule only shifts the output distribution when you sample. So this experiment runs at temperature 1.0, and it runs on SGLang: the acceptance threshold (`--speculative-accept-threshold-single/acc`) is an SGLang serving flag, and vLLM exposes no equivalent. Which engine you serve on decides which lossless-breaking knobs you can even reach. That is Section 2.2 in one sentence.
 
-### 4.4 Exercise: pick a domain nobody measured（open-ended homework）
+For each threshold from 1.0 (strict, lossless) to 0.3, `sweep_threshold.py` redeploys the DSpark server, runs a GSM8K subset, and records speed, acceptance length, and accuracy:
 
-- 做什么：从 OpenRouter 那 83% 里挑一个域，写 20 条 prompt，复用 4.2 race + 4.3 sweep 工具跑一遍。
-- 产出：**three-number report** — acceptance rate、task correctness、domain coverage（旧 proposal 的三件套复活为作业 rubric）。可提交 LosslessBench 当社区贡献。
-- 收尾问题保留旧版那句：if the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?
+```bash
+python3 sweep_threshold.py --url <your-sglang-url> --n 30
+```
+
+Our H100 results (30 problems, temperature 1.0):
+
+| threshold | tokens/s | τ | accuracy |
+|---|---|---|---|
+| 1.0 (lossless) | 127.1 | 3.9 | 0.70 |
+| 0.9 | 121.2 | 4.8 | 0.53 |
+| 0.7 | 128.0 | 7.2 | 0.80 |
+| 0.5 | 127.3 | 4.7 | 0.73 |
+| 0.3 | 119.4 | 4.4 | 0.73 |
+
+The knob bites where theory says it should: acceptance length climbs as the threshold loosens (3.9 to 7.2). What does not appear is the clean speed-up-accuracy-down curve: throughput stays verification-bound at batch size 1, and accuracy at n=30 moves inside its own noise band (0.53 and 0.80 are two draws of the same coin). That absence is the lesson: on a robust domain like GSM8K, the damage from relaxed acceptance hides below small-sample noise, which is exactly why Section 2.3 needed open-ended frontend prompts and a bigger N to see the gap. This fills Figure 12 with real results, error bars and all.
+
+One negative result worth keeping: we first ran this sweep greedy, and every threshold produced identical τ and accuracy: at temperature 0 a draft token is accepted only on exact match, so the threshold never fires. The knob only exists where sampling exists, which is exactly Section 2.1's temperature bullet.
+
+### 4.4 The Figure 11 task, on your own server（定稿 2026-09-03，data/4_4_frontend/）
+
+Section 2.3 found its frontend gap under a full vendor stack, where quantization was the culprit. Here you isolate one variable: speculative decoding alone, on the same brief Figure 11 used (OpenDesign id 673, "Stunning translucent calendar popup that smoothly blends into the interface").
+
+```bash
+python3 generate_frontend_task.py --url <your-url> --label vanilla   # rerun per lane
+```
+
+Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:
+
+```text
+vanilla vs dspark:  identical for 8,299 chars (76% of the page),
+                    then diverges at one CSS value:
+                    transition: color 0.2s   ->   transition: color 0.3s
+                    and the trajectories separate from there (10,924 vs 10,535 chars)
+```
+
+This is not the theorem failing. The guarantee is about distributions, not trajectories: the speculative path runs different kernels, the numerics shift by a hair, and a near-tie token (0.2s vs 0.3s was evidently one) falls the other way. vLLM's own docs drew this boundary in Section 2.2: theoretical losslessness holds "up to the precision limits of hardware numerics," and output stability is layer three, the one nobody guarantees. Both pages render, both satisfy the brief, and they are different pages. If your product depends on reproducing an exact output, lossless-in-distribution is not the property you think it is.
+
+Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race and the sweep, and report three numbers together: acceptance rate, task correctness, domain coverage. If the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?
 
 ### 贯穿件与呈现格式
 

@@ -1,0 +1,126 @@
+{
+ "vllm_vanilla": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 3.79,
+    "completion_tokens": 512,
+    "tokens_per_s": 135.1
+   },
+   {
+    "run": 1,
+    "seconds": 3.76,
+    "completion_tokens": 512,
+    "tokens_per_s": 136.2
+   },
+   {
+    "run": 2,
+    "seconds": 3.79,
+    "completion_tokens": 512,
+    "tokens_per_s": 135.0
+   },
+   {
+    "run": 3,
+    "seconds": 3.71,
+    "completion_tokens": 512,
+    "tokens_per_s": 138.1
+   },
+   {
+    "run": 4,
+    "seconds": 3.74,
+    "completion_tokens": 512,
+    "tokens_per_s": 136.9
+   }
+  ],
+  "spec_accept_length": null,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-03T00:16:23"
+ },
+ "vllm_eagle3": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 3.76,
+    "completion_tokens": 512,
+    "tokens_per_s": 136.2
+   }
+  ],
+  "spec_accept_length": null,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-02T23:16:15"
+ },
+ "vllm_dspark": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 2.22,
+    "completion_tokens": 512,
+    "tokens_per_s": 230.3
+   },
+   {
+    "run": 1,
+    "seconds": 2.18,
+    "completion_tokens": 512,
+    "tokens_per_s": 234.9
+   },
+   {
+    "run": 2,
+    "seconds": 2.29,
+    "completion_tokens": 512,
+    "tokens_per_s": 223.9
+   },
+   {
+    "run": 3,
+    "seconds": 2.19,
+    "completion_tokens": 512,
+    "tokens_per_s": 234.0
+   },
+   {
+    "run": 4,
+    "seconds": 2.19,
+    "completion_tokens": 512,
+    "tokens_per_s": 233.9
+   }
+  ],
+  "spec_accept_length": null,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-03T00:12:33"
+ },
+ "vllm_dflash": {
+  "runs": [
+   {
+    "run": 0,
+    "seconds": 4.4,
+    "completion_tokens": 512,
+    "tokens_per_s": 116.4
+   },
+   {
+    "run": 1,
+    "seconds": 4.44,
+    "completion_tokens": 512,
+    "tokens_per_s": 115.4
+   },
+   {
+    "run": 2,
+    "seconds": 4.42,
+    "completion_tokens": 512,
+    "tokens_per_s": 115.8
+   },
+   {
+    "run": 3,
+    "seconds": 4.41,
+    "completion_tokens": 512,
+    "tokens_per_s": 116.1
+   },
+   {
+    "run": 4,
+    "seconds": 4.45,
+    "completion_tokens": 512,
+    "tokens_per_s": 115.1
+   }
+  ],
+  "spec_accept_length": null,
+  "prompt": "Continue this passage in plain conversational prose for several paragraphs: \"It does not do to dwell on dreams and forget to live.\"",
+  "ts": "2026-09-03T00:08:33"
+ }
+}

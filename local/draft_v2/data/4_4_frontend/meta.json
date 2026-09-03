@@ -1,0 +1,20 @@
+{
+ "vanilla": {
+  "label": "vanilla",
+  "seconds": 18.7,
+  "completion_tokens": 2683,
+  "tokens_per_s": 143.3
+ },
+ "dspark": {
+  "label": "dspark",
+  "seconds": 7.9,
+  "completion_tokens": 2606,
+  "tokens_per_s": 328.7
+ },
+ "dflash": {
+  "label": "dflash",
+  "seconds": 22.1,
+  "completion_tokens": 2606,
+  "tokens_per_s": 117.8
+ }
+}

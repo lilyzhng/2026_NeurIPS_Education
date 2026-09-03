@@ -25,8 +25,9 @@ PROMPT = (
 
 def run(base: str, label: str, out_dir: Path, max_tokens: int) -> None:
     req = urllib.request.Request(
-        f"{base}/v1/completions",
-        data=json.dumps({"model": "default", "prompt": PROMPT,
+        f"{base}/v1/chat/completions",
+        data=json.dumps({"model": "default",
+                         "messages": [{"role": "user", "content": PROMPT}],
                          "max_tokens": max_tokens, "temperature": 0}).encode(),
         headers={"Content-Type": "application/json"},
     )
@@ -34,7 +35,7 @@ def run(base: str, label: str, out_dir: Path, max_tokens: int) -> None:
     with urllib.request.urlopen(req, timeout=900) as r:
         resp = json.loads(r.read())
     dt = time.time() - t0
-    text = resp["choices"][0]["text"]
+    text = resp["choices"][0]["message"]["content"]
     usage = resp.get("usage", {})
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / f"{label}.html").write_text(text)
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True)
     ap.add_argument("--label", required=True)
-    ap.add_argument("--max-tokens", type=int, default=4096)
+    ap.add_argument("--max-tokens", type=int, default=6000)
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[3]
                                          / "local/draft_v2/data/4_4_frontend"))
     a = ap.parse_args()
