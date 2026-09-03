@@ -27,9 +27,15 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 
 Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)
 
-<figure>
-<img src="figures/fig7_peeking.png" alt="A scheduler peeking at the token at position k+1 to decide whether to verify position k" />
-</figure>
+<pre><code>NON-ANTICIPATING (lossless)           PEEKING SCHEDULER (selection bias)
+
+draft:  [t1]..[tk-1] [tk] [tk+1]      draft:  [t1]..[tk-1] [tk] [tk+1]
+              |       ?                             |        ?     |
+verify tk? ---+                       verify tk? ---+              |
+uses prefix 1..k-1 only                  ... but also the score of tk+1,
+                                         which was computed FROM tk
+decision independent of tk               admission of tk depends on tk itself
+=&gt; output distribution preserved      =&gt; output distribution shifts</code></pre>
 <figcaption><strong>Figure 8 (mock).</strong> Peeking at the token at k+1.</figcaption>
 
 DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:
@@ -77,9 +83,16 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 </div>
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
-<figure>
-<img src="figures/fig8_openrouter_treemap.png" alt="Treemap of OpenRouter traffic by task type: the domains tested by speculative decoding papers cover 17% of token usage" />
-</figure>
+<pre><code>OPENROUTER TRAFFIC BY TASK TYPE (29 task types, share of token usage)
+
++---------------------+------------------------------------------------+
+| TESTED BY SPEC      |  NEVER MEASURED                          83%   |
+| PAPERS        17%   |                                                |
+|                     |  frontend / UI      marketing     legal        |
+|  coding   math      |  creative writing   translation   roleplay     |
+|  chat / instruction |  agent workflows    medical       data extract |
+|                     |  ...and 19 more task types                     |
++---------------------+------------------------------------------------+</code></pre>
 <figcaption><strong>Figure 9 (mock).</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by spec methods.</figcaption>
 
 <u>So does lossless hold on the 83% domains/tasks that have never been measured?</u>
@@ -116,9 +129,16 @@ We identified a significant gap in the frontend design evaluation under a vendor
 
 We also designed an experiment to show that relaxing an acceptance parameter can lead to degradation. DeepSpec exposes a confidence threshold; we sweep it from strict to loose, and observe task accuracy difference at each step.
 
-<figure>
-<img src="figures/fig11_threshold_sweep.png" alt="Task accuracy as the DeepSpec confidence threshold is relaxed from strict to loose" />
-</figure>
+<pre><code>DEEPSPEC CONFIDENCE THRESHOLD SWEEP: strict -&gt; loose
+
+threshold    1.0      0.9      0.7      0.5      0.3
+             strict ----------------------------- loose
+
+speed        |##      |###     |####    |#####   |######    faster -&gt;
+accuracy     |#####   |#####   |####    |###     |##        (TBD results)
+
+             ^ lossless
+               guarantee ends where relaxation begins</code></pre>
 <figcaption><strong>Figure 12 (mock, TBD original results).</strong> Threshold sweep: task accuracy from strict to loose acceptance.</figcaption>
 
 </div>
