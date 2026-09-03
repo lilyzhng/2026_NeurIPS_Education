@@ -8,9 +8,11 @@ Section 2 brought awareness of lossy inference. In this section we go through th
 
 ### 3.1 Multimodal Speculative Decoding
 
-Everything so far is language-model speculative decoding, but a growing share of decode traffic is not text. Vision-language models sit under computer-use agents and video understanding, where the model reads screenshots or frames on every step of a loop, and autoregressive image generators decode thousands of visual tokens per sample. All of them generate one token at a time, so all of them pay the sequential cost that motivated speculative decoding in the first place, often at longer sequence lengths than text.
+Everything so far is language model-based speculative decoding, but a growing share of decoding needs is not only text. Vision-language models sit under computer-use agents and image/video understanding for front-end design, where the model reads screenshots on every agent step of the loop. The autoregressive vision-language model decodes thousands of visual tokens per sample.
 
-The technique does not transfer for free. On MMSpec, the first VLM speculative decoding benchmark (600 samples, ten algorithms), methods designed for text-only LLMs measurably degrade on multimodal inputs ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The degradation has one cause on the input side and one on the output side:
+So the question is: can we expect the speculative decoding design for language models to work the same way for vision-language models, multimodal models, or large audio models?
+
+The answer so far: it does not transfer for free. On MMSpec, the first VLM speculative decoding benchmark (600 samples, ten algorithms), methods designed for text-only LLMs measurably degrade on multimodal inputs ([MMSpec, 2026](https://arxiv.org/abs/2603.14989)). The degradation has one cause on the input side and one on the output side:
 
 * **Input: visual context is expensive to consume.** Visual token counts scale with image resolution and video length, inflating both compute and KV cache ([SpecVLM, 2025](https://arxiv.org/abs/2509.11815)). A draft model is only useful because it is small, but a small drafter still has to process the same visual context as the target, and a text-only drafter has no vision encoder at all, so it guesses visually grounded tokens blind.
 * **Output: visual tokens are ambiguous.** In autoregressive image generation, many neighboring patches are equally plausible, so the target spreads probability mass nearly flat and the draft's top guess rarely matches the target's sample. LANTERN names this token selection ambiguity ([Jang et al., ICLR 2025](https://arxiv.org/abs/2410.03355)).
