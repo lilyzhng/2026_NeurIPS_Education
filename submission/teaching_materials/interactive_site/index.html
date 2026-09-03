@@ -272,7 +272,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#deployment">2.2 Lossless in deployment</a></li>
       <li class="sub"><a href="#losslessbench">2.3 Case study</a></li>
       <li><a href="#next">3. What's Next</a></li>
-      <li class="sub"><a href="#multimodal">3.1 Multimodal Speculative Decoding</a></li>
+      <li class="sub"><a href="#multimodal">3.1 Multimodal speculative decoding</a></li>
       <li class="sub"><a href="#toolcalls">3.2 Speculating tool calls</a></li>
       <li class="sub"><a href="#ownership">3.3 Inference acceleration ownership</a></li>
       <li><a href="#train">4. How to Train + Serve</a></li>
@@ -661,7 +661,7 @@ accuracy     |#####   |#####   |####    |###     |##        (TBD results)
 <p>Section 2 brought awareness of lossy inference. In this section we go through the exciting new directions for speculative decoding: (3.1) multimodal speculative decoding, (3.2) speculative decoding going from tokens to tool calls, and (3.3) inference acceleration ownership.</p>
 </div>
 
-<div id="multimodal" class="section">
+<div id="multimodal" class="section" data-toc="3.1 Multimodal speculative decoding">
 
 <h3 id="31-multimodal-speculative-decoding">3.1 Multimodal Speculative Decoding</h3>
 <p>The methods above all target language-only models, but a growing share of decoding workloads is multimodal. A computer-use agent reads a screenshot at every step of its trajectory, whether it is browsing the web or checking its own front-end code, and in chat the same vision-language models parse user-uploaded documents, charts, and videos.</p>

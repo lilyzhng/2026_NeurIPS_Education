@@ -6,7 +6,7 @@ Section 2 brought awareness of lossy inference. In this section we go through th
 
 </div>
 
-<div id="multimodal" class="section">
+<div id="multimodal" class="section" data-toc="3.1 Multimodal speculative decoding">
 
 ### 3.1 Multimodal Speculative Decoding
 
