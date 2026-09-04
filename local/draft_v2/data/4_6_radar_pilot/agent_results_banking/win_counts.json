@@ -1,7 +1,7 @@
 {
  "vanilla": 2,
  "dflash": 3,
- "n": 9,
+ "n": 10,
  "per_task": {
   "task_001": "dflash win",
   "task_002": "both-fail (0 points)",
@@ -10,11 +10,11 @@
   "task_005": "both-fail (0 points)",
   "task_006": "both-pass tie",
   "task_007": "both-pass tie",
-  "task_008": "dropped from both (vanilla infra error x2)",
+  "task_008": "both-fail (0 points), rerun both arms at fresh servers (0.0 vs 0.0, user_stop)",
   "task_010": "both-fail (0 points)",
   "task_012": "both-fail (0 points)"
  },
  "max_steps": 60,
  "retrieval_config": "bm25",
- "rule": "both-fail zero; task_008 dropped from both arms (infra)"
+ "rule": "both-fail zero; task_008 rerun on both arms after vanilla infra errors"
 }
