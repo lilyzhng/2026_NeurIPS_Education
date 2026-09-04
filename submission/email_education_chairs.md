@@ -2,7 +2,7 @@
 
 > To: education-chairs@neurips.cc
 > Subject: Scope question for an Education Track submission on speculative decoding
-> Note: deadline is Sep 4 AoE (today). Send early so a reply can still shape the final trim.
+> Status: SENT 2026-09-04 to education-chairs@neurips.cc. Awaiting reply.
 
 ---
 
