@@ -449,7 +449,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="14-dflash-2-2026--longer-acceptance-length">1.4 DFlash 2 (2026) – longer acceptance length</h3>
 <p><strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) addresses this decay on the draft side, with two additions to the DFlash architecture. A lightweight path selector scores adjacent token pairs and picks a coherent sequence through the top candidates at each position, instead of taking independent top-1 predictions. Two-tap local convolutions in the backbone strengthen dependencies within the block, reducing the accuracy drop toward block ends.</p>
 <figure class="wide">
-<iframe src="figures/figure5_chalk.html" style="width:100%;height:620px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
+<iframe src="figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
 </figure>
 <figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
