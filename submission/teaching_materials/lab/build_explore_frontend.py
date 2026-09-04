@@ -56,12 +56,17 @@ def main() -> None:
             dst = OUT_DIR / f"{arm}_{task}.html"
             shutil.copy(src, dst)
             s = scores.get(arm, {}).get(task) or {}
+            deds = [
+                {"c": d.get("component", ""), "e": d.get("evidence", "")}
+                for d in s.get("dead_components") or []
+            ] + [{"c": issue, "e": ""} for issue in s.get("code_issues") or []]
             entry[arm] = {
                 "file": dst.name,
                 "total": s.get("total"),
                 "code": s.get("code_correctness"),
                 "func": s.get("functionality"),
                 "feedback": s.get("feedback", ""),
+                "deds": deds,
             }
         if "vanilla" in entry and "dflash" in entry:
             data[task] = entry
@@ -100,20 +105,28 @@ def main() -> None:
   .m .fill {{ height:100%; border-radius:3px; }}
   .cell.van .fill {{ background:#1f5c3d; }} .cell.dfl .fill {{ background:#d6437c; }}
   iframe {{ width:100%; height:500px; border:0; border-top:1px solid #eee; display:block; background:#fff; }}
-  .fb {{ padding:10px 14px 12px; font-size:13.5px; line-height:1.5; color:#3a3a36;
-         border-top:1px solid #f0f0e8; min-height:66px; }}
+  pre.code {{ height:500px; overflow:auto; margin:0; padding:10px 14px; border-top:1px solid #eee;
+              background:#12291d; color:#d7e8dd; font-size:10.5px; line-height:1.45;
+              white-space:pre-wrap; word-break:break-word; display:none; }}
+  .tgl {{ font-size:11px; padding:2px 12px; border-radius:999px; border:1px solid #bbb; background:#fff;
+          cursor:pointer; font-family:-apple-system,sans-serif; align-self:center; }}
+  .fb {{ padding:10px 14px 6px; font-size:13.5px; line-height:1.5; color:#3a3a36;
+         border-top:1px solid #f0f0e8; }}
+  ul.deds {{ margin:0; padding:2px 14px 12px; list-style:none; }}
+  ul.deds li {{ font-size:12.5px; color:#a33; margin:3px 0; cursor:help; }}
+  ul.deds li::before {{ content:"\\2717  "; }}
 </style></head><body>
 <div class="chips" id="chips"></div>
 <div class="brief" id="brief"></div>
 <div class="pair">
-  <div class="cell van"><div class="head"><b class="v">vanilla Qwen3-8B</b><span class="total" id="s0"></span><span class="wbadge" id="w0" style="display:none">WINNER</span></div>
+  <div class="cell van"><div class="head"><b class="v">vanilla Qwen3-8B</b><span class="total" id="s0"></span><span class="wbadge" id="w0" style="display:none">WINNER</span><button class="tgl" onclick="tgl(0)" id="t0" style="margin-left:8px">Code</button></div>
     <div class="meters"><div class="m"><div class="lab">CODE <span id="c0"></span>/40</div><div class="bar"><div class="fill" id="cb0"></div></div></div>
     <div class="m"><div class="lab">FUNCTIONALITY <span id="u0"></span>/60</div><div class="bar"><div class="fill" id="ub0"></div></div></div></div>
-    <iframe id="f0"></iframe><div class="fb" id="d0"></div></div>
-  <div class="cell dfl"><div class="head"><b class="p">+ DFlash draft</b><span class="total" id="s1"></span><span class="wbadge" id="w1" style="display:none">WINNER</span></div>
+    <iframe id="f0"></iframe><pre class="code" id="p0"></pre><div class="fb" id="d0"></div><ul class="deds" id="l0"></ul></div>
+  <div class="cell dfl"><div class="head"><b class="p">+ DFlash draft</b><span class="total" id="s1"></span><span class="wbadge" id="w1" style="display:none">WINNER</span><button class="tgl" onclick="tgl(1)" id="t1" style="margin-left:8px">Code</button></div>
     <div class="meters"><div class="m"><div class="lab">CODE <span id="c1"></span>/40</div><div class="bar"><div class="fill" id="cb1"></div></div></div>
     <div class="m"><div class="lab">FUNCTIONALITY <span id="u1"></span>/60</div><div class="bar"><div class="fill" id="ub1"></div></div></div></div>
-    <iframe id="f1"></iframe><div class="fb" id="d1"></div></div>
+    <iframe id="f1"></iframe><pre class="code" id="p1"></pre><div class="fb" id="d1"></div><ul class="deds" id="l1"></ul></div>
 </div>
 <script>
 const DATA = {json.dumps(data)};
@@ -135,9 +148,26 @@ function show(t) {{
     document.getElementById('cb'+i).style.width = (a.code/40*100) + '%';
     document.getElementById('ub'+i).style.width = (a.func/60*100) + '%';
     document.getElementById('d'+i).textContent = a.feedback;
+    const ul = document.getElementById('l'+i); ul.innerHTML = '';
+    (a.deds || []).forEach(x => {{
+      const li = document.createElement('li'); li.textContent = x.c; if (x.e) li.title = x.e;
+      ul.appendChild(li);
+    }});
+    const pre = document.getElementById('p'+i), fr = document.getElementById('f'+i);
+    pre.style.display = 'none'; pre.textContent = ''; fr.style.display = 'block';
+    document.getElementById('t'+i).textContent = 'Code';
   }});
   document.getElementById('w0').style.display = d.vanilla.total > d.dflash.total ? '' : 'none';
   document.getElementById('w1').style.display = d.dflash.total > d.vanilla.total ? '' : 'none';
+}}
+async function tgl(i) {{
+  const pre = document.getElementById('p'+i), fr = document.getElementById('f'+i),
+        bt = document.getElementById('t'+i);
+  const showCode = pre.style.display === 'none';
+  if (showCode && !pre.textContent) pre.textContent = await (await fetch(fr.src)).text();
+  fr.style.display = showCode ? 'none' : 'block';
+  pre.style.display = showCode ? 'block' : 'none';
+  bt.textContent = showCode ? 'Render' : 'Code';
 }}
 show('od673');
 </script>
