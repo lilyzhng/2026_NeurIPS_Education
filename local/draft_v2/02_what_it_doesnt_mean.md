@@ -91,11 +91,6 @@ Figure 10.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes
 
 <!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 11 example degradation was caused by quantization. -->
 
-<figure>
-<div class="fig2">
-<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
-</div>
-
 ![Figure 11](figures_v4/fig16_race_demo_frontend.jpg)
 **Figure 11.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html).
 
@@ -126,6 +121,8 @@ The agentic workflow (tau-bench) produced the most surprising result: DFlash bea
 | information gathering | skips lookups and answers from assumption | verifies with tool calls before acting |
 | the final write action | discusses the exchange, ends without executing it | executes it, sometimes more than once |
 | typical failure | task left unfinished | over-acting, duplicate writes corrupt the state |
+
+**Table 5.** How the two arms behave in the agentic loop (tau-bench, temperature 0). Same weights, different follow-through: the arm that persists completes more transactions.
 
 The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them. 
 
@@ -195,3 +192,8 @@ The gain is not extra intelligence, and it is not speed either: the two arms sha
 - [ ] **重做 LosslessBench 归因实验（最重要）**：现有 5.6 分 frontend gap 是 vendor 全家桶 stack（fp4 quant + spec dec + kv routing + pd disagg）测出来的，degradation 无法归因到 speculative decoding——很可能是 quantization 造成的。需要隔离实验：同一模型、只开/关 spec decoding（其他配置全部固定），在 frontend 域重测，证明 spec decoding 本身在 frontend 上有损。需要选定一个能这样部署的模型
 - [ ] 2.3 结尾补 ending + 递给 Section 3 的 transition line（等 sweep/归因实验结果一起定稿）
 - [ ] sweep 出结果后：把 quality-aware draft training 段（引用见 03 文件 git 历史：DistillSpec/EAGLE/LK losses/Judge Decoding）改写成"操作结论"形态接在 sweep 图后——答案=保质量就保持严格 threshold（SGLang 默认 1.0），verifier 侧 Judge Decoding 是唯一折中，draft 侧无工具；不写成 unanswered limitation
+
+<figure>
+<div class="fig2">
+<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
+</div>
