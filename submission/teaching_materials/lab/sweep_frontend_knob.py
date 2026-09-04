@@ -23,7 +23,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-THRESHOLDS = ["1.0", "0.9", "0.7", "0.5", "0.3", "0.1"]
+THRESHOLDS = ["1.0", "0.8", "0.6", "0.4"]
 
 # Same brief as generate_frontend_task.py (OpenDesign id 673).
 PROMPT = (
@@ -86,7 +86,8 @@ def diff_stats(strict: str, other: str) -> dict:
             "char_similarity": round(ratio, 4)}
 
 
-def run(base: str, out_dir: Path, max_tokens: int, temperature: float) -> None:
+def run(base: str, out_dir: Path, max_tokens: int, temperature: float,
+        samples: int, seed: int | None) -> None:
     script_dir = Path(__file__).resolve().parent
     out_dir.mkdir(parents=True, exist_ok=True)
     metaf = out_dir / "meta.json"
@@ -96,28 +97,36 @@ def run(base: str, out_dir: Path, max_tokens: int, temperature: float) -> None:
         wait_ready(base)
         _post(f"{base}/v1/completions", {"model": "default", "prompt": "warmup",
                                          "max_tokens": 16, "temperature": 0})
-        t0 = time.time()
-        resp = _post(f"{base}/v1/chat/completions", {
-            "model": "default",
-            "messages": [{"role": "user", "content": PROMPT}],
-            "max_tokens": max_tokens, "temperature": temperature,
-            "chat_template_kwargs": {"enable_thinking": False},
-        })
-        dt = time.time() - t0
-        text = resp["choices"][0]["message"]["content"]
-        (out_dir / f"th_{th}.html").write_text(text)
-        toks = resp.get("usage", {}).get("completion_tokens", 0)
-        data[th] = {
-            "seconds": round(dt, 1),
-            "completion_tokens": toks,
-            "tokens_per_s": round(toks / dt, 1) if dt else None,
-            "accept_length": accept_length(base),
-        }
-        if "1.0" in data and th != "1.0":
-            strict = (out_dir / "th_1.0.html").read_text()
-            data[th].update(diff_stats(strict, text))
+        runs = []
+        for i in range(samples):
+            payload = {
+                "model": "default",
+                "messages": [{"role": "user", "content": PROMPT}],
+                "max_tokens": max_tokens, "temperature": temperature,
+                "chat_template_kwargs": {"enable_thinking": False},
+            }
+            if seed is not None:
+                payload["seed"] = seed + i  # same seed ladder at every threshold
+            t0 = time.time()
+            resp = _post(f"{base}/v1/chat/completions", payload)
+            dt = time.time() - t0
+            text = resp["choices"][0]["message"]["content"]
+            text = re.sub(r"^\s*```(?:html)?\s*\n", "", text)
+            text = re.sub(r"\n```\s*$", "\n", text)
+            name = f"th_{th}.html" if samples == 1 else f"th_{th}_s{i}.html"
+            (out_dir / name).write_text(text)
+            toks = resp.get("usage", {}).get("completion_tokens", 0)
+            rec = {"file": name, "seconds": round(dt, 1),
+                   "completion_tokens": toks,
+                   "tokens_per_s": round(toks / dt, 1) if dt else None}
+            ref = out_dir / (f"th_1.0.html" if samples == 1 else f"th_1.0_s{i}.html")
+            if th != "1.0" and ref.exists():
+                rec.update(diff_stats(ref.read_text(), text))
+            runs.append(rec)
+            print(f"[th={th}] s{i}: {rec}", flush=True)
+        data[th] = {"accept_length": accept_length(base), "runs": runs}
         metaf.write_text(json.dumps(data, indent=1))  # incremental save per threshold
-        print(f"[th={th}] {data[th]}", flush=True)
+        print(f"[th={th}] accept_length={data[th]['accept_length']}", flush=True)
     print(json.dumps(data, indent=1))
     # stop the serve app so the GPU is released (scripted stop needs -y)
     subprocess.run(["uvx", "--with", "modal", "modal", "app", "stop", "-y",
@@ -130,7 +139,10 @@ if __name__ == "__main__":
     ap.add_argument("--url", required=True)
     ap.add_argument("--max-tokens", type=int, default=3000)
     ap.add_argument("--temperature", type=float, default=0.0)
+    ap.add_argument("--samples", type=int, default=1)
+    ap.add_argument("--seed", type=int, default=None,
+                    help="base seed; sample i uses seed+i at every threshold")
     ap.add_argument("--out", default=str(Path(__file__).resolve().parents[3]
                                          / "local/draft_v2/data/4_3_knob_frontend"))
     a = ap.parse_args()
-    run(a.url.rstrip("/"), Path(a.out), a.max_tokens, a.temperature)
+    run(a.url.rstrip("/"), Path(a.out), a.max_tokens, a.temperature, a.samples, a.seed)

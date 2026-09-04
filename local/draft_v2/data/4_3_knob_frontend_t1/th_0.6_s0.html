@@ -1,0 +1,203 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Translucent Calendar Popup</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .calendar-popup {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      padding: 24px;
+      width: 300px;
+      max-height: 600px;
+      overflow-y: auto;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .calendar-popup.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .calendar-header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .calendar-header h2 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: #fff;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .calendar-days div {
+      padding: 6px;
+      color: #888;
+    }
+
+    .calendar-dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .calendar-dates div {
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .calendar-dates div:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .calendar-dates div.selected {
+      background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+
+    .calendar-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .calendar-footer button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .calendar-footer button.cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .calendar-footer button.confirm {
+      background: #007BFF;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="calendarOverlay">
+    <div class="calendar-popup" id="calendarPopup">
+      <div class="calendar-header">
+        <h2>April 2025</h2>
+      </div>
+      <div class="calendar-days">
+        <div>Su</div>
+        <div>Mo</div>
+        <div>Tu</div>
+        <div>We</div>
+        <div>Th</div>
+        <div>Fr</div>
+        <div>Sa</div>
+      </div>
+      <div class="calendar-dates" id="calendarDates">
+        <!-- Dates will be dynamically generated -->
+      </div>
+      <div class="calendar-footer">
+        <button class="cancel" onclick="closeCalendar()">Cancel</button>
+        <button class="confirm" onclick="confirmDate()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('calendarOverlay');
+    const calendarPopup = document.getElementById('calendarPopup');
+    const calendarDates = document.getElementById('calendarDates');
+
+    function showCalendar() {
+      overlay.classList.add('show');
+      generateCalendar();
+    }
+
+    function closeCalendar() {
+      overlay.classList.remove('show');
+    }
+
+    function confirmDate() {
+      alert('Date confirmed!');
+      closeCalendar();
+    }
+
+    function generateCalendar() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const dates = [];
+
+      // Fill in empty slots for days before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        dates.push('<div></div>');
+      }
+
+      // Fill in the days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = day === date.getDate() && month === date.getMonth();
+        const dayElement = `<div data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}">${day}</div>`;
+        dates.push(dayElement);
+      }
+
+      // Fill in empty slots for days after the last day of the month
+      for (let i = 0; i < 42 - dates.length; i++) {
+        dates.push('<div></div>');
+      }
+
+      calendarDates.innerHTML = dates.join('');
+    }
+
+    // Example: Show the calendar
+    showCalendar();
+  </script>
+</body>
+</html>
+```

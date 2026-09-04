@@ -1,0 +1,192 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translucent Calendar Popup</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calendar-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 2rem;
+      width: 300px;
+      text-align: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .calendar-popup.hidden {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+
+    h2 {
+      margin: 0 0 1rem 0;
+      color: #333;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .calendar-day {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .calendar-day:hover {
+      background-color: #e0e0e0;
+    }
+
+    .calendar-day.selected {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .close-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: #c82333;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 999;
+    }
+
+    .overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay">
+    <div class="calendar-popup" id="calendarPopup">
+      <h2>Calendar</h2>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Days of the week -->
+        <div>Su</div>
+        <div>Mo</div>
+        <div>Tu</div>
+        <div>We</div>
+        <div>Th</div>
+        <div>Fr</div>
+        <div>Sa</div>
+        <!-- Days will be dynamically filled -->
+      </div>
+      <button class="close-btn" id="closeBtn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('overlay');
+    const calendarPopup = document.getElementById('calendarPopup');
+    const closeBtn = document.getElementById('closeBtn');
+    const calendarGrid = document.getElementById('calendarGrid');
+
+    let selectedDay = null;
+
+    function createCalendar(year = new Date().getFullYear(), month = new Date().getMonth()) {
+      const date = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      const firstDay = date.getDay();
+      const days = [];
+
+      // Add empty cells for days before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        days.push('<div></div>');
+      }
+
+      // Add days of the month
+      for (let day = 1; day <= lastDay; day++) {
+        const cls = day === new Date().getDate() && month === new Date().getMonth() ? 'selected' : '';
+        days.push(`<div class="calendar-day ${cls}" data-day="${day}">${day}</div>`);
+      }
+
+      // Add empty cells after the last day of the month
+      const totalDaysInWeek = 7;
+      const remainingDays = totalDaysInWeek - days.length % totalDaysInWeek;
+      for (let i = 0; i < remainingDays; i++) {
+        days.push('<div></div>');
+      }
+
+      calendarGrid.innerHTML = days.join('');
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        day.addEventListener('click', () => {
+          selectedDay = day.getAttribute('data-day');
+          document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+          day.classList.add('selected');
+        });
+      });
+    }
+
+    createCalendar();
+
+    closeBtn.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      calendarPopup.classList.add('hidden');
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('active');
+        calendarPopup.classList.add('hidden');
+      }
+    });
+
+    // Show calendar on click anywhere
+    document.addEventListener('click', (e) => {
+      if (e.target === document.body) {
+        overlay.classList.add('active');
+        calendarPopup.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
+```

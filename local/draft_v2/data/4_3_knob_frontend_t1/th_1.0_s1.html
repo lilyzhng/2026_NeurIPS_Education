@@ -1,0 +1,196 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Translucent Calendar Popup</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      overflow: hidden;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Calendar popup */
+    .calendar-popup {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      width: 300px;
+      max-width: 90%;
+      text-align: center;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .calendar-header {
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .calendar-day {
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .calendar-day:hover {
+      background: #f0f4fa;
+    }
+
+    .calendar-day.today {
+      background: #e0e0e0;
+      font-weight: bold;
+    }
+
+    .calendar-day.selected {
+      background: #007bff;
+      color: white;
+      border-radius: 50%;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    /* Date labels */
+    .date-label {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .date-label span {
+      display: inline-block;
+      width: 24px;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="calendarOverlay">
+    <div class="calendar-popup" id="calendarPopup">
+      <button class="close-btn" onclick="closeCalendar()">×</button>
+      <div class="date-label">
+        <span>Su</span>
+        <span>Mo</span>
+        <span>Tu</span>
+        <span>We</span>
+        <span>Th</span>
+        <span>Fr</span>
+        <span>Sa</span>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Calendar days will be injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const today = new Date();
+    const overlay = document.getElementById('calendarOverlay');
+    const calendarGrid = document.getElementById('calendarGrid');
+
+    function renderCalendar(year, month) {
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+
+      const dayElements = [];
+
+      // Add empty cells for days before the first day
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        dayElements.push('<div class="calendar-day"></div>');
+      }
+
+      // Add days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dayClass = day === today.getDate() && month === today.getMonth() && year === today.getFullYear() ? 'today' : '';
+        dayElements.push(`<div class="calendar-day ${dayClass}" data-date="${date.toISOString().split('T')[0]}">${day}</div>`);
+      }
+
+      // Add empty cells for days after the last day
+      const lastDayOfWeek = new Date(year, month + 1, 0).getDay();
+      for (let i = lastDayOfWeek; i < 6; i++) {
+        dayElements.push('<div class="calendar-day"></div>');
+      }
+
+      calendarGrid.innerHTML = dayElements.join('');
+    }
+
+    function openCalendar() {
+      const todayDate = new Date();
+      renderCalendar(todayDate.getFullYear(), todayDate.getMonth());
+      overlay.classList.add('show');
+    }
+
+    function closeCalendar() {
+      overlay.classList.remove('show');
+    }
+
+    // Add click event to trigger popup
+    document.body.addEventListener('click', function (e) {
+      if (e.target.id === 'calendarOverlay') {
+        closeCalendar();
+      }
+    });
+
+    // Initialize with current date
+    openCalendar();
+  </script>
+</body>
+</html>
+```

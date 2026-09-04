@@ -40,5 +40,14 @@
   "identical": true,
   "diff_lines": 0,
   "char_similarity": 1.0
+ },
+ "0.1": {
+  "seconds": 2.7,
+  "completion_tokens": 1433,
+  "tokens_per_s": 530.0,
+  "accept_length": 5.525,
+  "identical": true,
+  "diff_lines": 0,
+  "char_similarity": 1.0
  }
 }
