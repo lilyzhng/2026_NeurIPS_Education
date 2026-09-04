@@ -84,7 +84,7 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 * Creative: EQ-Bench longform score, judged over multi-chapter creative writing. 
 * Guardrail: XSTest, classification accuracy on safe vs unsafe prompts built to sit near the decision boundary. 
 * Coding: Terminal-Bench pass rate. 
-* Agent workflow: tau3-bench long-horizon agent tasks, action match rate.
+* Agent workflow: tau-bench long-horizon agent tasks, action match rate.
 
 ![Figure 10 radar](figures_v4/fig_radar_spec_pilot.png) 
 Figure 10.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.
@@ -118,7 +118,7 @@ Overall, DFlash wins. Fiction lives on shape and character before compliance, an
 
 Interestingly, DFlash wrote the worst calendar page but the best story. Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
 
-The agentic workflow (tau3-bench) produced the most surprising result: DFlash beat the base model (retail pass 3/10 vs 2/10). This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
+The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model (retail pass 3/10 vs 2/10). This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
 
 | behavior | vanilla Qwen3-8B | + DFlash draft |
 |---|---|---|
@@ -129,7 +129,7 @@ The agentic workflow (tau3-bench) produced the most surprising result: DFlash be
 
 Both failure modes lose episodes, but they are not symmetric. The environment rewards a completed transaction, so the arm that gives up early loses tasks it could have finished, while the arm that over-acts still completes some of them. Persistence wins on this benchmark.
 
-The gain is not extra intelligence, and it is not speed either: the two arms share the same weights, and tau3 has no time budget, so finishing faster does not grant more turns. A plausible mechanism: at temperature 0, decisions such as ending the thinking block, issuing another tool call, or closing the conversation are often near ties between top tokens. Speculative decoding scores tokens in a parallel verification pass whose numerics differ slightly from sequential decoding, enough to flip a near tie. One flipped token forks the trajectory, and the fork compounds across turns. The shift is not a uniform length bias: on single prompts DFlash generated 14% more tokens for the frontend brief and 6% fewer for the creative brief. With n=10 per domain this remains a hypothesis. The 100-task run will test whether acceleration is behavior-neutral in agentic loops, a more specific question than lossless or not.
+The gain is not extra intelligence, and it is not speed either: the two arms share the same weights, and tau-bench has no time budget, so finishing faster does not grant more turns. A plausible mechanism: at temperature 0, decisions such as ending the thinking block, issuing another tool call, or closing the conversation are often near ties between top tokens. Speculative decoding scores tokens in a parallel verification pass whose numerics differ slightly from sequential decoding, enough to flip a near tie. One flipped token forks the trajectory, and the fork compounds across turns. The shift is not a uniform length bias: on single prompts DFlash generated 14% more tokens for the frontend brief and 6% fewer for the creative brief. With n=10 per domain this remains a hypothesis. The 100-task run will test whether acceleration is behavior-neutral in agentic loops, a more specific question than lossless or not.
 
 <!-- vendor-stack 前端 gap 段 + 日历对比图（原 Figure 13）移至 Appendix，2026-09-03。站点：sections/07_appendix.md，图号 Figure A1。是否保留待定。 -->
 
