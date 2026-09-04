@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   adopt:
-    if: github.event.head_commit.author.username != 'lilyzhng'
+    if: github.event.head_commit.author.email != '10191088+lilyzhng@users.noreply.github.com'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
