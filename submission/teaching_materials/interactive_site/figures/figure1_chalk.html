@@ -37,7 +37,6 @@ h2{
   position:absolute;bottom:18px;right:28px;z-index:2;
   display:flex;align-items:center;gap:9px;
   background:none;border:none;cursor:pointer;padding:0;
-  opacity:0;pointer-events:none;transition:opacity .3s;
 }
 .replay svg{display:block}
 .replay .eraser{
@@ -45,7 +44,6 @@ h2{
   background:linear-gradient(#e9e7e2 0%, #cfccc5 58%, #57544d 59%, #45423c 100%);
   box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
 }
-.replay.show{opacity:1;pointer-events:auto}
 .replay:hover .eraser{filter:brightness(1.08)}
 .slate{
   position:relative;
@@ -138,7 +136,7 @@ h2{
 <body>
 <div class="wrap">
   <div class="board"><div class="slate">
-    <button class="replay" id="replay" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M19.2 12.3 A7.2 7.2 0 1 1 16.6 6.1" stroke="#DFDBCE" stroke-width="2" stroke-linecap="round"/><path d="M16.4 3.2 L16.6 6.3 L19.5 7.1" stroke="#DFDBCE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="eraser"></span></button>
+    <button class="replay" id="replay" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M17.2 5.6 C13.5 3.4, 8.0 5.1, 5.7 9.2 C3.5 13.2, 5.8 18.4, 10.1 19.9 C14.3 21.3, 18.7 18.8, 19.7 14.7" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round"/><path d="M16.7 13.7 L19.7 14.7 L19.9 11.5" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="eraser"></span></button>
     <div class="axis">
       <span class="axislbl">time &rarr;</span>
       <div class="axistrack" id="axistrack"><div class="playhead" id="playhead"></div></div>
@@ -238,21 +236,22 @@ h2{
 
   var replay = document.getElementById('replay');
   var t0 = performance.now();
+  var running = false;
   function tick(){
     var t = (performance.now() - t0) / 1000;
     if (t >= LOOP){
       paint(LOOP);
-      replay.classList.add('show');
+      running = false;
       return;
     }
     paint(t);
     requestAnimationFrame(tick);
   }
+  running = true;
   tick();
   replay.addEventListener('click', function(){
-    replay.classList.remove('show');
     t0 = performance.now();
-    tick();
+    if (!running){ running = true; tick(); }
   });
 
   function postHeight(){
