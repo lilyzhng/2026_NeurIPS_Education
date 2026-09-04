@@ -78,16 +78,16 @@ So does lossless hold on the 83% domains/tasks that have never been measured?
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math,  we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 
-**LosslessBench** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:
+**[LosslessBench](https://huggingface.co/datasets/lilyzhng/lossless_bench)** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:
 
-* Frontend: OpenDesign, 100 prompts. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works. 
+* Frontend: OpenDesign. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works. 
 * Creative: EQ-Bench longform score, judged over multi-chapter creative writing. 
 * Guardrail: XSTest, classification accuracy on safe vs unsafe prompts built to sit near the decision boundary. 
 * Coding: Terminal-Bench pass rate. 
 * Agent workflow: tau3-bench long-horizon agent tasks, action match rate.
 
-![Figure 10 radar](figures_v4/fig9_radar_five_domains.png) 
-Figure 10.  GLM 5.2 quality across five domains. Axes are independently scaled, so each domain's relative gap is visible.
+![Figure 10 radar](figures_v4/fig_radar_spec_pilot.png) 
+Figure 10.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.
 
 <!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 11 example degradation was caused by quantization. -->
 
@@ -117,6 +117,10 @@ Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSp
 Overall, DFlash wins. Fiction lives on shape and character before compliance, and DFlash is the only story that delivers a complete day, a side character you remember, and a closing image that lands. Its violations are copyedit-level fixes. EAGLE-3 and DSpark followed every rule and produced the piece you forget first.
 
 Interestingly, DFlash wrote the worst calendar page but the best story. Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
+
+The agent domain shows the same trajectory divergence compounding over turns, and it changes the model's behavior, not just its wording. On tau3-bench retail and airline (10 tasks each, temperature 0, identical serving configs except the draft), the DFlash arm was consistently more diligent than vanilla: more agent turns per episode (18.1 vs 11.3 on retail, 12.4 vs 9.9 on airline), more tool calls (7.6 vs 5.4 and 4.9 vs 4.0), and longer thinking. The failure signatures mirror this. Vanilla's typical loss is quitting early: it looks up the user and the order, then ends the conversation without ever executing the exchange. DFlash's typical loss is overdoing it, such as executing the same exchange three times and corrupting the final database state. In a benchmark that rewards completing the transaction, the diligent arm comes out slightly ahead (retail pass 3/10 vs 2/10).
+
+Our hypothesis for the mechanism: at temperature 0, decision points like ending the thinking block, calling one more tool, or closing the conversation often sit at near ties between top tokens. The verification pass scores tokens in parallel, and its numerics differ slightly from sequential decoding, enough to tip a near tie. One flipped token forks the trajectory, and in a multi-turn loop the fork compounds. Single-prompt output lengths do not shift uniformly (DFlash generated 14% more tokens on the frontend brief but 6% fewer on the creative brief), which is why we read this as tie-breaking plus accumulation rather than a longer-output bias. At n=10 per domain this is a hypothesis, not a finding. The larger 100-task run is the test: if the pattern holds, acceleration is not behavior-neutral in agentic loops, a claim one level more specific than lossy or lossless.
 
 <!-- vendor-stack 前端 gap 段 + 日历对比图（原 Figure 13）移至 Appendix，2026-09-03。站点：sections/07_appendix.md，图号 Figure A1。是否保留待定。 -->
 
