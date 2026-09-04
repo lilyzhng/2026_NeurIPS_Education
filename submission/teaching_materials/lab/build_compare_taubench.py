@@ -43,7 +43,7 @@ def render_trace(sim: dict) -> str:
                 reply = (pre + post).strip()
             if think.strip():
                 rows.append(
-                    f'<details class="think"><summary>&#129504; thinking '
+                    f'<details class="think"><summary>thinking '
                     f"({len(think.split())} words)</summary><div>{esc(think.strip())}</div></details>"
                 )
             if reply:
@@ -51,13 +51,13 @@ def render_trace(sim: dict) -> str:
             for tc in m.get("tool_calls") or []:
                 name, args = tc.get("name"), json.dumps(tc.get("arguments"), ensure_ascii=False)
                 cls = "write" if any(k in (name or "") for k in ("exchange", "return", "modify", "cancel")) else "read"
-                rows.append(f'<div class="tool {cls}">&#128295; <b>{esc(name)}</b>({esc(args)})</div>')
+                rows.append(f'<div class="tool {cls}"><b>{esc(name)}</b>({esc(args)})</div>')
         elif role == "user":
             rows.append(f'<div class="msg user"><b>user</b>{esc(content)}</div>')
         elif role == "tool":
             short = content if len(str(content)) < 160 else str(content)[:160] + " …"
             rows.append(
-                f'<details class="tres"><summary>&#8618; result: {esc(short)}</summary>'
+                f'<details class="tres"><summary>result: {esc(short)}</summary>'
                 f"<div>{esc(content)}</div></details>"
             )
     return "\n".join(rows)
@@ -116,9 +116,9 @@ def main() -> None:
         for arm, sim, r, other in (("vanilla", van[tid], rv, rd), ("DFlash", dfl[tid], rd, rv)):
             badge = ""
             if r > other:
-                badge = '<span class="wbadge">&#127942; winner</span>'
+                badge = '<span class="wbadge">WINNER</span>'
             elif r > 0 and r == other:
-                badge = '<span class="wbadge tie">&#10003; both pass</span>'
+                badge = '<span class="wbadge tie">both pass</span>'
             cells.append(
                 f'<div class="cell"><div class="head"><b>{arm}</b>'
                 f'<span class="sc">reward {r}</span>{badge}</div>'
@@ -176,7 +176,7 @@ def main() -> None:
   .detail .tt {{ color:#999; font-size:10px; }}
 </style></head><body>
 <h1>tau3 retail: vanilla Qwen3-8B (left) vs + DFlash draft (right)</h1>
-<div class="sub"><b>Pass count: vanilla 2/10 &middot; DFlash 3/10</b> &middot; 10 tasks, both arms, agent temp 0, user sim gpt-4o temp 0. Both-fail scores zero (rule 2026-09-03). Full traces below &mdash; &#128295; = tool call (gold border = state-changing write), fold-outs = model thinking / tool results.</div>
+<div class="sub"><b>Pass count: vanilla 2/10 &middot; DFlash 3/10</b> &middot; 10 tasks, both arms, agent temp 0, user sim gpt-4o temp 0. Both-fail scores zero (rule 2026-09-03). Full traces below &mdash; monospace rows = tool calls (gold border = state-changing write), fold-outs = model thinking / tool results.</div>
 {criteria}
 {''.join(blocks)}
 </body></html>"""
