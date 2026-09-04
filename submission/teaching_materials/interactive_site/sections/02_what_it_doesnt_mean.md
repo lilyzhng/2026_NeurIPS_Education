@@ -155,7 +155,7 @@ Interestingly, DFlash wrote the worst calendar page but the best story. Why do E
 
 ### 2.4 Hands-On Lab
 
-This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens.
+This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens. A [Jupyter notebook walkthrough](https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb) covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.
 
 #### Adjust acceptance rate yourself
 

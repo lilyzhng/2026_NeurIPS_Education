@@ -17,38 +17,42 @@ Lily Zhang, Madison Kanna
 
 ## TLDR
 
-An interactive resource that teaches speculative decoding the way the field evaluates it: three generations of draft models (EAGLE-3, DFlash, DSpark), why the result is lossless in theory, what the standard harness never measures (token quality outside math and code; a 5.6-point behavior gap between owner-trained and vendor-assembled stacks), and a one-GPU lab where learners serve an accelerated model and grade the outputs themselves.
+An interactive resource that teaches speculative decoding: why autoregressive decoding is the bottleneck of LLM inference, how draft-and-verify works and why it is lossless in theory, three generations of draft models (EAGLE-3, DFlash, DSpark), cross-domain evaluation with LosslessBench, and a hands-on lab where learners serve accelerated models and adjust the acceptance threshold themselves.
 
 ## The concept (≤200 words)
 
-The market wants more tokens: agent workflows chain dozens of model calls per task, reasoning models spend thousands of tokens thinking, and every product built on either one pays for latency twice, in compute and in user patience. The ideal answer is lossless inference acceleration, and that demand has pulled acceleration steadily deeper into the model itself: draft models evolved through three generations in two years — EAGLE-3 (~3.9 tokens/pass), DFlash (~4.4), DSpark (~5.1) — alongside FP8 pre-training, MXFP4 quantization-aware training, and Kimi K3's shipped speculator. A small draft proposes K tokens; the target verifies all K in a single forward pass at nearly the cost of one, and rejection-sampling verification guarantees the output distribution exactly. Because correctness is guaranteed by construction, evaluation collapsed onto acceptance length and tokens/s — the standard harness never grades a single answer — while the behavior gap between owner-trained and vendor-assembled stacks reaches 5.6 points on long-tail domains. Learners walk all three generations, then reproduce every number themselves on one GPU.
+Every LLM you use generates one token at a time. This is autoregressive decoding, a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding accelerates this with a draft-and-verify loop: a lightweight draft model proposes the next tokens, the target model verifies all of them in a single forward pass at nearly the cost of one, and rejection sampling guarantees the output follows the target distribution. It now runs under nearly every hosted LLM: OpenAI credited its 80% GPT-5.6 Luna price cut partly to a redesigned draft model, Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster, DeepSeek ships DSpark for a 51% throughput gain, and Kimi K3 ships with its own draft model. Draft models evolved through three generations, each removing one bottleneck: EAGLE-3 raises acceptance length, DFlash cuts drafting time, DSpark cuts verification time, and DFlash 2 pushes acceptance length further. To answer whether these methods generalize beyond coding and math, which account for only 17% of real traffic, we built LosslessBench, a five-domain evaluation, and a hands-on lab where learners measure the trade-offs themselves.
 
 ## Leveling and prerequisite knowledge
 
-Introductory-to-intermediate. Accessible to any engineer or student who knows that an LLM generates text one token at a time. Prerequisites: basic familiarity with transformer inference (a forward pass produces a next-token distribution). No RL, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
+Introductory-to-intermediate; accessible to any engineer or student who knows that an LLM generates text one token at a time. Prerequisites: basic familiarity with transformer inference. The rejection-sampling losslessness argument is presented intuitively; hands-on labs are optional for participants who want more depth.
 
 ## Learning objectives and outcomes
 
 After engaging with this resource, a learner can:
 
-- Explain why speculative decoding is possible (verifying K tokens ≈ the cost of one), and read acceptance length correctly: accepted proposals per verification step, not saved passes.
-- Walk through EAGLE-3, DFlash, and DSpark, name the bottleneck each stage removes, and explain why the training objective and the evaluation metric converged onto the same number.
-- Demonstrate hands-on that acceptance rate is not accuracy: sweep the confidence threshold in the official evaluation code, grade the outputs, and watch the two numbers move in opposite directions.
-- Articulate the domain mismatch (verification concentrates in math and code, usage concentrates elsewhere) and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
+- Understand why autoregressive decoding is the major bottleneck of LLM inference.
+- Recognize how widely speculative decoding runs in production today (OpenAI, Anthropic, DeepSeek, Kimi), and why decoding speed and quality affect everyone.
+- Explain why speculative decoding is fast, and why it is lossless in theory.
+- Trace the evolution of draft models from the 2023 origin through EAGLE-3, DFlash, DSpark, and DFlash 2, and name the bottleneck each generation removes.
+- Evaluate a speculative decoding model across domains with LosslessBench.
+- Serve and evaluate speculative decoding models hands-on, including adjusting the acceptance threshold the way a deployment would.
 
 ## Grounding in NeurIPS Research (2022–2026)
 
-The three generations the resource teaches are themselves recent papers at NeurIPS and its sister venues:
+The resource covers recent papers at NeurIPS and its sister venues:
 
-- EAGLE-3 (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline.
-- DFlash (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over 6× lossless acceleration and up to 2.5× over EAGLE-3.
-- DSpark (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60–85% faster in production.
+- Speculative decoding (ICML 2023): the foundational draft-and-verify algorithm and its losslessness proof, the subject of Section 1. https://arxiv.org/abs/2211.17192
+- EAGLE-3 (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline, Section 1.1. https://arxiv.org/abs/2503.01840
+- DFlash (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over 6x lossless acceleration and up to 2.5x over EAGLE-3, Section 1.2. https://arxiv.org/abs/2602.06036
+- DSpark (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60–85% faster in production, Section 1.3. https://arxiv.org/abs/2607.05147
+- ViSpec (NeurIPS 2025): vision-aware speculative decoding, grounding the multimodal direction, Section 3.1. https://neurips.cc/virtual/2025/poster/115277
 
-The walkthrough places them in the NeurIPS speculative-decoding line they extend — SpecTr (NeurIPS 2023), Sequoia (NeurIPS 2024), and SpecExec (NeurIPS 2024) — alongside the foundational papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (ICLR 2025), and Kimi K3 shipping the speculator as part of post-training (2026).
+The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculative decoding (ICML 2023), EAGLE-3 (NeurIPS 2025), DFlash (ICML 2026); on the training side, FP8 in DeepSeek-V3, MXFP4 QAT in gpt-oss, and Kimi K3 shipping the speculator in post-training.
 
 ## Teaching material summary
 
-All materials are original and created for this track. (1) An interactive self-contained HTML article following the What Lossless Means / What It Doesn't / What's Next arc, with a walkthrough with adjustable draft length. (2) A hands-on lab on a single GPU: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes on frontend and creative briefs, and measure per-domain acceptance across the five LosslessBench domains. All materials, including the interactive article and lab scripts, are publicly available through the interactive website.
+All materials, including LosslessBench, are original and created for this track: (1) an interactive self-contained website following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo; (2) a hands-on lab with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench. All materials, including the interactive article and lab code, are publicly available through the interactive website.
 
 ---
 

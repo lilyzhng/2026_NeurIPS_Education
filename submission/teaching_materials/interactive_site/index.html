@@ -670,7 +670,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <div id="train" class="section">
 
 <h3 id="24-hands-on-lab">2.4 Hands-On Lab</h3>
-<p>This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens.</p>
+<p>This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens. A <a href="https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb">Jupyter notebook walkthrough</a> covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.</p>
 <h4 id="adjust-acceptance-rate-yourself">Adjust acceptance rate yourself</h4>
 <p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.</p>
 <figure class="wide">

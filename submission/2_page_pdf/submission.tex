@@ -10,6 +10,11 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{enumitem}
+\setlength{\multicolsep}{2pt}
+\setlength{\columnsep}{12pt}
+\setlist[itemize]{noitemsep, topsep=2pt, leftmargin=1.2em}
 \setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{4pt}
 
@@ -24,58 +29,63 @@
 \maketitle
 
 \begin{abstract}
-Speculative decoding now runs under nearly every hosted LLM, and the field reports success in acceptance rate and token speed while claiming the result is lossless. This education material is organized around three questions: \underline{What Lossless Means} (how does speculative decoding work, and why is it lossless in theory?), \underline{What It Doesn't} (does lossless inference hold true beyond math and code?), and \underline{What's Next} (who owns the quality of accelerated inference?). Learners walk through three generations of draft models: EAGLE-3, DFlash, DSpark. Token speed and acceptance rate get reported, mostly on math and code. What is missing is token quality, unmeasured everywhere else. A hands-on lab on a single GPU reproduces the numbers: serve an accelerated model, and grade the outputs. All materials, including the interactive article and lab scripts, are publicly available through our interactive website\footnote{Interactive Website: \url{https://neurips2026-speculative-decoding.vercel.app/}}.
+Every LLM you use generates one token at a time. This is autoregressive decoding, a major bottleneck of inference: producing $n$ tokens takes $n$ passes through a model with tens of billions of parameters. Speculative decoding accelerates this with a draft-and-verify loop, and it now runs under nearly every hosted LLM: OpenAI, Anthropic, DeepSeek, and Kimi all ship it in production. This education material teaches the concept through three questions: \underline{What Lossless Means} (how does speculative decoding work, and why is it lossless in theory?), \underline{What It Doesn't} (does the guarantee hold beyond math and code?), and \underline{What's Next} (what are the exciting new directions?). Learners walk through three generations of draft models (EAGLE-3, DFlash, DSpark), then a hands-on lab on a single GPU: serve an accelerated model, measure acceptance and speed, and adjust the acceptance threshold in deployment. All materials, including the interactive article and lab code, are publicly available through our interactive website\footnote{Interactive Website: \url{https://neurips2026-speculative-decoding.vercel.app/}}.
 \end{abstract}
 
 \section{Concept Summary}
-The market wants more tokens. Agent workflows chain dozens of model calls per task, reasoning models spend thousands of tokens thinking before they answer, and every product built on either one pays for latency twice, in compute and in user patience. The ideal answer is lossless inference acceleration: serve the same model faster without changing what it outputs. That demand has pulled acceleration steadily deeper into the model itself. Draft models for speculative decoding evolved through three generations in two years: \textbf{EAGLE-3} reuses target hidden states for feature-level drafting ($\sim$3.9 tokens/pass; \href{https://arxiv.org/abs/2503.01840}{Li et al., 2025}); \textbf{DFlash} drafts a whole block in one diffusion pass ($\sim$4.4; \href{https://arxiv.org/abs/2602.06036}{Chen et al., 2026}); \textbf{DSpark} adds a sequential head and confidence-scheduled trimming ($\sim$5.1, Qwen3-4B code average; \href{https://arxiv.org/abs/2607.05147}{DeepSeek, 2026}, Table~1). Frontier labs moved in the same direction from the training side: DeepSeek pushed FP8 into pre-training (\href{https://arxiv.org/abs/2412.19437}{DeepSeek-AI, 2024}), gpt-oss shipped MXFP4 with quantization-aware training (\href{https://arxiv.org/abs/2508.10925}{OpenAI, 2025}), and Kimi K3 ships the speculator itself, fine-tuned and validated before release (\href{https://arxiv.org/abs/2607.24653}{Kimi Team, 2026}). The \href{https://neurips2026-speculative-decoding.vercel.app/}{interactive walkthrough} carries one worked example across all four decoding stages; in the DSpark stage a low-confidence draft token is trimmed before verification and corrected by the target, which is where lossless ends.
+The material follows the progression a learner needs, each section building on the previous one:
+\begin{itemize}
+  \item \underline{\emph{Why it matters:}} speculative decoding runs under nearly every hosted LLM, so the speed and quality of decoding affect everyone. OpenAI credited its 80\% GPT-5.6 Luna price cut partly to a redesigned draft model (\href{https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484}{OpenAI, 2026}), Anthropic's fast mode serves the same Claude Opus model up to 2.5$\times$ faster (\href{https://platform.claude.com/docs/en/build-with-claude/fast-mode}{Anthropic, 2026}), DeepSeek ships DSpark for a 51\% throughput gain, and Kimi K3 ships with its own draft model (\href{https://arxiv.org/abs/2607.24653}{Kimi Team, 2026}).
+  \item \underline{\emph{How it works:}} a lightweight draft model proposes the next $\gamma$ tokens, the target model verifies all of them in a single forward pass at nearly the cost of one, and rejection sampling guarantees the output follows the target distribution (\href{https://arxiv.org/abs/2211.17192}{Leviathan et al., 2023}; \href{https://arxiv.org/abs/2302.01318}{Chen et al., 2023}).
+  \item \underline{\emph{Three generations, each removing one bottleneck:}} \textbf{EAGLE-3} raises acceptance length with feature-level drafting (\href{https://arxiv.org/abs/2503.01840}{Li et al., 2025}), \textbf{DFlash} cuts drafting time by generating the whole block in one diffusion pass (\href{https://arxiv.org/abs/2602.06036}{Chen et al., 2026}), \textbf{DSpark} cuts verification time with confidence-scheduled trimming (\href{https://arxiv.org/abs/2607.05147}{DeepSeek, 2026}), and DFlash 2 pushes acceptance length further (\href{https://inco.ai/blog/dflash2/}{Inco AI, 2026}). An interactive walkthrough carries one worked example across all 4 decoding algorithms.
+  \item \underline{\emph{What's next:}} the material closes with the new directions: multimodal speculative decoding, speculating tool calls instead of tokens, and frontier labs absorbing acceleration into the model itself.
+\end{itemize}
 
-Inference providers now run some combination of quantization, speculative decoding, and serving-level optimizations on nearly every hosted model. What no one owns is the quality of the accelerated output. \emph{What's measured:} a small draft proposes $K$ tokens and the target verifies all $K$ in a single forward pass at nearly the cost of one, and rejection-sampling verification guarantees the output distribution exactly (\href{https://arxiv.org/abs/2211.17192}{Leviathan et al., 2023}; \href{https://arxiv.org/abs/2302.01318}{Chen et al., 2023}). Speed and acceptance are easy to measure and quality is not, so evaluation collapsed onto acceptance length and tokens/s; draft training converged onto the same number: the LK loss is the negative log of per-token acceptance probability (\href{https://arxiv.org/abs/2602.23881}{Samarin et al., 2026}; \href{https://arxiv.org/abs/2607.24653}{Kimi Team, 2026}, \S4.1.4). \emph{What's missed:} in the evaluation harness of \href{https://github.com/deepseek-ai/DeepSpec}{DeepSpec}, DeepSeek's open-source draft training and evaluation stack, the nine standard datasets supply only prompts, with no grader or accuracy metric anywhere in the code, so the lossless claim rests entirely on a theorem that covers exact verification only; quantization, KV routing, disaggregation, and relaxed acceptance sit outside it, and the measured behavior gap between owner-trained and vendor-assembled acceleration reaches 5.6 points on long-tail domains (\href{https://lilyzh.ng/writing/losslessbench/}{LosslessBench, 2026}), while verification concentrates in low-entropy math and code, exactly where acceleration is least likely to misbehave. \emph{What's next:} every published draft objective optimizes alignment or acceptance (\href{https://arxiv.org/abs/2310.08461}{Zhou et al., 2024}; \href{https://arxiv.org/abs/2501.19309}{Bachmann et al., 2025}); none trains a draft to preserve the target's behavior on the long tail.
+To answer whether speculative decoding methods generalize across domains beyond coding and math, which account for only 17\% of real traffic (\href{https://openrouter.ai/rankings}{OpenRouter, 2026}), we built \href{https://lilyzh.ng/writing/losslessbench/}{LosslessBench}, a five-domain evaluation, and a hands-on lab on a single GPU: learners serve Qwen3-8B with the three released draft checkpoints, reproduce published acceptance lengths, race the lanes across domains, and adjust the acceptance threshold themselves. As the threshold relaxes from 1.0 to 0.4, acceptance length climbs 48\% while the generated pages drift, which learners judge with their own eyes.
 
 \section{Prerequisites and Technical Level}
-\textbf{Level:} introductory-to-intermediate; accessible to any engineer or student who knows that an LLM generates text one token at a time. \textbf{Prerequisites:} basic familiarity with transformer inference (a forward pass produces a next-token distribution); no RL, training, or GPU-kernel background required. The rejection-sampling losslessness argument is presented intuitively, with the accept/repair rule optional for readers who want the math.
+\textbf{Level:} introductory-to-intermediate; accessible to any engineer or student who knows that an LLM generates text one token at a time. \textbf{Prerequisites:} basic familiarity with transformer inference. The rejection-sampling losslessness argument is presented intuitively; hands-on labs are optional for participants who want more depth.
 
 \section{Learning Objectives and Outcomes}
 After engaging with this resource, a learner can:
 \begin{itemize}
-  \item explain \emph{why} speculative decoding is possible (verifying $K$ tokens $\approx$ the cost of one), and read \emph{acceptance length} correctly: accepted proposals per verification step, not saved passes;
-  \item walk through EAGLE-3, DFlash, and DSpark, name the bottleneck each stage removes, and explain why training objective and evaluation metric converged onto the same number;
-  \item \textbf{demonstrate hands-on} that acceptance rate is not accuracy: sweep the confidence threshold in the official evaluation code, grade the outputs, and watch the two numbers move in opposite directions;
-  \item articulate the domain mismatch (verification concentrates in math and code, usage concentrates elsewhere) and pose the open question: what would a draft-training objective that preserves long-tail behavior look like?
+  \item Understand why autoregressive decoding is the major bottleneck of LLM inference.
+  \item Recognize how widely speculative decoding runs in production today (OpenAI, Anthropic, DeepSeek, Kimi), and why decoding speed and quality affect everyone.
+  \item Explain why speculative decoding is fast, and why it is lossless in theory.
+  \item Trace the evolution of draft models from the 2023 origin through EAGLE-3, DFlash, DSpark, and DFlash 2, and name the bottleneck each generation removes.
+  \item Evaluate a speculative decoding model across domains with LosslessBench.
+  \item Serve and evaluate speculative decoding models hands-on, including adjusting the acceptance threshold in deployment.
 \end{itemize}
 
 \section{Grounding in NeurIPS Research (2022--2026)}
-The three generations the resource teaches are themselves recent papers at NeurIPS and its sister venues:
+The resource covers recent papers at NeurIPS and its sister venues:
 \begin{itemize}\small
-  \item \href{https://openreview.net/forum?id=4exx1hUffq}{\textbf{EAGLE-3}} (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline.
-  \item \href{https://icml.cc/virtual/2026/poster/64301}{\textbf{DFlash}} (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over $6\times$ lossless acceleration and up to $2.5\times$ over EAGLE-3.
-  \item \href{https://arxiv.org/abs/2607.05147}{\textbf{DSpark}} (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60--85\% faster in production.
+  \item \href{https://arxiv.org/abs/2211.17192}{\textbf{Speculative decoding}} (ICML 2023): the foundational draft-and-verify algorithm and its losslessness proof, the subject of Section 1.
+  \item \href{https://openreview.net/forum?id=4exx1hUffq}{\textbf{EAGLE-3}} (NeurIPS 2025): feature-level drafting with multi-layer fusion and a training-time test, the current autoregressive-draft baseline, Section 1.1.
+  \item \href{https://icml.cc/virtual/2026/poster/64301}{\textbf{DFlash}} (ICML 2026): a block-diffusion drafter that generates the whole block in one forward pass, over $6\times$ lossless acceleration and up to $2.5\times$ over EAGLE-3, Section 1.2.
+  \item \href{https://arxiv.org/abs/2607.05147}{\textbf{DSpark}} (DeepSeek, 2026): confidence-scheduled verification on the block-parallel backbone, serving DeepSeek-V4-Flash 60--85\% faster in production, Section 1.3.
+  \item \href{https://neurips.cc/virtual/2025/poster/115277}{\textbf{ViSpec}} (NeurIPS 2025): vision-aware speculative decoding, grounding the multimodal direction, Section 3.1.
 \end{itemize}
-The walkthrough places them in the NeurIPS speculative-decoding line they extend, SpecTr (NeurIPS 2023), Sequoia (NeurIPS 2024), and SpecExec (NeurIPS 2024), alongside the foundational papers (Leviathan et al., 2023; Chen et al., 2023), FP8 pre-training in DeepSeek-V3 (2024), MXFP4 QAT in gpt-oss (2025), Judge Decoding (ICLR 2025), and Kimi K3 shipping the speculator as part of post-training (2026).
+The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculative decoding (ICML 2023), EAGLE-3 (NeurIPS 2025), DFlash (ICML 2026); on the training side, FP8 in \href{https://arxiv.org/abs/2412.19437}{DeepSeek-V3}, MXFP4 QAT in \href{https://arxiv.org/abs/2508.10925}{gpt-oss}, and Kimi K3 shipping the speculator in post-training.
 
 \section{Teaching Materials Summary}
-All materials are original and created for this track: (1) an \textbf{interactive self-contained HTML article} following the What Lossless Means / What It Doesn't / What's Next arc, with a walkthrough with adjustable draft length; (2) a \textbf{hands-on lab} (single GPU): serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes on frontend and creative briefs, and measure per-domain acceptance across the five LosslessBench domains.
+All materials, including LosslessBench, are original and created for this track: (1) an \textbf{interactive self-contained website} following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo; (2) a \textbf{hands-on lab} with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
 
 
-\section*{References}
-{\small
+\vspace{-4pt}\section*{References}
+{\footnotesize
+\begin{multicols}{3}
 \begin{itemize}
   \item Leviathan, Kalman, Matias. \emph{Fast Inference from Transformers via Speculative Decoding.} ICML 2023. \url{https://arxiv.org/abs/2211.17192}
   \item Chen et al. \emph{Accelerating Large Language Model Decoding with Speculative Sampling.} 2023. \url{https://arxiv.org/abs/2302.01318}
-  \item Sun et al. \emph{SpecTr: Fast Speculative Decoding via Optimal Transport.} NeurIPS 2023. \url{https://neurips.cc/virtual/2023/poster/71597}
-  \item Chen et al. \emph{Sequoia: Scalable, Robust, and Hardware-aware Speculative Decoding.} NeurIPS 2024.
-  \item Svirschevski et al. \emph{SpecExec: Massively Parallel Speculative Decoding.} NeurIPS 2024.
-  \item Zhou et al. \emph{DistillSpec: Improving Speculative Decoding via Knowledge Distillation.} ICLR 2024. \url{https://arxiv.org/abs/2310.08461}
   \item Li, Wei, Zhang, Zhang. \emph{EAGLE-3: Scaling up Inference Acceleration of LLMs via Training-Time Test.} NeurIPS 2025. \url{https://arxiv.org/abs/2503.01840}
-  \item Bachmann et al. \emph{Judge Decoding: Faster Speculative Sampling Requires Going Beyond Model Alignment.} ICLR 2025. \url{https://arxiv.org/abs/2501.19309}
   \item Chen, Liang, Liu. \emph{DFlash: Block Diffusion for Flash Speculative Decoding.} ICML 2026. \url{https://arxiv.org/abs/2602.06036}
-  \item DeepSeek. \emph{DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation.} 2026. \url{https://arxiv.org/abs/2607.05147}
-  \item Samarin et al. \emph{Direct Acceptance Optimization for Draft Model Training.} 2026. \url{https://arxiv.org/abs/2602.23881}
-  \item Kimi Team. \emph{Kimi K3 Technical Report}, \S4.1.4 Draft Model Fine-Tuning. 2026. \url{https://arxiv.org/abs/2607.24653}
-  \item DeepSeek-AI. \emph{DeepSeek-V3 Technical Report} (FP8 pre-training). 2024. \url{https://arxiv.org/abs/2412.19437}
-  \item OpenAI. \emph{gpt-oss Model Card} (MXFP4 quantization-aware training). 2025. \url{https://arxiv.org/abs/2508.10925}
-  \item Zhang. \emph{LosslessBench: Does Inference Acceleration Preserve Model Behavior?} 2026. \url{https://lilyzh.ng/writing/losslessbench/}
+  \item DeepSeek. \emph{DSpark.} 2026. \url{https://arxiv.org/abs/2607.05147}
+  \item Kimi Team. \emph{Kimi K3 Technical Report.} 2026. \url{https://arxiv.org/abs/2607.24653}
+  \item Inco AI. \emph{DFlash 2: Keep Drafting Parallel.} 2026. \href{https://inco.ai/blog/dflash2/}{inco.ai/blog/dflash2}
+  \item Zhang. \emph{LosslessBench.} 2026. \href{https://lilyzh.ng/writing/losslessbench/}{lilyzh.ng/writing/losslessbench}
 \end{itemize}
+\end{multicols}
 }
 
 \end{document}

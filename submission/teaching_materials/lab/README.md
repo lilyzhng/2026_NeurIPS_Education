@@ -1,8 +1,8 @@
-# Section 4 Hands-on Lab — code
+# Section 2.4 Hands-On Lab — code
 
-Scripts behind the article's Section 4 ("Hands-On Lab"). One H100 (or A100-80GB), one afternoon, all draft weights from the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) release (one training recipe across algorithms, so cross-algorithm comparisons stay controlled).
+Scripts behind the article's Section 2.4 ("Hands-On Lab"). One H100 (or A100-80GB), one afternoon, all draft weights from the [DeepSpec](https://github.com/deepseek-ai/DeepSpec) release (one training recipe across algorithms, so cross-algorithm comparisons stay controlled).
 
-## Engine map (verified 2026-09-02, the hard-won part)
+## Engine map (verified 2026-09-02)
 
 | DeepSpec checkpoint | SGLang | vLLM |
 |---|---|---|
@@ -19,6 +19,7 @@ So: **4.1 / 4.2 / 4.4 run on vLLM** (`modal_vllm_serve.py`, app `neurips-spec-la
 - `measure_decoding_speed.py` — send a prompt, report tokens/s (+ τ from /metrics when exposed).
 - `race_domains.py` — same measurement across coding / creative / frontend prompt sets.
 - `sweep_threshold.py` — 4.3: redeploy per threshold, GSM8K subset at temperature 1.0 (thresholds only bite when sampling), accuracy + speed + τ per step.
+- `sweep_frontend_knob.py` — the acceptance-rate demo (Figure 14): redeploy SGLang per threshold (1.0/0.8/0.6/0.4), regenerate the L101 frontend page at temperature 1, record acceptance length and speed per stop.
 - `generate_frontend_task.py` — 4.4: OpenDesign id 673 (the Figure 11 calendar brief), greedy; lossless ⇒ byte-identical HTML across lanes.
 - `plot_lab.py` — figures from the collected JSONs in `local/draft_v2/data/`.
 
