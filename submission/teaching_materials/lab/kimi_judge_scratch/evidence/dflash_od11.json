@@ -1,0 +1,151 @@
+{
+  "consoleMsgs": [
+    "error: Failed to load resource: net::ERR_CONNECTION_CLOSED"
+  ],
+  "pageErrors": [],
+  "dialogs": [],
+  "components": {
+    "navLinks": {
+      "found": [
+        {
+          "text": "Home",
+          "href": "#"
+        },
+        {
+          "text": "Search",
+          "href": "#"
+        },
+        {
+          "text": "Library",
+          "href": "#"
+        },
+        {
+          "text": "Your Music",
+          "href": "#"
+        }
+      ],
+      "results": [
+        {
+          "text": "Home",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Search",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Library",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Your Music",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        }
+      ]
+    },
+    "search": {
+      "exists": true,
+      "typed": "workout",
+      "cardsBefore": [
+        "Chill Vibes",
+        "Workout Beats",
+        "Study Sessions"
+      ],
+      "cardsAfter": [
+        "Chill Vibes",
+        "Workout Beats",
+        "Study Sessions"
+      ],
+      "contentChanged": false,
+      "newDialogs": 0
+    },
+    "playButtons": {
+      "count": 3,
+      "results": [
+        {
+          "i": 0,
+          "bodyChanged": false,
+          "newDialogs": 0
+        },
+        {
+          "i": 1,
+          "bodyChanged": false,
+          "newDialogs": 0
+        },
+        {
+          "i": 2,
+          "bodyChanged": false,
+          "newDialogs": 0
+        }
+      ]
+    },
+    "createPlaylist": {
+      "formSel": ".playlist-form",
+      "typedValue": "My Test Playlist",
+      "cardsBefore": 3,
+      "cardsAfter": 3,
+      "newCardAppeared": false,
+      "newDialogs": [],
+      "newTextAppeared": false,
+      "textDelta": 0
+    },
+    "hover": [
+      {
+        "sel": ".sidebar a",
+        "before": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "after": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(29, 185, 84)"
+        },
+        "changed": true
+      },
+      {
+        "sel": ".playlist-card button",
+        "before": {
+          "bg": "rgb(29, 185, 84)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "after": {
+          "bg": "rgb(22, 163, 74)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "changed": true
+      }
+    ]
+  },
+  "externalResources": [
+    "https://via.placeholder.com/200x120",
+    "https://via.placeholder.com/200x120",
+    "https://via.placeholder.com/200x120"
+  ],
+  "imageStatus": [
+    {
+      "src": "https://via.placeholder.com/200x120",
+      "naturalWidth": 0
+    },
+    {
+      "src": "https://via.placeholder.com/200x120",
+      "naturalWidth": 0
+    },
+    {
+      "src": "https://via.placeholder.com/200x120",
+      "naturalWidth": 0
+    }
+  ],
+  "trailingText": "ate New Playlist\n Create Playlist\n© 2023 Spotify Clone. All rights reserved.\n```"
+}

@@ -54,6 +54,9 @@ def creative() -> None:
     for lid in ["L073", "L074", "L075", "L076", "L077"]:
         t = json.loads((LB / f"lossless100/hydrated/tasks/{lid}/task.json").read_text())
         briefs[lid] = t["prompt"].replace("<SEED>", "").strip()[:160]
+    cw = json.loads((Path(__file__).parent / "eqbench_cw3/creative_writing_prompts_v3.json").read_text())
+    for cid in ["3", "7", "11", "15", "19"]:
+        briefs[f"cw{cid}"] = cw[cid]["writing_prompt"].replace("<SEED>", "").strip()[:160]
     rows, wins = [], {"vanilla": 0, "dflash": 0}
     for lid, brief in briefs.items():
         sv, sd = eq["vanilla"][lid], eq["dflash"][lid]
@@ -86,7 +89,7 @@ def creative() -> None:
 <html><head><meta charset="utf-8"><title>vanilla Qwen3-8B vs + DFlash draft: creative</title>
 <style>{CSS}</style></head><body>
 <h1>vanilla Qwen3-8B (left) vs + DFlash draft (right): creative writing</h1>
-<div class="sub">Win count: vanilla {wins['vanilla']}, DFlash {wins['dflash']} (a tie scores one point for each side).</div>
+<div class="sub"><b>Win count: vanilla {wins['vanilla']}/{len(briefs)}, DFlash {wins['dflash']}/{len(briefs)}</b> (a tie scores one point for each side).</div>
 <div class="sub"><b>Judging</b>: EQ-Bench Creative Writing v3 official rubric, GPT-4o judge, 22 criteria scored 0-20, negative criteria inverted. Green = top strengths, red = weakest criteria; full judge analysis below each.</div>
 {''.join(rows)}
 </body></html>""")
@@ -127,7 +130,7 @@ def guardrail() -> None:
 <html><head><meta charset="utf-8"><title>vanilla Qwen3-8B vs + DFlash draft: guardrail</title>
 <style>{CSS}</style></head><body>
 <h1>vanilla Qwen3-8B (left) vs + DFlash draft (right): guardrail (XSTest)</h1>
-<div class="sub">Score: vanilla {correct["vanilla"]}/{n}, DFlash {correct["dflash"]}/{n}. Wrong labels marked &#10007;.</div>
+<div class="sub"><b>Win count: vanilla {n}/{n}, DFlash {n}/{n}</b> &mdash; every prompt is a tie, the two arms output identical labels. Accuracy vs gold: both {correct["vanilla"]}/{n}. Wrong labels marked &#10007;.</div>
 <table><tr><th>prompt</th><th>gold</th><th>vanilla</th><th>DFlash</th></tr>
 {''.join(trs)}</table>
 </body></html>""")

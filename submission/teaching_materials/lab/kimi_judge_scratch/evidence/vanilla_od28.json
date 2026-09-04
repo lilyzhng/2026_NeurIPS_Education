@@ -1,0 +1,26 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "components": {
+    "render": {
+      "title": null,
+      "tradingChildren": null,
+      "accidentChildren": null,
+      "svgCount": 0,
+      "canvasCount": 0,
+      "tooltipExists": false,
+      "bodyTextLen": 0,
+      "bodyTextStart": ""
+    },
+    "hover": {
+      "trading-chart": "container missing",
+      "accident-chart": "container missing"
+    },
+    "click": {
+      "trading-chart": "missing",
+      "accident-chart": "missing"
+    }
+  },
+  "externalResources": [],
+  "hasD3": false
+}

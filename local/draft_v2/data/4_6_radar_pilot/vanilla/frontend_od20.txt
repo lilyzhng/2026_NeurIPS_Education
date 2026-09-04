@@ -1,0 +1,583 @@
+<think>
+Okay, the user wants a single-file HTML page that displays traffic data with interactive charts and graphs. Let me start by recalling the requirements. They mentioned inline CSS and no external assets, so I can't use any external libraries like Chart.js or D3.js. Wait, but without external assets, how do I create interactive charts? Maybe I can use the HTML5 Canvas element and some basic JavaScript to draw charts manually. Alternatively, maybe they expect using a library that's included via CDN, but the brief says no external assets. Hmm, that's a bit conflicting. Let me check the brief again.
+
+The brief says "no external assets," so I can't include any external CSS or JS files. So I need to create the charts using only HTML, CSS, and JavaScript that's embedded in the page. That's going to be challenging. Maybe using SVG for the charts? Or perhaps using the Canvas element with some JavaScript to draw the graphs. Let me think about the simplest approach.
+
+Alternatively, maybe the user is okay with using a lightweight library that's included in the HTML, but since they said no external assets, I can't use any. So I need to create the charts from scratch. Let me outline the structure.
+
+First, the HTML structure. I'll need a container for the charts. Maybe two sections: one for a line chart and one for a bar chart. For the line chart, I can use a canvas element. For the bar chart, maybe SVG or another canvas. But writing the code to draw these manually would take time. Let me think of a way to make it interactive. Maybe using JavaScript to update the data dynamically.
+
+Wait, the user said "interactive charts and graphs." So maybe the charts should respond to user actions, like hovering over data points or clicking to filter data. But without a library, that's going to be complex. Maybe I can create a basic line chart with some interactivity, like tooltips on hover.
+
+Alternatively, maybe the user is okay with a very basic chart that's not fully interactive but visually represents the data. Let me proceed with that approach.
+
+Let me start by setting up the HTML structure. The doctype, html, head, and body tags. In the head, include the title and the inline CSS. Then in the body, create sections for the charts. For the line chart, a canvas element. For the bar chart, maybe another canvas or SVG. But since I can't use external libraries, I'll have to write the drawing code.
+
+Let me think about the data. The user mentioned traffic data, so maybe something like daily traffic, monthly traffic, or different metrics. Let me create some sample data. For example, daily traffic numbers over a week, and maybe a bar chart showing different regions' traffic.
+
+Now, for the line chart: I'll need to draw lines connecting data points. For the bar chart, rectangles representing each data point. I'll need to write JavaScript functions to draw these.
+
+Let me outline the steps:
+
+1. Create the HTML structure with two chart containers.
+2. Add inline CSS for styling the page, charts, and any interactivity.
+3. Write JavaScript to generate the sample data and draw the charts.
+4. Add interactivity, like tooltips on hover.
+
+But writing the drawing code for the charts from scratch is time-consuming. Let me think of a way to simplify. Maybe use the canvas element and draw the line chart with some basic functions. For the bar chart, similar approach.
+
+Let me start with the line chart. The canvas will have a width and height. I'll need to scale the data to fit the canvas. For example, if the data is [10, 20, 30, 40, 50], the canvas will have a certain width, and each data point will be mapped to a position on the canvas.
+
+Similarly for the bar chart, each bar's height will be proportional to the data value.
+
+Now, for interactivity, I can add event listeners to the canvas to detect mouse movements and show tooltips. But that requires more code.
+
+Alternatively, maybe the user just wants a static chart, but the brief says "interactive." So I need to include some interactivity.
+
+Let me proceed step by step.
+
+First, the HTML structure:
+
+- A header with a title.
+- A section for the line chart.
+- A section for the bar chart.
+
+In the CSS, I'll style the body, the chart containers, and the canvas elements.
+
+In the JavaScript, I'll generate sample data, then draw the line chart and bar chart.
+
+Let me think about the sample data. For the line chart, maybe daily traffic over 7 days. For the bar chart, maybe traffic by region (e.g., North, South, East, West).
+
+Now, writing the JavaScript functions to draw these.
+
+For the line chart:
+
+- Get the canvas context.
+- Determine the maximum value to scale the data.
+- Draw the axes.
+- Draw the line connecting the data points.
+- Add tooltips on hover.
+
+For the bar chart:
+
+- Similar approach, but draw bars instead of lines.
+- Maybe color-coded bars.
+
+But without a library, this is going to be a lot of code. Let me try to write the code for the line chart first.
+
+Let me also consider that the user might not need full interactivity, but at least some basic interaction like hover effects.
+
+Alternatively, maybe the user is okay with a very basic chart that's not fully interactive but visually represents the data. Let me check the brief again: "interactive charts and graphs." So I need to include some interactivity.
+
+Let me proceed with the code.
+
+First, the HTML:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic Data Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .chart-container {
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: block;
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Traffic Data Dashboard</h1>
+    <div class="chart-container">
+        <h2>Daily Traffic (Line Chart)</h2>
+        <canvas id="lineChart" width="600" height="300"></canvas>
+        <div class="tooltip" id="lineTooltip"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Traffic by Region (Bar Chart)</h2>
+        <canvas id="barChart" width="600" height="300"></canvas>
+        <div class="tooltip" id="barTooltip"></div>
+    </div>
+
+    <script>
+        // Sample data
+        const dailyTraffic = [120, 150, 130, 170, 160, 180, 200];
+        const regions = ['North', 'South', 'East', 'West', 'Central'];
+        const regionTraffic = [150, 200, 180, 160, 190];
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        drawLineChart(lineCtx, dailyTraffic, 'Daily Traffic', 'Days', 'Traffic (units)');
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        drawBarChart(barCtx, regionTraffic, regions, 'Traffic by Region', 'Region', 'Traffic (units)');
+
+        function drawLineChart(ctx, data, title, xLabel, yLabel) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const maxValue = Math.max(...data);
+            const scale = chartHeight / maxValue;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, chartHeight + margin.top);
+            ctx.lineTo(width - margin.right, chartHeight + margin.top);
+            ctx.stroke();
+
+            // Draw grid lines
+            for (let i = 1; i < 5; i++) {
+                const y = chartHeight - (i * chartHeight / 4);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(width - margin.right, y);
+                ctx.strokeStyle = '#ddd';
+                ctx.stroke();
+            }
+
+            // Draw labels
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.fillText(xLabel, margin.left + chartWidth / 2, height - 10);
+            ctx.save();
+            ctx.translate(0, height - 20);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(yLabel, 0, 10);
+            ctx.restore();
+
+            // Draw data points and line
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * chartWidth;
+                const y = chartHeight - (data[i] * scale);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Draw data points
+            ctx.fillStyle = '#4CAF50';
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * chartWidth;
+                const y = chartHeight - (data[i] * scale);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Tooltip
+            const tooltip = document.getElementById('lineTooltip');
+            ctx.canvas.addEventListener('mousemove', (e) => {
+                const rect = ctx.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                let closest = 0;
+                let minDist = Infinity;
+                for (let i = 0; i < data.length; i++) {
+                    const px = margin.left + (i / (data.length - 1)) * chartWidth;
+                    const py = chartHeight - (data[i] * scale);
+                    const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = i;
+                    }
+                }
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${x + 10}px`;
+                tooltip.style.top = `${y - 20}px`;
+                tooltip.textContent = `Day ${closest + 1}: ${data[closest]} units`;
+            });
+
+            ctx.canvas.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
+        }
+
+        function drawBarChart(ctx, data, labels, title, xLabel, yLabel) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const maxValue = Math.max(...data);
+            const scale = chartHeight / maxValue;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, chartHeight + margin.top);
+            ctx.lineTo(width - margin.right, chartHeight + margin.top);
+            ctx.stroke();
+
+            // Draw grid lines
+            for (let i = 1; i < 5; i++) {
+                const y = chartHeight - (i * chartHeight / 4);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(width - margin.right, y);
+                ctx.strokeStyle = '#ddd';
+                ctx.stroke();
+            }
+
+            // Draw labels
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.fillText(xLabel, margin.left + chartWidth / 2, height - 10);
+            ctx.save();
+            ctx.translate(0, height - 20);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(yLabel, 0, 10);
+            ctx.restore();
+
+            // Draw bars
+            ctx.fillStyle = '#2196F3';
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1));
+                const y = chartHeight - (data[i] * scale);
+                ctx.fillRect(x, y, chartWidth / (data.length - 1) - 2, data[i] * scale);
+            }
+
+            // Draw labels on bars
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1)) + (chartWidth / (data.length - 1)) / 2;
+                const y = chartHeight - (data[i] * scale) - 5;
+                ctx.fillStyle = '#000';
+                ctx.font = '10px Arial';
+                ctx.fillText(data[i], x, y);
+            }
+
+            // Draw x-axis labels
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Arial';
+            for (let i = 0; i < labels.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1)) + (chartWidth / (data.length - 1)) / 2;
+                const y = height - 10;
+                ctx.fillText(labels[i], x, y);
+            }
+
+            // Tooltip
+            const tooltip = document.getElementById('barTooltip');
+            ctx.canvas.addEventListener('mousemove', (e) => {
+                const rect = ctx.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                let closest = 0;
+                let minDist = Infinity;
+                for (let i = 0; i < data.length; i++) {
+                    const px = margin.left + i * (chartWidth / (data.length - 1));
+                    const py = chartHeight - (data[i] * scale);
+                    const barWidth = chartWidth / (data.length - 1) - 2;
+                    const barX = px;
+                    const barY = py;
+                    const barEndX = px + barWidth;
+                    const barEndY = chartHeight;
+                    const dist = Math.sqrt((x - (barX + barEndX)/2) ** 2 + (y - (barY + barEndY)/2) ** 2);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = i;
+                    }
+                }
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${x + 10}px`;
+                tooltip.style.top = `${y - 20}px`;
+                tooltip.textContent = `${labels[closest]}: ${data[closest]} units`;
+            });
+
+            ctx.canvas.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
+
+Okay, this code creates two charts: a line chart for daily traffic and a bar chart for traffic by region. The line chart has tooltips on hover, and the bar chart also has tooltips. The CSS is inline, and there are no external assets. The JavaScript draws the charts using the canvas element, scaling the data to fit the chart area. The tooltips show the data values when hovering over the charts.
+
+I need to check if this meets the brief. The user asked for a single-file HTML page with inline CSS and no external assets. This code does that. The charts are interactive with tooltips. The data is sample data, but the user can replace it with their own. The code is self-contained and should work in any browser that supports HTML5 canvas.
+
+I think this should fulfill the requirements. Let me make sure there are no errors in the code. For example, in the drawLineChart function, the tooltip is set to 'lineTooltip', and in the drawBarChart, it's 'barTooltip'. The HTML has both tooltips. The JavaScript adds event listeners for mousemove and mouseout to show and hide the tooltips. The scaling is done based on the maximum value in the data. The line chart draws a line and data points, while the bar chart draws bars with labels and tooltips.
+
+Yes, this should work. The user can expand on this by adding more data, different chart types, or more interactivity, but for the given brief, this should be sufficient.
+</think>
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic Data Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .chart-container {
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: block;
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Traffic Data Dashboard</h1>
+    <div class="chart-container">
+        <h2>Daily Traffic (Line Chart)</h2>
+        <canvas id="lineChart" width="600" height="300"></canvas>
+        <div class="tooltip" id="lineTooltip"></div>
+    </div>
+    <div class="chart-container">
+        <h2>Traffic by Region (Bar Chart)</h2>
+        <canvas id="barChart" width="600" height="300"></canvas>
+        <div class="tooltip" id="barTooltip"></div>
+    </div>
+
+    <script>
+        // Sample data
+        const dailyTraffic = [120, 150, 130, 170, 160, 180, 200];
+        const regions = ['North', 'South', 'East', 'West', 'Central'];
+        const regionTraffic = [150, 200, 180, 160, 190];
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        drawLineChart(lineCtx, dailyTraffic, 'Daily Traffic', 'Days', 'Traffic (units)');
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        drawBarChart(barCtx, regionTraffic, regions, 'Traffic by Region', 'Region', 'Traffic (units)');
+
+        function drawLineChart(ctx, data, title, xLabel, yLabel) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const maxValue = Math.max(...data);
+            const scale = chartHeight / maxValue;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, chartHeight + margin.top);
+            ctx.lineTo(width - margin.right, chartHeight + margin.top);
+            ctx.stroke();
+
+            // Draw grid lines
+            for (let i = 1; i < 5; i++) {
+                const y = chartHeight - (i * chartHeight / 4);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(width - margin.right, y);
+                ctx.strokeStyle = '#ddd';
+                ctx.stroke();
+            }
+
+            // Draw labels
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.fillText(xLabel, margin.left + chartWidth / 2, height - 10);
+            ctx.save();
+            ctx.translate(0, height - 20);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(yLabel, 0, 10);
+            ctx.restore();
+
+            // Draw data points and line
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * chartWidth;
+                const y = chartHeight - (data[i] * scale);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Draw data points
+            ctx.fillStyle = '#4CAF50';
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * chartWidth;
+                const y = chartHeight - (data[i] * scale);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Tooltip
+            const tooltip = document.getElementById('lineTooltip');
+            ctx.canvas.addEventListener('mousemove', (e) => {
+                const rect = ctx.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                let closest = 0;
+                let minDist = Infinity;
+                for (let i = 0; i < data.length; i++) {
+                    const px = margin.left + (i / (data.length - 1)) * chartWidth;
+                    const py = chartHeight - (data[i] * scale);
+                    const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = i;
+                    }
+                }
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${x + 10}px`;
+                tooltip.style.top = `${y - 20}px`;
+                tooltip.textContent = `Day ${closest + 1}: ${data[closest]} units`;
+            });
+
+            ctx.canvas.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
+        }
+
+        function drawBarChart(ctx, data, labels, title, xLabel, yLabel) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const maxValue = Math.max(...data);
+            const scale = chartHeight / maxValue;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, chartHeight + margin.top);
+            ctx.lineTo(width - margin.right, chartHeight + margin.top);
+            ctx.stroke();
+
+            // Draw grid lines
+            for (let i = 1; i < 5; i++) {
+                const y = chartHeight - (i * chartHeight / 4);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(width - margin.right, y);
+                ctx.strokeStyle = '#ddd';
+                ctx.stroke();
+            }
+
+            // Draw labels
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.fillText(xLabel, margin.left + chartWidth / 2, height - 10);
+            ctx.save();
+            ctx.translate(0, height - 20);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(yLabel, 0, 10);
+            ctx.restore();
+
+            // Draw bars
+            ctx.fillStyle = '#2196F3';
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1));
+                const y = chartHeight - (data[i] * scale);
+                ctx.fillRect(x, y, chartWidth / (data.length - 1) - 2, data[i] * scale);
+            }
+
+            // Draw labels on bars
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1)) + (chartWidth / (data.length - 1)) / 2;
+                const y = chartHeight - (data[i] * scale) - 5;
+                ctx.fillStyle = '#000';
+                ctx.font = '10px Arial';
+                ctx.fillText(data[i], x, y);
+            }
+
+            // Draw x-axis labels
+            ctx.fillStyle = '#000';
+            ctx.font = '10px Arial';
+            for (let i = 0; i < labels.length; i++) {
+                const x = margin.left + i * (chartWidth / (data.length - 1)) + (chartWidth / (data.length - 1)) / 2;
+                const y = height - 10;
+                ctx.fillText(labels[i], x, y);
+            }
+
+            // Tooltip
+            const tooltip = document.getElementById('barTooltip');
+            ctx.canvas.addEventListener('mousemove', (e) => {
+                const rect = ctx.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                let closest = 0;
+                let minDist = Infinity;
+                for (let i = 0; i < data.length; i++) {
+                    const px = margin.left + i * (chartWidth / (data.length - 1));
+                    const py = chartHeight - (data[i] * scale);
+                    const barWidth = chartWidth / (data.length -

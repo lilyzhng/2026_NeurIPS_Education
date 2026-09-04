@@ -192,6 +192,83 @@
       ],
       "code_issues": [],
       "feedback": "Clean single-file page with no console errors, no external assets, all CSS selectors live. But the primary CTA button has zero click handler and footer links are bare '#' placeholders; only hover feedback works."
+    },
+    "od11": {
+      "code_correctness": 38,
+      "functionality": 10,
+      "total": 48,
+      "planned_components": [
+        "sidebar nav links (Home/Search/Library/Your Music)",
+        "search input: type query + Enter, page filters/responds",
+        "Play buttons (x3)",
+        "create playlist flow: type name + click 'Create Playlist', new playlist/confirmation (brief, x2)",
+        "hover feedback (sidebar link background)"
+      ],
+      "dead_components": [
+        {
+          "component": "sidebar nav links",
+          "evidence": "clicked all 4 (href='#'): no hash/body/DOM change (bodyChanged=false for each)"
+        },
+        {
+          "component": "search input",
+          "evidence": "typed 'workout', pressed Enter: playlist cards unchanged ['Midnight Vibes','Sunset Rhythms','Urban Beats'], no filtering, no dialog"
+        },
+        {
+          "component": "Play buttons (x3)",
+          "evidence": "clicked all 3: bodyChanged=false, no dialogs, no audio/state change"
+        },
+        {
+          "component": "create playlist flow (brief, x2)",
+          "evidence": "typed 'My Test Playlist', clicked 'Create Playlist': card count 3->3, body text delta 0, no confirmation; button has no handler in source"
+        }
+      ],
+      "code_issues": [
+        "Dead CSS: '.search-bar input' selector matches nothing (header div is class='main-header'), so the search input renders unstyled browser-default (-2)"
+      ],
+      "feedback": "Clean constraint-compliant page (data-URI images, zero console errors), but a pure visual shell: nav links are '#' placeholders, search/play/create-playlist all lack handlers. Only sidebar hover works. Playlist creation is the brief's core ask and is entirely dead."
+    },
+    "od20": {
+      "code_correctness": 20,
+      "functionality": 0,
+      "total": 20,
+      "planned_components": [
+        "line chart hover tooltip (brief 'interactive charts', x2)",
+        "bar chart hover tooltip (brief, x2)"
+      ],
+      "dead_components": [
+        {
+          "component": "line chart hover tooltip (brief, x2)",
+          "evidence": "mouse sweep over #lineChart (9 points): #lineTooltip stays display:none with empty text; listener never attached because script never ran"
+        },
+        {
+          "component": "bar chart hover tooltip (brief, x2)",
+          "evidence": "mouse sweep over #barChart: #barTooltip stays display:none; canvas has 0 painted pixels"
+        }
+      ],
+      "code_issues": [
+        "File truncated mid-expression: source ends at 'const barWidth = chartWidth / (data.length -' with no closing </script></body></html>; the unterminated script block is never executed, so both canvases render blank (0 painted pixels, screenshot vanilla_od20_0_initial.png) (-18)",
+        "Latent contrast bug in dead code: canvas filled #333 then axis labels drawn fillStyle '#000' (black on dark gray) (-2)"
+      ],
+      "feedback": "Truncated mid-statement; the whole script block is discarded by the HTML parser, leaving two empty bordered canvases. The tooltip logic that would have satisfied the brief never executes. Headers render; nothing else works or even draws."
+    },
+    "od28": {
+      "code_correctness": 5,
+      "functionality": 0,
+      "total": 5,
+      "planned_components": [
+        "trading chart hover tooltip (brief 'interactive charts', x2)",
+        "accident chart hover tooltip (brief, x2)"
+      ],
+      "dead_components": [
+        {
+          "component": "entire page",
+          "evidence": "file is 79 bytes ending mid-tag ('<title>Trading Trends & Accident Statistics</'); bodyTextLen=0, no chart containers, no SVG/canvas in DOM, page renders completely blank"
+        }
+      ],
+      "code_issues": [
+        "Severely truncated file (79 bytes, 4 lines, ends mid-<title> tag): no body, no charts, no script ever emitted (-35)"
+      ],
+      "feedback": "Generation was cut off inside the <title> tag. The browser renders a blank page; there is nothing to interact with and no code to evaluate beyond the truncation itself."
     }
   },
   "dflash": {
@@ -379,6 +456,101 @@
       ],
       "code_issues": [],
       "feedback": "Clean single-file page, no console errors, no external assets. CTA button correctly fires an 'App download coming soon!' alert and hover changes background; all three footer links are dead '#' placeholders."
+    },
+    "od11": {
+      "code_correctness": 27,
+      "functionality": 10,
+      "total": 37,
+      "planned_components": [
+        "sidebar nav links (Home/Search/Library/Your Music)",
+        "search input: type query + Enter, page filters/responds",
+        "Play buttons (x3)",
+        "create playlist flow: type name + click 'Create Playlist' (brief, x2)",
+        "hover feedback (sidebar link color, play button background)"
+      ],
+      "dead_components": [
+        {
+          "component": "sidebar nav links",
+          "evidence": "clicked all 4 (href='#'): no hash/body/DOM change"
+        },
+        {
+          "component": "search input",
+          "evidence": "typed 'workout', pressed Enter: cards unchanged ['Chill Vibes','Workout Beats','Study Sessions'], no response"
+        },
+        {
+          "component": "Play buttons (x3)",
+          "evidence": "clicked all 3: bodyChanged=false, no dialogs"
+        },
+        {
+          "component": "create playlist flow (brief, x2)",
+          "evidence": "typed 'My Test Playlist', clicked 'Create Playlist': card count 3->3, body text delta 0, no confirmation; no handler in source"
+        }
+      ],
+      "code_issues": [
+        "External asset violation: 3x <img src='https://via.placeholder.com/200x120'> (-8)",
+        "via.placeholder.com fails even with network: console error 'net::ERR_CONNECTION_CLOSED', all 3 imgs naturalWidth=0 -> broken-image icons in every card (-2)",
+        "Stray markdown fence '```' after </html> renders as visible text at page bottom (-3)"
+      ],
+      "feedback": "Same dead shell as vanilla (nav '#', inert search/play/create) but with working hovers on links and buttons. Additionally violates single-file constraint with three external placeholder images that fail to load, and renders a stray code fence."
+    },
+    "od20": {
+      "code_correctness": 37,
+      "functionality": 0,
+      "total": 37,
+      "planned_components": [
+        "line chart hover tooltip (brief 'interactive charts', x2)",
+        "bar chart hover tooltip (brief, x2)",
+        "chart click interaction"
+      ],
+      "dead_components": [
+        {
+          "component": "line chart hover tooltip (brief, x2)",
+          "evidence": "mouse sweep over #lineChart (9 points): no tooltip element exists in DOM, no popup/highlight; script contains 0 addEventListener calls"
+        },
+        {
+          "component": "bar chart hover tooltip (brief, x2)",
+          "evidence": "mouse sweep over #barChart: no tooltip or any change; 0 listeners in source"
+        },
+        {
+          "component": "chart click interaction",
+          "evidence": "clicked center of both canvases: bodyChanged=false, nothing happens"
+        }
+      ],
+      "code_issues": [
+        "Stray markdown fence '```' after </html> renders as visible text bottom-left (screenshot dflash_od20_0_initial.png) (-3)"
+      ],
+      "feedback": "Both canvas charts actually render (line 5804 painted px, bars 27000 painted px), zero console errors, self-contained. But the brief explicitly demands interactive charts and the page has literally zero event listeners: no tooltips, no click response. Static image of a dashboard."
+    },
+    "od28": {
+      "code_correctness": 17,
+      "functionality": 0,
+      "total": 17,
+      "planned_components": [
+        "trading chart hover tooltip (brief 'interactive charts', x2)",
+        "accident chart hover tooltip (brief, x2)",
+        "chart click interaction"
+      ],
+      "dead_components": [
+        {
+          "component": "trading chart hover tooltip (brief, x2)",
+          "evidence": "#trading-chart contains one empty <svg> (appended before the crash); hover at center: #tooltip stays display:none, empty text"
+        },
+        {
+          "component": "accident chart hover tooltip (brief, x2)",
+          "evidence": "#accident-chart has 0 children (script aborted before createBarChart); hover: tooltip stays display:none"
+        },
+        {
+          "component": "chart click interaction",
+          "evidence": "clicked both containers: bodyChanged=false"
+        }
+      ],
+      "code_issues": [
+        "Model chain-of-thought leaked into the artifact: ~9.9k chars of reasoning prose ('Then, in the CSS...', 'But how to create the SVG elements...') rendered as visible page text after </html> (screenshot dflash_od28_0_initial.png) (-10)",
+        "Leaked prose includes a live <script> that calls d3.scaleLinear with no D3 imported: pageerror 'ReferenceError: d3 is not defined', aborting chart creation after one empty <svg> (-6)",
+        "Skeleton stubs left as dead code: <style>/* CSS here */</style> and <script>// JavaScript here</script> (-3)",
+        "File truncated mid-word at end ('title' cut off) (-4)"
+      ],
+      "feedback": "The model's reasoning stream was saved as the deliverable: title, two empty chart boxes, then ~10k chars of visible self-talk including a half-written D3 attempt that throws ReferenceError on load (D3 would have violated the no-external-assets rule anyway). No chart renders, no tooltip exists."
     }
   }
 }

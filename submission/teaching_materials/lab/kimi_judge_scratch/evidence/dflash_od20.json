@@ -1,0 +1,46 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "components": {
+    "canvasRender": {
+      "lineChart": {
+        "exists": true,
+        "w": 800,
+        "h": 300,
+        "distinctSampledColors": 1,
+        "drawn": false
+      },
+      "barChart": {
+        "exists": true,
+        "w": 800,
+        "h": 300,
+        "distinctSampledColors": 2,
+        "drawn": true
+      }
+    },
+    "tooltipsInDom": [],
+    "hover": {
+      "lineChart": {
+        "tipBefore": [],
+        "tipAfter": [],
+        "appeared": false
+      },
+      "barChart": {
+        "tipBefore": [],
+        "tipAfter": [],
+        "appeared": false
+      }
+    },
+    "click": {
+      "lineChart": {
+        "bodyChanged": false
+      },
+      "barChart": {
+        "bodyChanged": false
+      }
+    }
+  },
+  "listenerCount": 0,
+  "externalResources": [],
+  "bodyEnd": "Traffic Data Dashboard\nHourly Traffic\nRegional Traffic\n```"
+}

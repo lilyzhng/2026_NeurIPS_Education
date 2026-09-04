@@ -66,3 +66,33 @@ dflash stays ahead under interactive judging (static GPT-4o means: vanilla 75.1,
 - **dflash od6**: interactive 61 vs static 87 (-26). Failed/dead components: nav About link; Add to Cart buttons; Subscribe Now button; footer links.
 - **dflash od9**: interactive 64 vs static 87 (-23). Failed/dead components: footer 'Privacy Policy' link; footer 'Terms of Service' link; footer 'Contact Us' link.
 - **dflash od340**: interactive 87 vs static 63 (+24). Failed/dead components: none dead.
+
+---
+
+# Addendum: od11 / od20 / od28 (judged 2026-09-03, same protocol)
+
+Briefs: od11 Spotify-like music UI (navigation + playlist creation), od20 traffic-data dashboard with interactive charts, od28 interactive charts for trading trends + NY accident statistics. Same procedure, same thresholds, raw evidence in `submission/teaching_materials/lab/kimi_judge_scratch/{scripts,evidence}/`.
+
+## Scores (interactive vs static GPT-4o)
+
+| brief | vanilla inter | vanilla static | delta | dflash inter | dflash static | delta |
+|---|---|---|---|---|---|---|
+| od11 Spotify clone | 48 | 87 | -39 | 37 | 87 | -50 |
+| od20 Traffic dashboard | 20 | 63 | -43 | 37 | 82 | -45 |
+| od28 Trading + accidents | 5 | 20 | -15 | 17 | 35 | -18 |
+
+Win count on the new pages: vanilla 1 (od11), dflash 2 (od20, od28).
+
+## Key findings
+
+- **Both od11 pages are dead shells.** Nav links are `href="#"` placeholders, search input does nothing on Enter, all three Play buttons have no handlers, and the brief's core ask — playlist creation — is fully dead in both arms (typed name + click: card count 3->3, zero DOM/text change). Only CSS hover works. vanilla is cleaner code (data-URI images, 38/40); dflash violates single-file with three `via.placeholder.com` images that fail even online (`ERR_CONNECTION_CLOSED`, naturalWidth=0) plus a rendered stray fence (27/40).
+- **vanilla od20 is truncated mid-statement.** Source ends at `const barWidth = chartWidth / (data.length -`; the unterminated script block never executes, so both canvases render blank (0 painted pixels) and the tooltip handlers that would have satisfied "interactive" never attach. dflash od20 actually draws both charts (5.8k / 27k painted pixels) but ships **zero event listeners** — no tooltips, no click response — so it also scores 0 on functionality against a brief that explicitly demands interactive charts.
+- **od28 failed to generate in both arms, differently.** vanilla is a 79-byte file cut off inside the `<title>` tag — blank page. dflash saved its chain-of-thought as the deliverable: title + two empty chart boxes, then ~9.9k chars of visible reasoning prose, including a live `<script>` that throws `ReferenceError: d3 is not defined` on load (D3 would have violated the no-external-assets rule regardless; the leaked prose even shows the model realizing this mid-stream).
+
+## Disagreements with static GPT-4o (>20 pts)
+
+All four chartable disagreements run the same direction — static over-scored dead pages:
+- **vanilla od11**: 48 vs 87 (-39). Dead: nav, search, Play buttons, create-playlist flow.
+- **dflash od11**: 37 vs 87 (-50). Same dead set, plus broken external images.
+- **vanilla od20**: 20 vs 63 (-43). Blank canvases; GPT-4o saw "placeholders for charts" but the interactive score prices in that nothing can ever run.
+- **dflash od20**: 37 vs 82 (-45). GPT-4o credited "interactive charts"; the page has zero event listeners.

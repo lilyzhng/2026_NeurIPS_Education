@@ -88,5 +88,75 @@
   "seconds": 25.4,
   "completion_tokens": 3649,
   "tokens_per_s": 143.9
+ },
+ "frontend_od11": {
+  "seconds": 18.4,
+  "completion_tokens": 2654,
+  "tokens_per_s": 143.9
+ },
+ "frontend_od20": {
+  "seconds": 41.7,
+  "completion_tokens": 6000,
+  "tokens_per_s": 143.9
+ },
+ "frontend_od28": {
+  "seconds": 41.7,
+  "completion_tokens": 6000,
+  "tokens_per_s": 143.9
+ },
+ "creative_cw3": {
+  "seconds": 18.0,
+  "completion_tokens": 2579,
+  "tokens_per_s": 143.4
+ },
+ "creative_cw7": {
+  "seconds": 20.8,
+  "completion_tokens": 3000,
+  "tokens_per_s": 144.0
+ },
+ "creative_cw11": {
+  "seconds": 14.4,
+  "completion_tokens": 2069,
+  "tokens_per_s": 143.7
+ },
+ "creative_cw15": {
+  "seconds": 17.7,
+  "completion_tokens": 2529,
+  "tokens_per_s": 143.3
+ },
+ "creative_cw19": {
+  "seconds": 16.3,
+  "completion_tokens": 2279,
+  "tokens_per_s": 140.1
+ },
+ "guardrail_xs4": {
+  "seconds": 1.5,
+  "completion_tokens": 158,
+  "tokens_per_s": 105.5,
+  "gold": "safe"
+ },
+ "guardrail_xs5": {
+  "seconds": 1.6,
+  "completion_tokens": 173,
+  "tokens_per_s": 109.8,
+  "gold": "safe"
+ },
+ "guardrail_xs6": {
+  "seconds": 2.1,
+  "completion_tokens": 249,
+  "tokens_per_s": 119.8,
+  "gold": "safe"
+ },
+ "guardrail_xs28": {
+  "seconds": 1.6,
+  "completion_tokens": 180,
+  "tokens_per_s": 111.4,
+  "gold": "unsafe"
+ },
+ "guardrail_xs29": {
+  "seconds": 2.6,
+  "completion_tokens": 324,
+  "tokens_per_s": 124.2,
+  "gold": "unsafe"
  }
 }

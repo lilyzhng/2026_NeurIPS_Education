@@ -55,6 +55,27 @@
    "structure_score": 27,
    "total_score": 87,
    "feedback": "The pop-up aligns well with the instructions, featuring soothing colors and clear messaging. It is visually appealing and well-structured, but could improve in font and color contrast."
+  },
+  "od11": {
+   "alignment_score": 35,
+   "aesthetics_score": 25,
+   "structure_score": 27,
+   "total_score": 87,
+   "feedback": "The webpage closely resembles Spotify with effective navigation and playlist creation. It is visually appealing but lacks some interactive elements. Overall, it is well-structured and user-friendly."
+  },
+  "od20": {
+   "alignment_score": 25,
+   "aesthetics_score": 18,
+   "structure_score": 20,
+   "total_score": 63,
+   "feedback": "The webpage includes placeholders for charts but lacks interactivity and data. Design is basic and lacks visual appeal. Structure is simple but functional. Needs enhancements for a professional finish."
+  },
+  "od28": {
+   "alignment_score": 10,
+   "aesthetics_score": 5,
+   "structure_score": 5,
+   "total_score": 20,
+   "feedback": "The webpage is blank, failing to meet the instruction for interactive charts. It lacks content, design, and structure, resulting in a poor user experience."
   }
  },
  "dflash": {
@@ -113,6 +134,27 @@
    "structure_score": 27,
    "total_score": 87,
    "feedback": "The pop-up aligns well with the instructions, featuring soothing colors and concise messaging. It is visually appealing and well-structured, but could improve slightly in modern design elements."
+  },
+  "od11": {
+   "alignment_score": 35,
+   "aesthetics_score": 25,
+   "structure_score": 27,
+   "total_score": 87,
+   "feedback": "The webpage closely resembles Spotify with effective playlist navigation and creation. It is visually appealing but lacks some originality. The structure is logical and user-friendly."
+  },
+  "od20": {
+   "alignment_score": 35,
+   "aesthetics_score": 22,
+   "structure_score": 25,
+   "total_score": 82,
+   "feedback": "The webpage aligns well with the instruction, featuring interactive charts. However, the design is basic and lacks modern aesthetics. Structure is logical but could be more cohesive."
+  },
+  "od28": {
+   "alignment_score": 10,
+   "aesthetics_score": 10,
+   "structure_score": 15,
+   "total_score": 35,
+   "feedback": "The webpage lacks interactive charts and is cluttered with code text. It fails to meet the prompt's requirements, is visually unappealing, and poorly structured, leading to a low score."
   }
  }
 }

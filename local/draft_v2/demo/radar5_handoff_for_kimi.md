@@ -32,10 +32,8 @@ center).
 
 <figcaption><strong>Figure 10.</strong> Qwen3-8B with vs without speculative
 decoding on LosslessBench. Axes are independently scaled, so each domain's
-relative gap is visible. Coding reads 0 / 0: both arms fail all 10
-Terminal-Bench tasks — Qwen3-8B sits below this benchmark's task floor, so the
-axis detects no quality difference at 8B scale and is scheduled for a retest
-with a stronger target model.</figcaption>
+relative gap is visible. Coding reads 0 / 0: both arms fail all 
+Terminal-Bench tasks, Qwen3-8B is too weak to pass terminal bench.</figcaption>
 
 ## Verify locally, do NOT deploy
 

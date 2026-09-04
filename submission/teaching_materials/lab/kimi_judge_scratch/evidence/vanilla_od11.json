@@ -1,0 +1,145 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "dialogs": [],
+  "components": {
+    "navLinks": {
+      "found": [
+        {
+          "text": "Home",
+          "href": "#"
+        },
+        {
+          "text": "Search",
+          "href": "#"
+        },
+        {
+          "text": "Library",
+          "href": "#"
+        },
+        {
+          "text": "Your Music",
+          "href": "#"
+        }
+      ],
+      "results": [
+        {
+          "text": "Home",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Search",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Library",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        },
+        {
+          "text": "Your Music",
+          "href": "#",
+          "hashBefore": "",
+          "hashAfter": "",
+          "bodyChanged": false
+        }
+      ]
+    },
+    "search": {
+      "exists": true,
+      "typed": "workout",
+      "cardsBefore": [
+        "Midnight Vibes",
+        "Sunset Rhythms",
+        "Urban Beats"
+      ],
+      "cardsAfter": [
+        "Midnight Vibes",
+        "Sunset Rhythms",
+        "Urban Beats"
+      ],
+      "contentChanged": false,
+      "newDialogs": 0
+    },
+    "playButtons": {
+      "count": 3,
+      "results": [
+        {
+          "i": 0,
+          "bodyChanged": false,
+          "newDialogs": 0
+        },
+        {
+          "i": 1,
+          "bodyChanged": false,
+          "newDialogs": 0
+        },
+        {
+          "i": 2,
+          "bodyChanged": false,
+          "newDialogs": 0
+        }
+      ]
+    },
+    "createPlaylist": {
+      "formSel": ".playlist-creation",
+      "typedValue": "My Test Playlist",
+      "cardsBefore": 3,
+      "cardsAfter": 3,
+      "newCardAppeared": false,
+      "newDialogs": [],
+      "newTextAppeared": false,
+      "textDelta": 0
+    },
+    "hover": [
+      {
+        "sel": ".sidebar a",
+        "before": {
+          "bg": "rgba(0, 0, 0, 0)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "after": {
+          "bg": "rgb(30, 30, 30)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "changed": true
+      },
+      {
+        "sel": ".playlist-card button",
+        "before": {
+          "bg": "rgb(29, 185, 84)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "after": {
+          "bg": "rgb(29, 185, 84)",
+          "color": "rgb(255, 255, 255)"
+        },
+        "changed": false
+      }
+    ]
+  },
+  "externalResources": [],
+  "imageStatus": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'",
+      "naturalWidth": 100
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'",
+      "naturalWidth": 100
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'",
+      "naturalWidth": 100
+    }
+  ],
+  "trailingText": "\nCreate New Playlist\n Create Playlist\n© 2023 Spotify Clone. All rights reserved."
+}

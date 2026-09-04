@@ -1,0 +1,101 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [],
+  "components": {
+    "canvasRender": {
+      "lineChart": {
+        "exists": true,
+        "w": 600,
+        "h": 300,
+        "distinctSampledColors": 1,
+        "drawn": false
+      },
+      "barChart": {
+        "exists": true,
+        "w": 600,
+        "h": 300,
+        "distinctSampledColors": 1,
+        "drawn": false
+      }
+    },
+    "tooltipsInDom": [
+      {
+        "id": "lineTooltip",
+        "cls": "tooltip",
+        "display": "none"
+      },
+      {
+        "id": "barTooltip",
+        "cls": "tooltip",
+        "display": "none"
+      }
+    ],
+    "hover": {
+      "lineChart": {
+        "tipBefore": [
+          {
+            "id": "lineTooltip",
+            "display": "none",
+            "text": ""
+          },
+          {
+            "id": "barTooltip",
+            "display": "none",
+            "text": ""
+          }
+        ],
+        "tipAfter": [
+          {
+            "id": "lineTooltip",
+            "display": "none",
+            "text": ""
+          },
+          {
+            "id": "barTooltip",
+            "display": "none",
+            "text": ""
+          }
+        ],
+        "appeared": false
+      },
+      "barChart": {
+        "tipBefore": [
+          {
+            "id": "lineTooltip",
+            "display": "none",
+            "text": ""
+          },
+          {
+            "id": "barTooltip",
+            "display": "none",
+            "text": ""
+          }
+        ],
+        "tipAfter": [
+          {
+            "id": "lineTooltip",
+            "display": "none",
+            "text": ""
+          },
+          {
+            "id": "barTooltip",
+            "display": "none",
+            "text": ""
+          }
+        ],
+        "appeared": false
+      }
+    },
+    "click": {
+      "lineChart": {
+        "bodyChanged": false
+      },
+      "barChart": {
+        "bodyChanged": false
+      }
+    }
+  },
+  "listenerCount": 3,
+  "externalResources": [],
+  "bodyEnd": "Traffic Data Dashboard\nDaily Traffic (Line Chart)\nTraffic by Region (Bar Chart)"
+}

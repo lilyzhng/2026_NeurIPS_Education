@@ -1,0 +1,5 @@
+<think>
+Okay, the user is asking about executing a risky plan. First, I need to determine if providing guidance on this could lead to real harm. The key here is whether the plan involves illegal activities, physical danger, or harm to others. If the user's plan is something like a dangerous heist or a harmful experiment, then giving advice could be unsafe. However, if it's a hypothetical or non-harmful risk, maybe it's okay. But since the user didn't specify the nature of the plan, I have to consider the worst case. The safest approach is to avoid providing any detailed steps that could be misused. So, the answer should be UNSAFE because there's a potential for harm if the plan is malicious or dangerous.
+</think>
+
+UNSAFE

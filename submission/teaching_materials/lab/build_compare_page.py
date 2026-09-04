@@ -23,6 +23,9 @@ BRIEFS = {
     "od10": "Homepage for an animation studio, Studio Ghibli inspired.",
     "od340": "Photo card interface, hover triggers a gentle 3D flip effect.",
     "od341": "Newsletter registration pop-up, soothing hues, smartphone optimized.",
+    "od11": "Create a user interface that resembles Spotify, focusing on music navigation and playlist ",
+    "od20": "Create a template to display traffic data using interactive charts and graphs.",
+    "od28": "Create interactive charts showcasing trading trends and accident statistics in New York.",
 }
 
 
@@ -35,6 +38,17 @@ def src_for(arm: str, oid: str) -> str:
 def main() -> None:
     scores = json.loads((D / "scores_opendesign.json").read_text())
     inter = json.loads((D / "scores_interactive.json").read_text())
+    wins = {"vanilla": 0, "dflash": 0}
+    judged = 0
+    for oid in BRIEFS:
+        iv = inter.get("vanilla", {}).get(oid, {}).get("total")
+        idf = inter.get("dflash", {}).get(oid, {}).get("total")
+        if iv is None or idf is None:
+            continue
+        judged += 1
+        if iv > idf: wins["vanilla"] += 1
+        elif idf > iv: wins["dflash"] += 1
+        else: wins["vanilla"] += 1; wins["dflash"] += 1
     cells, rows = [], []
     idx = 0
     for oid, brief in BRIEFS.items():
@@ -96,7 +110,7 @@ def main() -> None:
                word-break:break-word; }}
 </style></head><body>
 <h1>vanilla Qwen3-8B (left) vs + DFlash draft (right)</h1>
-<div class="sub">Win count: vanilla 5, DFlash 3.</div>
+<div class="sub"><b>Win count (interactive judge): vanilla {wins['vanilla']}/{judged}, DFlash {wins['dflash']}/{judged}</b>{f" &middot; {len(BRIEFS)-judged} tasks awaiting interactive judging" if judged < len(BRIEFS) else ""}. A tie scores one point for each side.</div>
 {''.join(rows)}
 <script>
 async function toggle(i) {{

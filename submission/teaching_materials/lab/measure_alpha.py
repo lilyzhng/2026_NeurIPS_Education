@@ -59,37 +59,59 @@ image = (
 
 app = modal.App("neurips-spec-lab-alpha")
 
-FRONTEND_WRAP = (
-    "You are a frontend engineer. Produce a complete single-file HTML page "
-    "(inline CSS, no external assets) for the following brief. Output only the "
-    "HTML, starting with <!DOCTYPE html>.\n\nBrief: {brief}"
+AGENT_WRAP = (
+    "You are an autonomous agent working in a Linux terminal. Read the task, "
+    "plan your approach, and write out the exact sequence of shell commands and "
+    "code you would run to complete it.\n\nTask:\n{instruction}"
 )
+
+TAU_WRAP = (
+    "You are a customer service agent for a retail company. You assist users "
+    "with orders, exchanges, cancellations, and returns using backend tools. "
+    "A customer contacts you.\n\nCustomer ({known}): {reason}\n\n"
+    "Respond to the customer and describe, step by step, the tool calls you "
+    "would make to handle this request."
+)
+
+TB2_TASKS = [  # radar coding axis = Terminal-Bench 2 originals
+    ("tb2_adaptive-rejection-sampler", "adaptive-rejection-sampler"),
+    ("tb2_build-pmars", "build-pmars"),
+    ("tb2_chess-best-move", "chess-best-move"),
+    ("tb2_compile-compcert", "compile-compcert"),
+    ("tb2_crack-7z-hash", "crack-7z-hash"),
+]
 
 
 def build_local_items() -> list[dict]:
-    """Original LosslessBench tasks, verbatim from hydrated task.json files."""
-    LB = Path.home() / "Documents/lily-memory/Build/LosslessBench"
+    """Radar five-domain originals: OpenDesign, EQ-Bench, XSTest, TB2, TauBench."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from pilot_radar_prompts import build as build_pilot
 
-    def task_prompt(lid: str) -> str:
-        t = json.loads((LB / f"lossless100/hydrated/tasks/{lid}/task.json").read_text())
-        return t["prompt"]
+    LB = Path.home() / "Documents/lily-memory/Build/LosslessBench"
+    TAU = Path.home() / "Documents/projects/tau2-bench/data/tau2/domains/retail/tasks.json"
 
     items = []
-    for lid in ["L035", "L036", "L037", "L038", "L039"]:
-        items.append({"domain": "agentic_coding", "id": lid,
-                      "prompt": task_prompt(lid)})
-    # L101 is not hydrated locally; fill to 5 with OpenDesign originals (pilot10).
-    for lid in ["L098", "L099", "L100"]:
-        items.append({"domain": "front_end_design", "id": lid,
-                      "prompt": task_prompt(lid)})
-    with open(LB / "data_frontend/pilot10.jsonl") as f:
-        for line in list(f)[:2]:
-            r = json.loads(line)
-            items.append({"domain": "front_end_design", "id": f"od{r['id']}",
-                          "prompt": FRONTEND_WRAP.format(brief=r["prompt"])})
-    for lid in ["L088", "L089", "L090", "L091", "L092"]:
-        items.append({"domain": "creative_writing", "id": lid,
-                      "prompt": task_prompt(lid)})
+    # frontend design = OpenDesign; creative writing = EQ-Bench Creative Writing v3
+    # (lossless100 L073-77); safety guardrail = XSTest — all via pilot_radar_prompts,
+    # sources identical to LosslessBench.
+    DOMAIN_MAP = {"frontend": "frontend_design", "creative": "creative_writing",
+                  "guardrail": "safety_guardrail"}
+    for it in build_pilot():
+        items.append({"domain": DOMAIN_MAP[it["domain"]], "id": it["id"],
+                      "messages": it["messages"]})
+    # coding = Terminal-Bench 2 original instruction.md (single-turn proxy).
+    for iid, tid in TB2_TASKS:
+        ins = (LB / f"tb2_tasks/terminal-bench/{tid}/instruction.md").read_text()
+        items.append({"domain": "coding", "id": iid,
+                      "prompt": AGENT_WRAP.format(instruction=ins)})
+    # agentic workflow = TauBench (tau2 retail) originals (single-turn proxy).
+    tasks = json.loads(TAU.read_text())
+    for t in tasks[:5]:
+        ins = t["user_scenario"]["instructions"]
+        items.append({"domain": "agentic_workflow", "id": f"tau2_retail_{t['id']}",
+                      "prompt": TAU_WRAP.format(known=ins.get("known_info") or "",
+                                                reason=ins["reason_for_call"])})
     return items
 
 
@@ -157,8 +179,8 @@ def measure(local_items: list) -> dict:
         domain = it["domain"]
         before = spec_counters()
         t0 = time.time()
-        out = llm.chat([{"role": "user", "content": it["prompt"]}], sp,
-                       chat_template_kwargs=ctk)[0]
+        msgs = it.get("messages") or [{"role": "user", "content": it["prompt"]}]
+        out = llm.chat(msgs, sp, chat_template_kwargs=ctk)[0]
         dt = time.time() - t0
         after = spec_counters()
         delta = {k: after[k] - before.get(k, 0) for k in after}

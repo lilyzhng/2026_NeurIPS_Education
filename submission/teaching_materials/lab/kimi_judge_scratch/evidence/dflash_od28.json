@@ -1,0 +1,52 @@
+{
+  "consoleMsgs": [],
+  "pageErrors": [
+    "ReferenceError: d3 is not defined"
+  ],
+  "components": {
+    "render": {
+      "title": "Trading Trends and Accident Statistics in New York",
+      "tradingChildren": 1,
+      "accidentChildren": 0,
+      "svgCount": 1,
+      "canvasCount": 0,
+      "tooltipExists": true,
+      "bodyTextLen": 9855,
+      "bodyTextStart": "Trading Trends and Accident Statistics in New York\nThen, in the CSS, style the charts and tooltip. In the JavaScript, generate the data, create the SV"
+    },
+    "hover": {
+      "trading-chart": {
+        "tipBefore": {
+          "display": "none",
+          "text": ""
+        },
+        "tipAfter": {
+          "display": "none",
+          "text": ""
+        },
+        "appeared": false
+      },
+      "accident-chart": {
+        "tipBefore": {
+          "display": "none",
+          "text": ""
+        },
+        "tipAfter": {
+          "display": "none",
+          "text": ""
+        },
+        "appeared": false
+      }
+    },
+    "click": {
+      "trading-chart": {
+        "bodyChanged": false
+      },
+      "accident-chart": {
+        "bodyChanged": false
+      }
+    }
+  },
+  "externalResources": [],
+  "hasD3": false
+}

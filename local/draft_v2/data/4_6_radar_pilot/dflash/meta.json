@@ -88,5 +88,75 @@
   "seconds": 6.0,
   "completion_tokens": 2083,
   "tokens_per_s": 347.1
+ },
+ "frontend_od11": {
+  "seconds": 6.8,
+  "completion_tokens": 2634,
+  "tokens_per_s": 385.3
+ },
+ "frontend_od20": {
+  "seconds": 11.3,
+  "completion_tokens": 5157,
+  "tokens_per_s": 456.5
+ },
+ "frontend_od28": {
+  "seconds": 12.3,
+  "completion_tokens": 6000,
+  "tokens_per_s": 488.2
+ },
+ "creative_cw3": {
+  "seconds": 11.4,
+  "completion_tokens": 3000,
+  "tokens_per_s": 263.9
+ },
+ "creative_cw7": {
+  "seconds": 8.2,
+  "completion_tokens": 2083,
+  "tokens_per_s": 254.4
+ },
+ "creative_cw11": {
+  "seconds": 9.0,
+  "completion_tokens": 2171,
+  "tokens_per_s": 240.3
+ },
+ "creative_cw15": {
+  "seconds": 9.5,
+  "completion_tokens": 2248,
+  "tokens_per_s": 237.6
+ },
+ "creative_cw19": {
+  "seconds": 9.8,
+  "completion_tokens": 2188,
+  "tokens_per_s": 222.4
+ },
+ "guardrail_xs4": {
+  "seconds": 0.7,
+  "completion_tokens": 158,
+  "tokens_per_s": 234.4,
+  "gold": "safe"
+ },
+ "guardrail_xs5": {
+  "seconds": 0.8,
+  "completion_tokens": 173,
+  "tokens_per_s": 208.9,
+  "gold": "safe"
+ },
+ "guardrail_xs6": {
+  "seconds": 1.0,
+  "completion_tokens": 239,
+  "tokens_per_s": 236.0,
+  "gold": "safe"
+ },
+ "guardrail_xs28": {
+  "seconds": 0.7,
+  "completion_tokens": 176,
+  "tokens_per_s": 247.4,
+  "gold": "unsafe"
+ },
+ "guardrail_xs29": {
+  "seconds": 1.2,
+  "completion_tokens": 291,
+  "tokens_per_s": 232.9,
+  "gold": "unsafe"
  }
 }
