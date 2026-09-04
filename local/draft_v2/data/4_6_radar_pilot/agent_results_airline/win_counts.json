@@ -1,0 +1,48 @@
+{
+ "vanilla": 4,
+ "dflash": 4,
+ "n": 10,
+ "ties_both_pass": 1,
+ "ties_both_fail": 3,
+ "per_task": {
+  "0": "both-pass tie",
+  "1": "both-fail (0 points)",
+  "2": "vanilla win",
+  "3": "dflash win",
+  "4": "dflash win",
+  "5": "dflash win",
+  "6": "vanilla win",
+  "7": "both-fail (0 points)",
+  "8": "both-fail (0 points)",
+  "9": "vanilla win"
+ },
+ "rewards": {
+  "vanilla": {
+   "0": 1.0,
+   "3": 0.0,
+   "1": 0.0,
+   "2": 1.0,
+   "4": 0.0,
+   "5": 0.0,
+   "6": 1.0,
+   "8": 0.0,
+   "9": 1.0,
+   "7": 0.0
+  },
+  "dflash": {
+   "0": 1.0,
+   "1": 0.0,
+   "4": 1.0,
+   "3": 1.0,
+   "5": 1.0,
+   "2": 0.0,
+   "7": 0.0,
+   "8": 0.0,
+   "6": 0.0,
+   "9": 0.0
+  }
+ },
+ "max_steps": 60,
+ "domain": "tau-bench airline, llm_agent temp0, user sim gpt-4o temp0, seed 300",
+ "rule": "both-fail scores zero (JUDGING.md 2026-09-03)"
+}
