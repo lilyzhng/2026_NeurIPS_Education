@@ -436,7 +436,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <li>A confidence head estimates how likely each draft prefix is to survive verification, and a load-aware scheduler sets the verification length per request, based on the estimated survival probability and the engine's throughput profile.</li>
 </ul>
 <figure class="wide">
-<iframe src="figures/figure4_chalk.html" style="width:100%;height:620px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
+<iframe src="figures/figure4_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
 </figure>
 <figcaption><strong>Figure 4.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
 
