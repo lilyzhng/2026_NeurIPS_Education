@@ -278,10 +278,11 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li><a href="#next">3. What's Next</a></li>
       <li class="sub"><a href="#multimodal">3.1 Multimodal speculative decoding</a></li>
       <li class="sub"><a href="#toolcalls">3.2 Speculating tool calls</a></li>
-      <li class="sub"><a href="#ownership">3.3 Inference acceleration ownership</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#citation">Citation</a></li>
       <li><a href="#appendix">Appendix</a></li>
+      <li class="sub"><a href="#frontend-gap">A.1 Frontend gap under a vendor stack</a></li>
+      <li class="sub"><a href="#ownership">A.2 Inference acceleration ownership</a></li>
     </ul>
   </aside>
 
@@ -332,7 +333,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <h2 id="1-what-lossless-means">1. What lossless means</h2>
 <p>What does lossless acceleration mean for an LLM? Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.</p>
 <figure class="wide">
-<iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
+<iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
 </figure>
 <figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model. The animation compares the resulting timelines.</figcaption>
 
@@ -352,7 +353,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 1 (mock).</strong> The metrics of speculative decoding. How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).</figcaption>
+<figcaption><strong>Table 1.</strong> The metrics of speculative decoding. How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).</figcaption>
 
 <p>Below is a math walk-through of achieving 2.3x decoding speedup.</p>
 <div class="sptc-py" data-lang="text"><pre>
@@ -601,6 +602,15 @@ decision independent of tk               admission of tk depends on tk itself
 </figure>
 <figcaption><strong>Figure 11.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
+<p><strong>Explore the evaluation by yourself.</strong> Pick any domain and run the task:</p>
+<p style="display:flex;gap:10px;flex-wrap:wrap;">
+<a href="compare_frontend.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Frontend Design</a>
+<a href="compare_taubench.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Agentic Workflow</a>
+<a href="compare_guardrail.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Safety Guardrail</a>
+<a href="compare_creative.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Creative Writing</a>
+<a href="compare_coding.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Agentic Coding</a>
+</p>
+
 <figure class="wide">
 <iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
@@ -702,7 +712,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="next" class="section">
 
 <h2 id="3-whats-next">3. What's Next</h2>
-<p>Section 2 brought awareness of lossy inference. In this section we go through the exciting new directions for speculative decoding: (3.1) multimodal speculative decoding, (3.2) speculative decoding going from tokens to tool calls, and (3.3) inference acceleration ownership.</p>
+<p>Section 2 brought awareness of lossy inference. In this section we go through the exciting new directions for speculative decoding: (3.1) multimodal speculative decoding and (3.2) speculative decoding going from tokens to tool calls.</p>
 </div>
 
 <div id="multimodal" class="section" data-toc="3.1 Multimodal speculative decoding">
@@ -726,19 +736,6 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>Early work has started to formalize this. Speculative Interaction Agents define speculative tool calling as a way to cut time-to-first-token (<a href="https://arxiv.org/abs/2605.13360">Hooper et al., 2026</a>), and Act While Thinking pre-executes tool calls predicted from patterns in the reasoning trace (<a href="https://arxiv.org/abs/2603.18897">Ji et al., 2026</a>). A shared benchmark is still missing: each paper evaluates on its own setup, either borrowing OOLONG (<a href="https://arxiv.org/abs/2511.02817">2025</a>) or building a private task corpus.</p>
 <p>Speculative programmatic tool calling is a concrete instantiation (<a href="https://alexzhang13.github.io/blog/2026/spec-ptc/">Zhang, 2026</a>). While the model is still writing code, a second interpreter runs the partial program and launches any tool call whose inputs are already determined. When the code executes for real, a matching pre-launched call returns its stored result, and a mismatched one is discarded and re-executed. A wrong guess costs only the wasted early launch. On OOLONG with Qwen3-30B, this yields 1 to 1.2x end-to-end speedup.</p>
 <p><u>If agent workloads keep growing, this direction will likely follow the trajectory of token-level speculative decoding: better speculation policies, acceptance rate as a first-class metric, and a shared benchmark to standardize the speedup claims.</u></p>
-</div>
-
-<div id="ownership" class="section" data-toc="3.3 Inference acceleration ownership">
-
-<h3 id="33-should-the-lab-own-inference-acceleration">3.3 Should the Lab Own Inference Acceleration?</h3>
-<p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
-<figure>
-<img src="figures/fig14_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
-</figure>
-<figcaption><strong>Figure 14 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
-
-<p>See Figure 14. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
-<p><u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u></p>
 </div>
 
 <div id="references" class="section">
@@ -797,6 +794,11 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="appendix" class="section">
 
 <h2 id="appendix">Appendix</h2>
+</div>
+
+<div id="frontend-gap" class="section" data-toc="A.1 Frontend gap under a vendor stack">
+
+<h3 id="a1-frontend-gap-under-a-vendor-assembled-stack">A.1 Frontend gap under a vendor-assembled stack</h3>
 <p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.</p>
 <figure>
 <div class="fig2">
@@ -805,6 +807,19 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </figure>
 <figcaption><strong>Figure A1.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
 
+</div>
+
+<div id="ownership" class="section" data-toc="A.2 Inference acceleration ownership">
+
+<h3 id="a2-should-the-lab-own-inference-acceleration">A.2 Should the Lab Own Inference Acceleration?</h3>
+<p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
+<figure>
+<img src="figures/fig14_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
+</figure>
+<figcaption><strong>Figure A2 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
+
+<p>See Figure A2. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, Figure 6).</p>
+<p><u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u></p>
 </div>
 
   </article>
@@ -834,6 +849,16 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </script>
 
 <script src="sptc-code.js"></script>
+
+<script>
+  // Auto-size iframes whose embedded page posts {chalkHeight, chalkSrc}
+  window.addEventListener('message', function (e) {
+    if (!e.data || !e.data.chalkHeight) return;
+    document.querySelectorAll('iframe').forEach(function (f) {
+      if (f.src.indexOf(e.data.chalkSrc) !== -1) f.style.height = e.data.chalkHeight + 'px';
+    });
+  });
+</script>
 
 </body>
 </html>

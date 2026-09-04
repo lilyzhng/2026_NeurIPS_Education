@@ -2,6 +2,12 @@
 
 ## Appendix
 
+</div>
+
+<div id="frontend-gap" class="section" data-toc="A.1 Frontend gap under a vendor stack">
+
+### A.1 Frontend gap under a vendor-assembled stack
+
 We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.
 
 <figure>
@@ -10,5 +16,22 @@ We identified a significant gap in the frontend design evaluation under a vendor
 </div>
 </figure>
 <figcaption><strong>Figure A1.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
+
+</div>
+
+<div id="ownership" class="section" data-toc="A.2 Inference acceleration ownership">
+
+### A.2 Should the Lab Own Inference Acceleration?
+
+Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 ([DeepSeek-AI, 2024](https://arxiv.org/abs/2412.19437)). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training ([OpenAI, 2025](https://arxiv.org/abs/2508.10925)). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)).
+
+<figure>
+<img src="figures/fig14_ownership_migration.png" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
+</figure>
+<figcaption><strong>Figure A2 (mock).</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
+
+See Figure A2. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer ([LosslessBench](https://lilyzh.ng/writing/losslessbench/), Figure 6).
+
+<u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u>
 
 </div>

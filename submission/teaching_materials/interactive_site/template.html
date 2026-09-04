@@ -323,5 +323,15 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
 <script src="sptc-code.js"></script>
 
+<script>
+  // Auto-size iframes whose embedded page posts {chalkHeight, chalkSrc}
+  window.addEventListener('message', function (e) {
+    if (!e.data || !e.data.chalkHeight) return;
+    document.querySelectorAll('iframe').forEach(function (f) {
+      if (f.src.indexOf(e.data.chalkSrc) !== -1) f.style.height = e.data.chalkHeight + 'px';
+    });
+  });
+</script>
+
 </body>
 </html>

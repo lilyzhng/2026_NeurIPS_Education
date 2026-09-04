@@ -5,7 +5,7 @@
 What does lossless acceleration mean for an LLM? Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.
 
 <figure class="wide">
-<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
+<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
 </figure>
 <figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model. The animation compares the resulting timelines.</figcaption>
 
@@ -26,7 +26,7 @@ How much faster exactly, and how do we measure it? Table 1 defines the six metri
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 1 (mock).</strong> The metrics of speculative decoding. How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).</figcaption>
+<figcaption><strong>Table 1.</strong> The metrics of speculative decoding. How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).</figcaption>
 
 Below is a math walk-through of achieving 2.3x decoding speedup.
 
