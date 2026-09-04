@@ -1,4 +1,4 @@
-# [NeurIPS 2026 Education Track] Speculative Decoding: What's Measured, What's Missed, and What's Next
+# [NeurIPS 2026 Education Track] Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next
 
 - **Deadline:** 4 September 2026 (submit via [OpenReview](https://openreview.net/group?id=NeurIPS.cc/2026/Education_Track))
 - **Notification:** 28 September 2026

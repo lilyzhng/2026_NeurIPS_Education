@@ -9,7 +9,7 @@ Interactive website: https://neurips2026-speculative-decoding.vercel.app/
 
 ## Title
 
-Speculative Decoding: What's Measured, What's Missed, and What's Next
+Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next
 
 ## Author
 

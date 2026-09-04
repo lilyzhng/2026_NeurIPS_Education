@@ -44,7 +44,7 @@ You can cite this article here:
 
 <div class="sptc-py" data-lang="bibtex"><pre>
 @article{zhang2026losslessspec,
-  title   = &quot;Speculative Decoding: What Lossless Means, What It Doesn't, and How to Test It&quot;,
+  title   = &quot;Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next&quot;,
   author  = &quot;Zhang, Lily and Kanna, Madison&quot;,
   year    = &quot;2026&quot;,
   month   = &quot;August&quot;,
