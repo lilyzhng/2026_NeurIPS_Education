@@ -316,9 +316,9 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <div id="intro" class="section">
 
 <h2 id="introduction">Introduction</h2>
-<p><strong>What is speculative decoding?</strong> Introduced in 2023, speculative decoding decouples draft generation from target verification (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>): a draft mechanism proposes tokens, and a verification mechanism accepts or rejects them. The verified output has the same distribution as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is lossless.</p>
-<p><strong>Why is it faster than the vanilla model decoding?</strong> The vanilla LLM is autoregressive: it decodes one token at a time. To produce n tokens, the original model runs n forward passes. With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single forward pass, which costs about the same as decoding one token. Speed comes from both sides: better drafts get accepted more often, and smarter verification wastes less compute on bad drafts.</p>
-<p><strong>Today, speculative decoding runs under nearly every hosted LLM</strong>, and agent workflows chain dozens of model calls per task, so the cost of decoding is paid many times over. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model (<a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">OpenAI, 2026</a>), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate (<a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">Anthropic, 2026</a>), DeepSeek ships DSpark in its serving engine for a 51% throughput gain (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>), and Kimi K3 ships with its own draft model (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). It is a cornerstone topic to learn in the LLM stack.</p>
+<p><strong>Every LLM you use generates one token at a time.</strong> This is autoregressive decoding, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding, introduced in 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>), is an approach to accelerate this: a lightweight draft model proposes a short run of upcoming tokens, and the full target model verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is lossless in theory.</p>
+<p><strong>Why is it faster than the vanilla model decoding?</strong> With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single forward pass, which costs about the same as decoding one token. Speed comes from both sides: better drafts get accepted more often, and smarter verification wastes less compute on bad drafts.</p>
+<p><strong>Today, speculative decoding runs under nearly every hosted LLM</strong>, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model (<a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">OpenAI, 2026</a>), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate (<a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">Anthropic, 2026</a>), DeepSeek ships DSpark in its serving engine for a 51% throughput gain (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>), and Kimi K3 ships with its own draft model (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). It is a cornerstone topic to learn in the LLM stack.</p>
 <p>In this teaching material, we have designed content progressively. Each section builds on the previous one:</p>
 <ol type="1">
 <li><u>What lossless means.</u> How does speculative decoding work? Why is it lossless in theory?</li>
@@ -622,50 +622,24 @@ decision independent of tk               admission of tk depends on tk itself
 <li>Creative: EQ-Bench longform score, judged over multi-chapter creative writing.</li>
 <li>Guardrail: XSTest, classification accuracy on safe vs unsafe prompts built to sit near the decision boundary.</li>
 <li>Coding: Terminal-Bench pass rate.</li>
-<li>Agent workflow: tau-bench long-horizon agent tasks, action match rate.</li>
+<li>Agent workflow: tau3-bench long-horizon agent tasks, action match rate.</li>
 </ul>
 <figure class="mid plain">
 <img src="figures/fig_radar_spec_pilot.svg" alt="Radar chart of Qwen3-8B with vs without speculative decoding across five domains on LosslessBench" />
 </figure>
-<figcaption><strong>Figure 10.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible. Coding reads 0 / 0: both arms fail all Terminal-Bench tasks, Qwen3-8B is too weak to pass terminal bench.</figcaption>
-
-<p><strong>Explore the evaluation by yourself.</strong> Pick any domain and run the task:</p>
-<p style="display:flex;gap:10px;flex-wrap:wrap;">
-<a href="compare_frontend.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Frontend Design</a>
-<a href="compare_taubench.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Agentic Workflow</a>
-<a href="compare_guardrail.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Safety Guardrail</a>
-<a href="compare_creative.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Creative Writing</a>
-<a href="compare_coding.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Agentic Coding</a>
-</p>
-
-<p>The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model. This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:</p>
-<table>
-<thead>
-<tr><th>behavior</th><th>vanilla Qwen3-8B</th><th>+ DFlash draft</th></tr>
-</thead>
-<tbody>
-<tr><td>conversation</td><td>wraps early, premature submission</td><td>stays in the loop until something is executed</td></tr>
-<tr><td>information gathering</td><td>skips lookups and answers from assumption</td><td>verifies with tool calls before acting</td></tr>
-<tr><td>the final write action</td><td>discusses the exchange, ends without executing it</td><td>executes it, sometimes more than once</td></tr>
-<tr><td>typical failure</td><td>task left unfinished</td><td>over-acting, duplicate writes corrupt the state</td></tr>
-</tbody>
-</table>
-<p><strong>Table 5.</strong> How the two models behave in the agentic loop (tau-bench).</p>
-<p>The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them.</p>
-
-
+<figcaption><strong>Figure 10.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 <figure class="wide">
 <iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
 <figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s.</figcaption>
 
-<p>Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
-
 <figure class="wide">
 <iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
 <figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.</figcaption>
+
+<p>Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
 <p>Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>

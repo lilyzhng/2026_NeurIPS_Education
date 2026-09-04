@@ -1,0 +1,287 @@
+{
+ "gsm8k_paper": {
+  "prompts": [
+   {
+    "id": "gsm8k_0",
+    "tokens": 201,
+    "seconds": 0.5,
+    "accepted": 164,
+    "drafted": 608,
+    "drafts": 38,
+    "alpha": 0.2697,
+    "tau": 5.32
+   },
+   {
+    "id": "gsm8k_1",
+    "tokens": 85,
+    "seconds": 0.2,
+    "accepted": 69,
+    "drafted": 272,
+    "drafts": 17,
+    "alpha": 0.2537,
+    "tau": 5.06
+   },
+   {
+    "id": "gsm8k_2",
+    "tokens": 378,
+    "seconds": 0.6,
+    "accepted": 314,
+    "drafted": 1040,
+    "drafts": 65,
+    "alpha": 0.3019,
+    "tau": 5.83
+   },
+   {
+    "id": "gsm8k_3",
+    "tokens": 125,
+    "seconds": 0.2,
+    "accepted": 101,
+    "drafted": 400,
+    "drafts": 25,
+    "alpha": 0.2525,
+    "tau": 5.04
+   },
+   {
+    "id": "gsm8k_4",
+    "tokens": 302,
+    "seconds": 0.5,
+    "accepted": 241,
+    "drafted": 976,
+    "drafts": 61,
+    "alpha": 0.2469,
+    "tau": 4.95
+   }
+  ],
+  "alpha": 0.2697,
+  "divergence_dlk": 0.7303,
+  "tau": 5.32
+ },
+ "humaneval_paper": {
+  "prompts": [
+   {
+    "id": "HumanEval/0",
+    "tokens": 365,
+    "seconds": 0.6,
+    "accepted": 292,
+    "drafted": 1184,
+    "drafts": 74,
+    "alpha": 0.2466,
+    "tau": 4.95
+   },
+   {
+    "id": "HumanEval/1",
+    "tokens": 415,
+    "seconds": 0.6,
+    "accepted": 343,
+    "drafted": 1168,
+    "drafts": 73,
+    "alpha": 0.2937,
+    "tau": 5.7
+   },
+   {
+    "id": "HumanEval/2",
+    "tokens": 200,
+    "seconds": 0.3,
+    "accepted": 171,
+    "drafted": 480,
+    "drafts": 30,
+    "alpha": 0.3563,
+    "tau": 6.7
+   },
+   {
+    "id": "HumanEval/3",
+    "tokens": 264,
+    "seconds": 0.4,
+    "accepted": 221,
+    "drafted": 704,
+    "drafts": 44,
+    "alpha": 0.3139,
+    "tau": 6.02
+   },
+   {
+    "id": "HumanEval/4",
+    "tokens": 455,
+    "seconds": 0.6,
+    "accepted": 391,
+    "drafted": 1040,
+    "drafts": 65,
+    "alpha": 0.376,
+    "tau": 7.02
+   }
+  ],
+  "alpha": 0.3099,
+  "divergence_dlk": 0.6901,
+  "tau": 5.96
+ },
+ "agentic_coding": {
+  "prompts": [
+   {
+    "id": "L035",
+    "tokens": 1024,
+    "seconds": 2.4,
+    "accepted": 742,
+    "drafted": 4528,
+    "drafts": 283,
+    "alpha": 0.1639,
+    "tau": 3.62
+   },
+   {
+    "id": "L036",
+    "tokens": 980,
+    "seconds": 2.1,
+    "accepted": 730,
+    "drafted": 4016,
+    "drafts": 251,
+    "alpha": 0.1818,
+    "tau": 3.91
+   },
+   {
+    "id": "L037",
+    "tokens": 1024,
+    "seconds": 2.5,
+    "accepted": 734,
+    "drafted": 4640,
+    "drafts": 290,
+    "alpha": 0.1582,
+    "tau": 3.53
+   },
+   {
+    "id": "L038",
+    "tokens": 920,
+    "seconds": 1.9,
+    "accepted": 704,
+    "drafted": 3472,
+    "drafts": 217,
+    "alpha": 0.2028,
+    "tau": 4.24
+   },
+   {
+    "id": "L039",
+    "tokens": 525,
+    "seconds": 0.6,
+    "accepted": 451,
+    "drafted": 1200,
+    "drafts": 75,
+    "alpha": 0.3758,
+    "tau": 7.01
+   }
+  ],
+  "alpha": 0.1882,
+  "divergence_dlk": 0.8118,
+  "tau": 4.01
+ },
+ "front_end_design": {
+  "prompts": [
+   {
+    "id": "L098",
+    "tokens": 612,
+    "seconds": 2.1,
+    "accepted": 364,
+    "drafted": 3984,
+    "drafts": 249,
+    "alpha": 0.0914,
+    "tau": 2.46
+   },
+   {
+    "id": "L099",
+    "tokens": 1024,
+    "seconds": 2.1,
+    "accepted": 774,
+    "drafted": 4016,
+    "drafts": 251,
+    "alpha": 0.1927,
+    "tau": 4.08
+   },
+   {
+    "id": "L100",
+    "tokens": 767,
+    "seconds": 1.9,
+    "accepted": 541,
+    "drafted": 3632,
+    "drafts": 227,
+    "alpha": 0.149,
+    "tau": 3.38
+   },
+   {
+    "id": "od5",
+    "tokens": 1024,
+    "seconds": 1.5,
+    "accepted": 846,
+    "drafted": 2848,
+    "drafts": 178,
+    "alpha": 0.2971,
+    "tau": 5.75
+   },
+   {
+    "id": "od6",
+    "tokens": 1024,
+    "seconds": 1.5,
+    "accepted": 854,
+    "drafted": 2768,
+    "drafts": 173,
+    "alpha": 0.3085,
+    "tau": 5.94
+   }
+  ],
+  "alpha": 0.1959,
+  "divergence_dlk": 0.8041,
+  "tau": 4.13
+ },
+ "creative_writing": {
+  "prompts": [
+   {
+    "id": "L088",
+    "tokens": 1024,
+    "seconds": 4.5,
+    "accepted": 493,
+    "drafted": 8528,
+    "drafts": 533,
+    "alpha": 0.0578,
+    "tau": 1.92
+   },
+   {
+    "id": "L089",
+    "tokens": 1024,
+    "seconds": 3.7,
+    "accepted": 585,
+    "drafted": 7008,
+    "drafts": 438,
+    "alpha": 0.0835,
+    "tau": 2.34
+   },
+   {
+    "id": "L090",
+    "tokens": 509,
+    "seconds": 3.3,
+    "accepted": 117,
+    "drafted": 6288,
+    "drafts": 393,
+    "alpha": 0.0186,
+    "tau": 1.3
+   },
+   {
+    "id": "L091",
+    "tokens": 1024,
+    "seconds": 2.0,
+    "accepted": 801,
+    "drafted": 3712,
+    "drafts": 232,
+    "alpha": 0.2158,
+    "tau": 4.45
+   },
+   {
+    "id": "L092",
+    "tokens": 955,
+    "seconds": 3.0,
+    "accepted": 610,
+    "drafted": 5536,
+    "drafts": 346,
+    "alpha": 0.1102,
+    "tau": 2.76
+   }
+  ],
+  "alpha": 0.0839,
+  "divergence_dlk": 0.9161,
+  "tau": 2.34
+ }
+}
