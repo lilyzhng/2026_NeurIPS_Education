@@ -212,6 +212,19 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     .glossary-term:hover .glossary-tooltip,
     .glossary-term:focus .glossary-tooltip,
     .glossary-term.is-open .glossary-tooltip { opacity: 1; visibility: visible; }
+    @media (max-width: 640px) {
+      .glossary-tooltip {
+        position: fixed;
+        left: var(--tooltip-left, 1rem);
+        top: var(--tooltip-top, 1rem);
+        bottom: auto;
+        width: min(18rem, calc(100vw - 2rem));
+        box-sizing: border-box;
+        transform: none;
+      }
+      /* On narrow screens the tooltip is clamped to the viewport, so omit the arrow. */
+      .glossary-tooltip::after { display: none; }
+    }
     th { font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line-strong); font-size: 1.05rem; letter-spacing: 0.02em; }
     tbody tr:last-child td { border-bottom: 1px solid var(--line-strong); }
     td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
@@ -351,6 +364,25 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
   // Glossary terms: hover/focus on desktop; tap to toggle on touch devices.
   (function () {
     const terms = [...document.querySelectorAll('.glossary-term')];
+    const mobileQuery = window.matchMedia('(max-width: 640px)');
+    function placeTooltip(term) {
+      if (!mobileQuery.matches) return;
+      const tooltip = term.querySelector('.glossary-tooltip');
+      const rect = term.getBoundingClientRect();
+      const margin = 16;
+      const gap = 12;
+      const width = Math.min(288, window.innerWidth - margin * 2);
+      const left = Math.max(margin, Math.min(
+        rect.left + rect.width / 2 - width / 2,
+        window.innerWidth - margin - width
+      ));
+      const height = tooltip.offsetHeight;
+      const top = rect.top - height - gap >= margin
+        ? rect.top - height - gap
+        : rect.bottom + gap;
+      term.style.setProperty('--tooltip-left', `${left}px`);
+      term.style.setProperty('--tooltip-top', `${top}px`);
+    }
     function closeAll(except) {
       terms.forEach(term => {
         if (term === except) return;
@@ -363,6 +395,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
         event.stopPropagation();
         const open = !term.classList.contains('is-open');
         closeAll(term);
+        placeTooltip(term);
         term.classList.toggle('is-open', open);
         term.setAttribute('aria-expanded', String(open));
       });
@@ -373,6 +406,14 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
         term.blur();
       });
     });
+    window.addEventListener('resize', function () {
+      const open = terms.find(term => term.classList.contains('is-open'));
+      if (open) placeTooltip(open);
+    });
+    window.addEventListener('scroll', function () {
+      const open = terms.find(term => term.classList.contains('is-open'));
+      if (open) placeTooltip(open);
+    }, { passive: true });
     document.addEventListener('click', function () { closeAll(); });
   })();
 </script>
