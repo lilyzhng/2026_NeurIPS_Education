@@ -235,6 +235,15 @@ body{
 
   replay.addEventListener('click', play);
   play();
+
+  function postHeight(){
+    parent.postMessage({
+      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height),
+      chalkSrc: location.pathname.split('/').pop()
+    }, '*');
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
 })();
 </script>
 </body>
