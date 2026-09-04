@@ -8,11 +8,6 @@
 
 **Today, speculative decoding runs under nearly every hosted LLM**, and agent workflows chain dozens of model calls per task, so the cost of decoding is paid many times over. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model ([OpenAI, 2026](https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484)), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate ([Anthropic, 2026](https://platform.claude.com/docs/en/build-with-claude/fast-mode)), DeepSeek ships DSpark in its serving engine for a 51% throughput gain ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)), and Kimi K3 ships with its own draft model ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). It is a cornerstone topic to learn in the LLM stack.
 
-<figure>
-<iframe class="figure-embed" src="../figures/figure1_chalk.html" title="Animated comparison of vanilla and speculative decoding" loading="lazy"></iframe>
-<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model. The animation compares the resulting timelines.</figcaption>
-</figure>
-
 In this teaching material, we have designed content progressively. Each section builds on the previous one:
 
 1. <u>What lossless means.</u> How does speculative decoding work? Why is it lossless in theory?
