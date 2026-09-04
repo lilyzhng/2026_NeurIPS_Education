@@ -222,8 +222,12 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
         box-sizing: border-box;
         transform: none;
       }
-      /* On narrow screens the tooltip is clamped to the viewport, so omit the arrow. */
-      .glossary-tooltip::after { display: none; }
+      .glossary-tooltip::after { left: var(--tooltip-arrow-left, 50%); }
+      .glossary-term.tooltip-below .glossary-tooltip::after {
+        top: -6px;
+        bottom: auto;
+        transform: translateX(-50%) rotate(225deg);
+      }
     }
     th { font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line-strong); font-size: 1.05rem; letter-spacing: 0.02em; }
     tbody tr:last-child td { border-bottom: 1px solid var(--line-strong); }
@@ -948,16 +952,19 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
         window.innerWidth - margin - width
       ));
       const height = tooltip.offsetHeight;
-      const top = rect.top - height - gap >= margin
-        ? rect.top - height - gap
-        : rect.bottom + gap;
+      const fitsAbove = rect.top - height - gap >= margin;
+      const top = fitsAbove ? rect.top - height - gap : rect.bottom + gap;
+      const arrowLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - left, width - 16));
       term.style.setProperty('--tooltip-left', `${left}px`);
       term.style.setProperty('--tooltip-top', `${top}px`);
+      term.style.setProperty('--tooltip-arrow-left', `${arrowLeft}px`);
+      term.classList.toggle('tooltip-below', !fitsAbove);
     }
     function closeAll(except) {
       terms.forEach(term => {
         if (term === except) return;
         term.classList.remove('is-open');
+        term.classList.remove('tooltip-below');
         term.setAttribute('aria-expanded', 'false');
       });
     }
