@@ -157,6 +157,17 @@ Interestingly, DFlash wrote the worst calendar page but the best story. Why do E
 
 The last three sections drew the boundary of the lossless evidence. This one hands you the tools to test it yourself.
 
+#### Turn the knob yourself
+
+Production engines ship the relaxation knob: SGLang's `--speculative-accept-threshold-single` defaults to 1.0 (strict, lossless) and can be lowered to accept draft tokens more aggressively. We swept it from 1.0 to 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1) and measured, at every stop, the label accuracy, the acceptance length, and the decode speed. Drag the slider: every number is a real measurement.
+
+<figure class="wide">
+<iframe src="knob_demo.html" style="width:100%;height:520px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
+</figure>
+
+The result is itself a lesson. Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.
+
+
 </div>
 
 <div id="servefirst" class="section">
