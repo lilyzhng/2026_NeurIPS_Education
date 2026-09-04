@@ -159,6 +159,8 @@ Interestingly, DFlash wrote the worst calendar page but the best story. Why do E
 
 ### 2.4 Hands-On Lab
 
+The last three sections drew the boundary of the lossless evidence. This one hands you the tools to test it yourself.
+
 </div>
 
 <div id="servefirst" class="section">

@@ -48,7 +48,7 @@ The walkthrough places them in the NeurIPS speculative-decoding line they extend
 
 ## Teaching material summary
 
-All materials are original and created for this track. (1) An interactive self-contained HTML article following the What's Measured / What's Missed / What's Next arc, with a walkthrough with adjustable draft length. (2) A hands-on lab on a single GPU: reproduce the reported EAGLE-3 acceptance length (2.4–2.8) on Qwen3-8B, compare the three released DeepSpec checkpoints (EAGLE-3 vs DFlash vs DSpark) on one prompt set, sweep --confidence-threshold while grading outputs for correctness, and a pick-a-domain exercise outside math and code. A video walkthrough recorded from the site is forthcoming on the website. All materials, including the interactive article and lab scripts, are publicly available through the interactive website.
+All materials are original and created for this track. (1) An interactive self-contained HTML article following the What Lossless Means / What It Doesn't / What's Next arc, with a walkthrough with adjustable draft length. (2) A hands-on lab on a single GPU: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes on frontend and creative briefs, and measure per-domain acceptance across the five LosslessBench domains. All materials, including the interactive article and lab scripts, are publicly available through the interactive website.
 
 ---
 

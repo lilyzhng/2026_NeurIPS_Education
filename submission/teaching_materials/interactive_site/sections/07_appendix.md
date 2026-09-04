@@ -6,7 +6,7 @@ We identified a significant gap in the frontend design evaluation under a vendor
 
 <figure>
 <div class="fig2">
-<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
+<img src="figures/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="figures/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
 </div>
 </figure>
 <figcaption><strong>Figure A1.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
