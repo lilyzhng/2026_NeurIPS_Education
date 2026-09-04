@@ -17,11 +17,14 @@ Lily Zhang, Madison Kanna
 
 ## TLDR
 
-An interactive resource that teaches speculative decoding: why autoregressive decoding is the bottleneck of LLM inference, how draft-and-verify works and why it is lossless in theory, three generations of draft models (EAGLE-3, DFlash, DSpark), cross-domain evaluation with LosslessBench, and a hands-on lab where learners serve accelerated models and adjust the acceptance threshold themselves.
+An interactive website and hands-on lab teaching speculative decoding: why it is fast, why it is lossless in theory, three generations of draft models (EAGLE-3, DFlash, DSpark), and cross-domain evaluation with LosslessBench.
 
-## The concept (≤200 words)
+## The concept
 
-Every LLM you use generates one token at a time. This is autoregressive decoding, a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding accelerates this with a draft-and-verify loop: a lightweight draft model proposes the next tokens, the target model verifies all of them in a single forward pass at nearly the cost of one, and rejection sampling guarantees the output follows the target distribution. It now runs under nearly every hosted LLM: OpenAI credited its 80% GPT-5.6 Luna price cut partly to a redesigned draft model, Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster, DeepSeek ships DSpark for a 51% throughput gain, and Kimi K3 ships with its own draft model. Draft models evolved through three generations, each removing one bottleneck: EAGLE-3 raises acceptance length, DFlash cuts drafting time, DSpark cuts verification time, and DFlash 2 pushes acceptance length further. To answer whether these methods generalize beyond coding and math, which account for only 17% of real traffic, we built LosslessBench, a five-domain evaluation, and a hands-on lab where learners measure the trade-offs themselves.
+- **Why it matters:** every LLM generates one token at a time. Autoregressive decoding is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding accelerates this, and it now runs under nearly every hosted LLM: OpenAI credited its 80% GPT-5.6 Luna price cut partly to a redesigned draft model, Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster, DeepSeek ships DSpark for a 51% throughput gain, and Kimi K3 ships with its own draft model.
+- **How it works:** a lightweight draft model proposes the next tokens, the target model verifies all of them in a single forward pass at nearly the cost of one, and rejection sampling guarantees the output follows the target distribution.
+- **Three generations, each removing one bottleneck:** EAGLE-3 raises acceptance length, DFlash cuts drafting time, DSpark cuts verification time, and DFlash 2 pushes acceptance length further.
+- **Beyond coding and math:** to answer whether these methods generalize across domains beyond coding and math, which account for only 17% of real traffic, we built LosslessBench, a five-domain evaluation, and a hands-on lab where learners measure the trade-offs themselves.
 
 ## Leveling and prerequisite knowledge
 
@@ -52,7 +55,11 @@ The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculat
 
 ## Teaching material summary
 
-All materials, including LosslessBench, are original and created for this track: (1) an interactive self-contained website following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo; (2) a hands-on lab with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench. All materials, including the interactive article and lab code, are publicly available through the interactive website.
+All materials, including LosslessBench, are original and created for this track:
+
+- **Interactive self-contained website** following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo.
+- **Hands-on lab** with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
+- All materials, including the interactive article and lab code, are publicly available through the interactive website.
 
 ---
 

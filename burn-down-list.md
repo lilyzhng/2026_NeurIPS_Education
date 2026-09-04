@@ -12,7 +12,7 @@
 | S1.3 | Rewrite Concept Summary from current website content | 🟢 Lily | Done 9/4 3:00pm: 4 progression bullets + contributions paragraph (LosslessBench, 17% traffic, τ +48% sweep) |
 | S1.4 | Rewrite Abstract | 🟢 Lily | Done 9/4 3:00pm: impact-first opening (bottleneck → production), lab described accurately |
 | S1.5 | Recompile PDF, verify 2-page limit | 🟢 Lily | Done 9/4 3:00pm: exactly 2 pages; refs pruned to cited-only, 3-column |
-| S2 | OpenReview final submission: form + 2-page PDF + site link. Target within the hour, deadline Sep 4 AoE | 🔴 Lily |  |
+| S2 | OpenReview final submission: form + 2-page PDF + site link. Target within the hour, deadline Sep 4 AoE | 🟢 Lily | Submitted 9/4 ~3:45pm: PDF (2 pages) + teaching_materials.zip (5.7MB, site + notebook lab + losslessbench) + form fields incl. 225-char TLDR |
 | S2.1 | Audit OpenReview form for the same stale claims (confidence threshold, opposite-directions sweep, grade-the-outputs) and sync with S1 rewrites | 🟢 Lily | Done 9/4 3:05pm: TLDR, concept (195 words), objectives, grounding, teaching summary all synced to final tex |
 
 ## Interactive website
