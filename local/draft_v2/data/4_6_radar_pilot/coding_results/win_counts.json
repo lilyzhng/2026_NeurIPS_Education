@@ -1,8 +1,7 @@
 {
- "vanilla": 10,
- "dflash": 10,
+ "vanilla": 0,
+ "dflash": 0,
  "n": 10,
- "ties": 10,
  "task_ids": [
   "fix-git",
   "gcode-to-text",
@@ -16,16 +15,16 @@
   "configure-git-webserver"
  ],
  "per_task": {
-  "fix-git": "tie (0.0 vs 0.0)",
-  "gcode-to-text": "tie (0.0 vs 0.0)",
-  "filter-js-from-html": "tie (0.0 vs 0.0)",
-  "openssl-selfsigned-cert": "tie (0.0 vs 0.0)",
-  "nginx-request-logging": "tie (0.0 vs 0.0)",
-  "regex-log": "tie (0.0 vs 0.0)",
-  "sqlite-db-truncate": "tie (0.0 vs 0.0)",
-  "vulnerable-secret": "tie (0.0 vs 0.0)",
-  "count-dataset-tokens": "tie (0.0 vs 0.0)",
-  "configure-git-webserver": "tie (0.0 vs 0.0)"
+  "fix-git": "both-fail (0 points)",
+  "gcode-to-text": "both-fail (0 points)",
+  "filter-js-from-html": "both-fail (0 points)",
+  "openssl-selfsigned-cert": "both-fail (0 points)",
+  "nginx-request-logging": "both-fail (0 points)",
+  "regex-log": "both-fail (0 points)",
+  "sqlite-db-truncate": "both-fail (0 points)",
+  "vulnerable-secret": "both-fail (0 points)",
+  "count-dataset-tokens": "both-fail (0 points)",
+  "configure-git-webserver": "both-fail (0 points)"
  },
  "detail": {
   "vanilla": {
@@ -109,5 +108,8 @@
    }
   }
  },
- "note": "terminus-2/harbor, temp 0, k=1. All 20 trials reward 0: Qwen3-8B fails every pinned TB task on both arms (mix of clean fails and 2700s AgentTimeoutError; vanilla configure-git-webserver aborted by server stop at ~45min, counted 0 like its dflash counterpart timeout). No separation at n=10."
+ "note": "terminus-2/harbor, temp 0, k=1. All 20 trials reward 0: Qwen3-8B fails every pinned TB task on both arms (mix of clean fails and 2700s AgentTimeoutError; vanilla configure-git-webserver aborted by server stop at ~45min, counted 0 like its dflash counterpart timeout). No separation at n=10.",
+ "ties_both_pass": 0,
+ "ties_both_fail": 10,
+ "rule": "JUDGING.md 2026-09-03: both-fail scores zero; win count == pass count on pass/fail domains"
 }

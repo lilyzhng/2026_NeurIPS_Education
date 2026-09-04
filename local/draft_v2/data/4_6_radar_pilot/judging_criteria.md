@@ -1,8 +1,12 @@
 # Judging criteria — the two new radar axes (agent, coding)
 
 Conventions inherited from `Build/LosslessBench/JUDGING.md`: official rubrics
-verbatim, win-count aggregation, tie scores one point each side, absolute
-counts (X/N) as the headline, never averages.
+verbatim, win-count aggregation, absolute counts (X/N) as the headline, never
+averages. Tie rule (fixed 2026-09-03): on execution-graded pass/fail domains a
+both-pass tie scores one point each, a both-fail scores ZERO for both — nobody
+gets credit for a task nobody did. Consequence: win count equals pass count on
+these axes. (Rubric-scored domains keep tie = one each, since an equal-quality
+tie there means both arms actually delivered.)
 
 ## Agent Workflow (tau3 retail)
 
