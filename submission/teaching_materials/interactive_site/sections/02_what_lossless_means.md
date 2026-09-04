@@ -134,12 +134,10 @@ The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6
 
 The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: the whole block at once, instead of token by token. The draft is a lightweight block diffusion model: it predicts an entire block of tokens in a single forward pass, conditioned on context features extracted from the target model.
 
-<pre><code>EAGLE-3 draft (serial)           DFLASH draft (parallel)
-t1 -&gt; t2 -&gt; t3 -&gt; t4           [anchor|MASK|MASK|MASK]
-(one at a time, 4 rounds)               | 1 forward pass
-                               [t1  |t2  |t3  |t4  ]
-target features: wait each step   target features: injected once per block</code></pre>
-<figcaption><strong>Figure 3 (mock).</strong> Drafting one token vs one block. EAGLE-3 proposes draft tokens autoregressively, one per step. DFlash unmasks an entire block in a single forward pass, with the target's context features injected into every draft layer.</figcaption>
+<figure class="wide">
+<iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
+</figure>
+<figcaption><strong>Figure 3.</strong> EAGLE-3 drafts tokens serially, one at a time. DFlash drafts a whole block in parallel, with the target model's context features injected once per block.</figcaption>
 
 As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.
 
