@@ -127,9 +127,9 @@ The agentic workflow (tau-bench) produced the most surprising result: DFlash bea
 | the final write action | discusses the exchange, ends without executing it | executes it, sometimes more than once |
 | typical failure | task left unfinished | over-acting, duplicate writes corrupt the state |
 
-Both failure modes lose episodes, but they are not symmetric. The environment rewards a completed transaction, so the arm that gives up early loses tasks it could have finished, while the arm that over-acts still completes some of them. Persistence wins on this benchmark.
+The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them. 
 
-The gain is not extra intelligence, and it is not speed either: the two arms share the same weights, and tau-bench has no time budget, so finishing faster does not grant more turns. A plausible mechanism: at temperature 0, decisions such as ending the thinking block, issuing another tool call, or closing the conversation are often near ties between top tokens. Speculative decoding scores tokens in a parallel verification pass whose numerics differ slightly from sequential decoding, enough to flip a near tie. One flipped token forks the trajectory, and the fork compounds across turns. The shift is not a uniform length bias: on single prompts DFlash generated 14% more tokens for the frontend brief and 6% fewer for the creative brief. With n=10 per domain this remains a hypothesis. The 100-task run will test whether acceleration is behavior-neutral in agentic loops, a more specific question than lossless or not.
+The gain is not extra intelligence, and it is not speed either: the two arms share the same weights, and tau-bench has no time budget. The likely cause is the same trajectory divergence as above. Decisions like ending the thinking block or issuing one more tool call are near ties at temperature 0, the verification pass's numerics tip them, and the flip compounds over turns. With n=10 per domain this remains a hypothesis, and the larger run will test whether acceleration is behavior-neutral in agentic loops.
 
 <!-- vendor-stack 前端 gap 段 + 日历对比图（原 Figure 13）移至 Appendix，2026-09-03。站点：sections/07_appendix.md，图号 Figure A1。是否保留待定。 -->
 
