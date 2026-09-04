@@ -2,7 +2,7 @@
 
 ## 2. What it doesn't mean
 
-Section 1 proved lossless in theory: verification ensures the output distribution is aligned with the target model's. But when does it hold or not hold? In this section we go through the boundary of that guarantee: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
+Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
 
 </div>
 
