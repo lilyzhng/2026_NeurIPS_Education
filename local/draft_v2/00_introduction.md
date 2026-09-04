@@ -11,7 +11,7 @@ Today, speculative decoding runs under nearly every hosted LLM, the speed and qu
 **The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this article. The content is designed progressively, each section building on the previous one:
 
 1. What lossless means. How does speculative decoding work? Why is it lossless in theory?  
-2. What it doesn't mean. Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench) to test beyond the math and coding domains.  
+2. What it doesn't mean. Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.  
 3. What's next? What are the exciting new directions in accelerated inference?  
 4. How to train, serve, and test it. Run a speculative decoding model with SGLang.
 

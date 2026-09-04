@@ -11,7 +11,7 @@
 **The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this article. The content is designed progressively, each section building on the previous one:
 
 1. <u>What lossless means.</u> How does speculative decoding work? Why is it lossless in theory?
-2. <u>What it doesn't mean.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench) to test beyond the math and coding domains, with a hands-on lab to reproduce every number yourself.
+2. <u>What it doesn't mean.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.
 3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
 
 </div>
