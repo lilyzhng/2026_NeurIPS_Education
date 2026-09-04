@@ -73,44 +73,73 @@ def main() -> None:
     page = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Explore the frontend tasks</title>
 <style>
-  body {{ margin:0; padding:18px 24px; font-family:-apple-system,'Inter',sans-serif; background:#faf9f7; color:#222; }}
-  .bar {{ display:flex; gap:12px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }}
-  select {{ font-size:14px; padding:6px 10px; border-radius:8px; border:1px solid #ccc; max-width:560px; }}
-  .verdict {{ font-size:13px; color:#555; }}
-  .pair {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }}
-  .cell {{ border:1px solid #ddd; border-radius:10px; overflow:hidden; background:#fff; }}
-  .head {{ display:flex; gap:10px; align-items:center; padding:6px 10px; font-size:13px; background:#1e2a1c; color:#fff; }}
-  .sc {{ font-size:12px; color:#b9c7b2; }}
-  .wbadge {{ background:#c9a227; color:#1e2a1c; padding:1px 8px; border-radius:8px; font-size:11px; font-weight:700; margin-left:auto; }}
-  iframe {{ width:100%; height:520px; border:0; display:block; background:#fff; }}
-  .fb {{ padding:8px 12px; font-size:12px; color:#444; border-top:1px solid #eee; min-height:60px; }}
+  body {{ margin:0; padding:14px 18px 18px; font-family:'ET Book', Palatino, Georgia, serif;
+         background:#fffffb; color:#111; }}
+  .chips {{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }}
+  .chip {{ font-size:13px; padding:4px 12px; border-radius:999px; border:1px solid #d8d8d0;
+           background:#fff; cursor:pointer; font-family:inherit; }}
+  .chip:hover {{ border-color:#1f5c3d; }}
+  .chip.on {{ background:#1f5c3d; color:#fff; border-color:#1f5c3d; }}
+  .brief {{ font-size:15px; font-style:italic; color:#444; margin:2px 0 12px; }}
+  .pair {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }}
+  .cell {{ border:1px solid #e2e2da; border-radius:12px; overflow:hidden; background:#fff;
+           box-shadow:0 1px 4px rgba(0,0,0,.04); }}
+  .head {{ display:flex; gap:10px; align-items:baseline; padding:9px 14px 7px; }}
+  .head b {{ font-size:15px; }}
+  .head .v {{ color:#1f5c3d; }} .head .p {{ color:#d6437c; }}
+  .total {{ font-size:13px; color:#666; }}
+  .wbadge {{ margin-left:auto; font-size:11px; letter-spacing:.5px; font-weight:700;
+             color:#8a6d1a; background:#f7edd2; border:1px solid #e3cf94;
+             padding:2px 10px; border-radius:999px; align-self:center;
+             font-family:-apple-system,sans-serif; }}
+  .meters {{ display:flex; gap:14px; padding:0 14px 8px; }}
+  .m {{ flex:1; }}
+  .m .lab {{ font-size:11px; color:#888; letter-spacing:.3px; margin-bottom:2px;
+             font-family:-apple-system,sans-serif; }}
+  .m .bar {{ height:6px; border-radius:3px; background:#eeeee6; overflow:hidden; }}
+  .m .fill {{ height:100%; border-radius:3px; }}
+  .cell.van .fill {{ background:#1f5c3d; }} .cell.dfl .fill {{ background:#d6437c; }}
+  iframe {{ width:100%; height:500px; border:0; border-top:1px solid #eee; display:block; background:#fff; }}
+  .fb {{ padding:10px 14px 12px; font-size:13.5px; line-height:1.5; color:#3a3a36;
+         border-top:1px solid #f0f0e8; min-height:66px; }}
 </style></head><body>
-<div class="bar">
-  <b>Pick a task:</b>
-  <select id="sel" onchange="show(this.value)">{options}</select>
-  <span class="verdict" id="verdict"></span>
-</div>
+<div class="chips" id="chips"></div>
+<div class="brief" id="brief"></div>
 <div class="pair">
-  <div class="cell"><div class="head"><b>vanilla</b><span class="sc" id="s0"></span><span class="wbadge" id="w0" style="display:none">WINNER</span></div>
+  <div class="cell van"><div class="head"><b class="v">vanilla Qwen3-8B</b><span class="total" id="s0"></span><span class="wbadge" id="w0" style="display:none">WINNER</span></div>
+    <div class="meters"><div class="m"><div class="lab">CODE <span id="c0"></span>/40</div><div class="bar"><div class="fill" id="cb0"></div></div></div>
+    <div class="m"><div class="lab">FUNCTIONALITY <span id="u0"></span>/60</div><div class="bar"><div class="fill" id="ub0"></div></div></div></div>
     <iframe id="f0"></iframe><div class="fb" id="d0"></div></div>
-  <div class="cell"><div class="head"><b>+ DFlash draft</b><span class="sc" id="s1"></span><span class="wbadge" id="w1" style="display:none">WINNER</span></div>
+  <div class="cell dfl"><div class="head"><b class="p">+ DFlash draft</b><span class="total" id="s1"></span><span class="wbadge" id="w1" style="display:none">WINNER</span></div>
+    <div class="meters"><div class="m"><div class="lab">CODE <span id="c1"></span>/40</div><div class="bar"><div class="fill" id="cb1"></div></div></div>
+    <div class="m"><div class="lab">FUNCTIONALITY <span id="u1"></span>/60</div><div class="bar"><div class="fill" id="ub1"></div></div></div></div>
     <iframe id="f1"></iframe><div class="fb" id="d1"></div></div>
 </div>
 <script>
 const DATA = {json.dumps(data)};
+const chips = document.getElementById('chips');
+Object.keys(DATA).forEach((t, i) => {{
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = t; b.onclick = () => show(t);
+  chips.appendChild(b);
+}});
 function show(t) {{
   const d = DATA[t];
-  document.getElementById('verdict').textContent = d.brief;
-  const arms = [d.vanilla, d.dflash];
-  arms.forEach((a, i) => {{
+  [...chips.children].forEach(c => c.classList.toggle('on', c.textContent === t));
+  document.getElementById('brief').textContent = '\u201C' + d.brief + '\u201D';
+  [d.vanilla, d.dflash].forEach((a, i) => {{
     document.getElementById('f'+i).src = 'explore/' + a.file;
-    document.getElementById('s'+i).textContent = 'total ' + a.total + ' (code ' + a.code + '/40, functionality ' + a.func + '/60)';
+    document.getElementById('s'+i).textContent = 'total ' + a.total + ' / 100';
+    document.getElementById('c'+i).textContent = a.code;
+    document.getElementById('u'+i).textContent = a.func;
+    document.getElementById('cb'+i).style.width = (a.code/40*100) + '%';
+    document.getElementById('ub'+i).style.width = (a.func/60*100) + '%';
     document.getElementById('d'+i).textContent = a.feedback;
   }});
   document.getElementById('w0').style.display = d.vanilla.total > d.dflash.total ? '' : 'none';
   document.getElementById('w1').style.display = d.dflash.total > d.vanilla.total ? '' : 'none';
 }}
-show(document.getElementById('sel').value);
+show('od673');
 </script>
 </body></html>"""
     (SITE / "explore_frontend.html").write_text(page)
