@@ -11,7 +11,7 @@ All feedback from Andrew Hartnett on the NeurIPS Education submission, one item 
 | 3 | De-jargon What lossless means first paragraph (B200, SGLang, vanilla) | at the very least you might want to have a hover over glossery? | ⬜ Not done |
 | 4 | Is Figure 1 going to be animated? | | ⬜ Open question |
 | 5 | Table 1: introduce acceptance length (τ) before per-token latency; use non-integer τ in examples | I'd be in favor of using a non-integer /tau as that seems unlikely | ⬜ Not done |
-| 6 | Cut section 3.3, end with a holistic conclusion | the last thing the reader reads is the most tangential | ⬜ Pending (Lily asked if spec-tool section should go too; no reply yet) |
+| 6 | Cut section 3.3, end with a holistic conclusion | the last thing the reader reads is the most tangential | ✅ 3.3 deleted; spec-tool section kept |
 
 ## The lossless argument (the call)
 
@@ -39,4 +39,4 @@ All feedback from Andrew Hartnett on the NeurIPS Education submission, one item 
 |---|---|---|---|
 | 17 | Track blurb unclear; ask organizers, look at what gets accepted | I don't think they know ... they're gonna kinda figure it out on the fly | ✅ Email sent to education-chairs 09-04 |
 
-**Remaining before submission (quick wins): #3 de-jargon, #5 Table 1 order + non-integer τ, #6 cut 3.3 + conclusion.**
+**Remaining before submission (quick wins): #3 de-jargon, #5 Table 1 order + non-integer τ.**
