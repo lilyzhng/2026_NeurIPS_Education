@@ -113,13 +113,13 @@ The environment rewards a completed transaction, so the model that gives up earl
 <!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 12 example degradation was caused by quantization. -->
 
 ![Figure 12](figures_v4/fig16_race_demo_frontend.jpg)
-**Figure 12.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html).
+**Figure 12.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s. Live version embedded on the site (demo/race_demo.html).
 
 
-Look closely at Figure 12: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
+Look closely at Figure 12: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
 
 ![Figure 13](figures_v4/fig17_race_demo_creative.jpg)
-**Figure 13.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html).
+**Figure 13.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s. Live version embedded on the site (demo/creative_race_demo.html).
 
 
 Figure 13 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
