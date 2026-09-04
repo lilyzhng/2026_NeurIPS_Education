@@ -117,7 +117,7 @@ The benchmarks in these papers are simple, single-turn tasks such as grade-schoo
 
 Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement. That makes it a natural probe for the five new domains (Figure 10). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, however, acceptance falls from 5.24 to 1.84. The draft distribution drifts furthest exactly on the domains the papers never measured. Frontend design is an instructive exception: its acceptance stays high while the generated pages break (Figure 12), a reminder that acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 11 examines.
 
-<figure class="mid plain">
+<figure class="plain">
 <img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
 </figure>
 <figcaption><strong>Figure 10.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence (Leviathan et al. 2023, Thm 3.5). Qwen3-8B with the z-lab DFlash-b16 draft, vLLM strict verification, temperature 1, thinking off, 5 original tasks per axis (agentic coding = Terminal-Bench 2, agentic workflow = tau2-bench); whiskers show min–max over tasks.</figcaption>
