@@ -390,13 +390,9 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 </pre></div>
 
 <p>From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:</p>
-<blockquote>
-<p>α = 1 − E[D_LK(p, q)]</p>
-</blockquote>
+<pre class="text"><code>α = 1 − E[D_LK(p, q)]</code></pre>
 <p>where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:</p>
-<blockquote>
-<p>τ = (1 − α^(γ+1)) / (1 − α)</p>
-</blockquote>
+<pre class="text"><code>τ = (1 − α^(γ+1)) / (1 − α)</code></pre>
 <p>where γ is the number of draft tokens per verification cycle.</p>
 <p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness, and DFlash contains no explicit validation for being lossless. Then how do we know? The papers do report acceptance length. A reported τ gives the acceptance rate α, and by Theorem 3.5, α is a distributional distance. Read τ, and you are reading how far the draft's distribution sits from the target's.</p>
 <p>To summarize, speculative decoding speed comes down to three factors: <strong>(1) drafting time, (2) verification time, and (3) acceptance length.</strong> In the following section, we'll go through the state-of-the-art of model architectures and how each model improves these deciding factors.</p>

@@ -68,11 +68,15 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 
 From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:
 
-> α = 1 − E[D_LK(p, q)]
+```text
+α = 1 − E[D_LK(p, q)]
+```
 
 where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:
 
-> τ = (1 − α^(γ+1)) / (1 − α)
+```text
+τ = (1 − α^(γ+1)) / (1 − α)
+```
 
 where γ is the number of draft tokens per verification cycle.
 
