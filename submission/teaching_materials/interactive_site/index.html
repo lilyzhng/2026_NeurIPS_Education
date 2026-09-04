@@ -646,12 +646,13 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <div id="train" class="section">
 
 <h3 id="24-hands-on-lab">2.4 Hands-On Lab</h3>
-<p>The last three sections drew the boundary of the lossless evidence. This one hands you the tools to test it yourself.</p>
+<p>This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens.</p>
 <h4 id="turn-the-knob-yourself">Turn the knob yourself</h4>
-<p>Production engines ship the relaxation knob: SGLang's <code>--speculative-accept-threshold-single</code> defaults to 1.0 (strict, lossless) and can be lowered to accept draft tokens more aggressively. We swept it from 1.0 to 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1) and measured, at every stop, the label accuracy, the acceptance length, and the decode speed. Drag the slider: every number is a real measurement.</p>
+<p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where exact rejection sampling provably matches the target model. Lowering it accepts draft tokens more aggressively, trading the guarantee for speed. We swept 1.0 → 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1), recording label accuracy, acceptance length, and decode speed at each stop. Every number below is a measurement, not a simulation.</p>
 <figure class="wide">
 <iframe src="knob_demo.html" style="width:100%;height:520px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
 </figure>
+<figcaption><strong>Figure 14.</strong> The acceptance-threshold knob on XSTest guardrail task.</figcaption>
 
 <p>The result is itself a lesson. Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.</p>
 </div>
@@ -671,11 +672,11 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <p>Send a prompt and measure the generation speed (<code>measure_decoding_speed.py</code>). Then restart the server with the DeepSpec DSpark speculator (on Modal: <code>SPEC_MODE=dspark modal deploy modal_vllm_serve.py</code>) and run the same bench again:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vllm</span> serve Qwen/Qwen3-8B <span class="at">--port</span> 8000 <span class="at">--speculative-config</span> <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;{&quot;model&quot;: &quot;deepseek-ai/dspark_qwen3_8b_block7&quot;, &quot;method&quot;: &quot;dspark&quot;, &quot;num_speculative_tokens&quot;: 7}&#39;</span></span></code></pre></div>
-<p>Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 13):</p>
+<p>Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 15):</p>
 <figure class="mid">
 <img src="figures/fig13_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption><strong>Figure 13.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 15.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 <p>vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's <code>/metrics</code> counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:</p>
 <div class="sptc-py" data-lang="text"><pre>
@@ -699,6 +700,57 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> build_race_demo.py                   <span class="co"># assembles the demo from your outputs</span></span></code></pre></div>
 <p>These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).</p>
 <p><sub>Note: <code>vllm serve</code> crashes on DFlash in stable 0.28.0, and only the offline <code>LLM()</code> path is CI-tested, so <code>modal_dflash_offline.py</code> runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub></p>
+</div>
+
+<div id="fig11task" class="section">
+
+<h4 id="the-figure-11-task-on-your-own-server">The Figure 11 task, on your own server</h4>
+<p>Section 2.3 found its frontend gap under a full vendor stack, where quantization was the culprit. Here you isolate one variable: speculative decoding alone, on the same brief Figure 11 used (OpenDesign id 673, "Stunning translucent calendar popup that smoothly blends into the interface").</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla   <span class="co"># rerun per lane</span></span></code></pre></div>
+<p>Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>
+<pre class="text"><code>vanilla vs dspark:  identical for 8,299 chars (76% of the page),
+                    then diverges at one CSS value:
+                    transition: color 0.2s   -&gt;   transition: color 0.3s
+                    and the trajectories separate from there (10,924 vs 10,535 chars)</code></pre>
+<p>This is not the theorem failing. The guarantee is about distributions, not trajectories: the speculative path runs different kernels, the numerics shift by a hair, and a near-tie token (0.2s vs 0.3s was evidently one) falls the other way. vLLM's own docs drew this boundary in Section 2.2: theoretical losslessness holds "up to the precision limits of hardware numerics," and output stability is layer three, the one nobody guarantees. Both pages render, both satisfy the brief, and they are different pages. If your product depends on reproducing an exact output, lossless-in-distribution is not the property you think it is.</p>
+<p>Speed has the same domain dependence as the outputs. The per-domain rates (<code>race_domains.py</code>, one prompt per domain, 512 tokens, greedy, median of 5 repeat runs):</p>
+<table>
+<thead>
+<tr>
+<th>domain</th>
+<th>vanilla</th>
+<th>DSpark</th>
+<th>EAGLE-3</th>
+<th>DFlash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>coding</td>
+<td>138.1</td>
+<td>311.9 (2.3x)</td>
+<td>158.8 (1.15x)</td>
+<td>311.3 (2.25x)</td>
+</tr>
+<tr>
+<td>creative</td>
+<td>138.2</td>
+<td>416.7 (3.0x)</td>
+<td>229.5 (1.66x)</td>
+<td>265.6 (1.92x)</td>
+</tr>
+<tr>
+<td>frontend</td>
+<td>137.6</td>
+<td>333.1 (2.4x)</td>
+<td>208.2 (1.51x)</td>
+<td>274.0 (1.99x)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Table 5.</strong> Per-domain decoding rates, tokens per second. One prompt per domain, so this is a probe of domain-conditional acceptance, not a benchmark. DSpark and EAGLE-3 use DeepSpec drafts on <code>vllm serve</code>. DFlash uses the z-lab draft on the offline path, which carries slightly less HTTP overhead.</p>
+<p>Vanilla is flat across domains, the speculators are not: acceptance is domain-conditional, so the same draft buys different speedups on different text (DSpark: 3.0x on creative, 2.3x on coding). The ranking is recipe-dependent too: DSpark (τ 3.5) leads, DFlash (τ 2.2 to 2.5, domain-dependent) follows, EAGLE-3 trails (τ 1.3, under-tuned in our relabeled config rather than at its ceiling). A caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.</p>
+<p>Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race, and report three numbers together: acceptance rate, task correctness, domain coverage. LosslessBench samples 100 such tasks across the full OpenRouter distribution if you want a ready-made prompt set. If the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?</p>
 </div>
 
 <div id="next" class="section">
