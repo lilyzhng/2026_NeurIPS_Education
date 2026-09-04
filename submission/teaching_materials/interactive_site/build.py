@@ -61,9 +61,12 @@ out = tpl.replace('<!--TOC-->', toc).replace('<!--CONTENT-->', content)
 open(os.path.join(HERE, 'index.html'), 'w').write(out)
 
 # --- figures next to the html so the site is self-contained ---
-fig = os.path.join(HERE, '..', '..', 'figures', 'teaser_figure.png')
-if os.path.exists(fig):
-    os.makedirs(os.path.join(HERE, 'figures'), exist_ok=True)
-    shutil.copy(fig, os.path.join(HERE, 'figures', 'teaser_figure.png'))
+source_figures = os.path.join(HERE, '..', '..', 'figures')
+output_figures = os.path.join(HERE, 'figures')
+for filename in ('teaser_figure.png', 'figure1_chalk.html'):
+    fig = os.path.join(source_figures, filename)
+    if os.path.exists(fig):
+        os.makedirs(output_figures, exist_ok=True)
+        shutil.copy(fig, os.path.join(output_figures, filename))
 
 print(f'built index.html ({len(out)} bytes), {len(toc_items)} TOC entries')

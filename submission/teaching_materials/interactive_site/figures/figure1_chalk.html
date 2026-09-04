@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speculative decoding timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* falls back gracefully when standalone; inherits your site's tokens when embedded */
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --_ink: var(--ink, #2A2A26);
+  --chalk:#F2EFE4;
+  --chalk-dim:rgba(242,239,228,.6);
+  --board:#33443C;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:24px 20px 64px;background:#F7F6F1;
+  font-family:var(--_serif);
+}
+.wrap{max-width:940px;margin:0 auto}
+h2{
+  font-family:var(--_serif);
+  font-size:1.55rem;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  color:var(--_ink);
+  margin:3.25rem 0 1rem;
+}
+.board{background:var(--frame);border-radius:16px;padding:12px}
+.slate{
+  font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:30px 34px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.axis{
+  display:flex;align-items:flex-end;gap:14px;margin:2px 2px 20px;
+}
+.axislbl{
+  font-size:1.2rem;color:var(--chalk-dim);white-space:nowrap;padding-bottom:6px;
+}
+.axistrack{
+  position:relative;flex:1;height:34px;
+  border-bottom:2px dotted rgba(242,239,228,.35);
+}
+.axistick{
+  position:absolute;bottom:0;height:7px;border-left:1.5px solid rgba(242,239,228,.45);
+}
+.axisnum{
+  position:absolute;top:0;transform:translateX(-50%);
+  font-size:1.15rem;color:var(--chalk-dim);
+}
+.playhead{
+  position:absolute;top:0;bottom:-4px;width:0;
+  border-left:2px solid var(--chalk);
+  box-shadow:0 0 4px rgba(242,239,228,.5);
+}
+.lane{
+  border:1.5px dashed rgba(242,239,228,.5);border-radius:12px;
+  padding:16px 18px;margin-bottom:18px;
+}
+.lane:last-child{margin-bottom:0}
+.lane.v{transform:rotate(-0.3deg)}
+.lane.s{transform:rotate(0.25deg)}
+.lanehead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+.lanename{
+  font-weight:700;
+  text-shadow:0 0 2px currentColor;
+}
+.lanename{color:var(--chalk);font-size:1.5rem;letter-spacing:.18em}
+.donebadge{
+  border:1.5px solid currentColor;border-radius:50px;
+  padding:2px 11px;opacity:0;transition:opacity .3s;
+}
+.donebadge{color:var(--chalk);font-size:1.15rem}
+.lane.v .donebadge{transform:rotate(1.2deg)}
+.lane.s .donebadge{transform:rotate(-1.4deg)}
+.clock{
+  margin-left:auto;font-size:1.25rem;color:var(--chalk-dim);
+  font-variant-numeric:tabular-nums;
+}
+.chips{display:flex;gap:8px;flex-wrap:wrap;min-height:42px}
+.chip{
+  border:1.7px solid rgba(242,239,228,.85);
+  border-radius:10px 8px 11px 7px;
+  padding:5px 14px;font-size:1.35rem;font-weight:700;
+  color:var(--chalk);text-shadow:0 0 2px rgba(242,239,228,.3);
+  background:rgba(242,239,228,.04);
+  opacity:0;transition:opacity .3s;
+}
+.chip:nth-child(odd){transform:rotate(-1.1deg)}
+.chip:nth-child(even){transform:rotate(0.9deg)}
+.chip.show{opacity:1}
+.chunk{
+  display:inline-flex;gap:8px;flex-wrap:wrap;padding:6px;border-radius:12px;
+  border:1.7px dashed transparent;transition:border-color .3s;
+}
+.chunk.show{border-color:rgba(242,239,228,.75)}
+.chunk .chip{transform:none}
+.trackwrap{position:relative;height:9px;margin-top:12px}
+.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(242,239,228,.3)}
+.fill{
+  position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;
+}
+.fill{
+  background:repeating-linear-gradient(90deg,var(--chalk) 0 6px,rgba(242,239,228,.55) 6px 9px);
+  box-shadow:0 0 4px rgba(242,239,228,.45);
+}
+.status{font-size:1.15rem;color:var(--chalk-dim);margin-top:9px;min-height:22px}
+@media(max-width:640px){.slate{padding:20px 16px}}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .chip,.chunk,.lane{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board"><div class="slate">
+    <div class="axis">
+      <span class="axislbl">time &rarr;</span>
+      <div class="axistrack" id="axistrack"><div class="playhead" id="playhead"></div></div>
+    </div>
+    <div class="lane v">
+      <div class="lanehead">
+        <span class="lanename">VANILLA</span>
+        <span class="donebadge" id="doneV">done &middot; 9.0s</span>
+        <span class="clock" id="clockV">0.0s</span>
+      </div>
+      <div class="chips" id="chipsV"></div>
+      <div class="trackwrap"><div class="trackbase"></div><div class="fill" id="fillV"></div></div>
+      <div class="status" id="statusV"></div>
+    </div>
+
+    <div class="lane s">
+      <div class="lanehead">
+        <span class="lanename">SPECULATIVE</span>
+        <span class="donebadge" id="doneS">done &middot; 3.3s &#10003;</span>
+        <span class="clock" id="clockS">0.0s</span>
+      </div>
+      <div class="chips" id="chipsS"></div>
+      <div class="trackwrap"><div class="trackbase"></div><div class="fill" id="fillS"></div></div>
+      <div class="status" id="statusS"></div>
+    </div>
+
+  </div></div>
+</div>
+
+<script>
+(function(){
+  var words = ['A','harness','is','the','system','surrounding','a','base','model'];
+  var PASS = 1.0, V_DONE = 9.0, S_DONE = 3.3, AXIS = 9.5, LOOP = 10.5;
+  var rounds = [{n:5, t:1.65},{n:4, t:3.3}];
+
+  var track = document.getElementById('axistrack');
+  for (var sec = 0; sec <= 9; sec++){
+    var x = (sec / AXIS * 100) + '%';
+    var num = document.createElement('span');
+    num.className = 'axisnum'; num.style.left = x; num.textContent = sec + 's';
+    track.appendChild(num);
+    var tk = document.createElement('span');
+    tk.className = 'axistick'; tk.style.left = x;
+    track.appendChild(tk);
+  }
+  var playhead = document.getElementById('playhead');
+
+  var cv = document.getElementById('chipsV'), chipsV = [];
+  words.forEach(function(w){
+    var c = document.createElement('span');
+    c.className = 'chip'; c.textContent = w;
+    cv.appendChild(c); chipsV.push(c);
+  });
+
+  var cs = document.getElementById('chipsS'), chunks = [];
+  var start = 0;
+  rounds.forEach(function(r){
+    var g = document.createElement('span');
+    g.className = 'chunk';
+    for (var i = 0; i < r.n; i++){
+      var c = document.createElement('span');
+      c.className = 'chip'; c.textContent = words[start + i];
+      g.appendChild(c);
+    }
+    start += r.n;
+    cs.appendChild(g); chunks.push(g);
+  });
+
+  var fillV = document.getElementById('fillV'), fillS = document.getElementById('fillS');
+  var clockV = document.getElementById('clockV'), clockS = document.getElementById('clockS');
+  var doneV = document.getElementById('doneV'), doneS = document.getElementById('doneS');
+  var statusV = document.getElementById('statusV'), statusS = document.getElementById('statusS');
+
+  function paint(t){
+    var tv = Math.min(t, V_DONE), ts = Math.min(t, S_DONE);
+    playhead.style.left = (Math.min(t, AXIS) / AXIS * 100) + '%';
+    fillV.style.width = (tv / AXIS * 100) + '%';
+    fillS.style.width = (ts / AXIS * 100) + '%';
+    clockV.textContent = tv.toFixed(1) + 's';
+    clockS.textContent = ts.toFixed(1) + 's';
+
+    chipsV.forEach(function(c, i){ c.classList.toggle('show', t >= (i + 1) * PASS); });
+    statusV.textContent = t >= V_DONE ? '9 target passes' :
+      'target pass ' + Math.min(9, Math.floor(t / PASS) + 1) + ' of 9\u2026';
+
+    chunks.forEach(function(g, i){
+      var on = t >= rounds[i].t;
+      g.classList.toggle('show', on);
+      for (var j = 0; j < g.children.length; j++) g.children[j].classList.toggle('show', on);
+    });
+    statusS.textContent = t >= S_DONE ? '2 rounds \u00b7 2 target passes' :
+      (t >= rounds[0].t ? 'round 2: drafting + verifying\u2026' : 'round 1: drafting + verifying\u2026');
+
+    doneV.style.opacity = t >= V_DONE ? '1' : '0';
+    doneS.style.opacity = t >= S_DONE ? '1' : '0';
+  }
+
+  var t0 = performance.now();
+  (function tick(){
+    paint(((performance.now() - t0) / 1000) % LOOP);
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+</body>
+</html>
