@@ -210,7 +210,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       transform: translateX(-50%) rotate(45deg);
     }
     .glossary-term:hover .glossary-tooltip,
-    .glossary-term:focus .glossary-tooltip,
+    .glossary-term:focus-visible .glossary-tooltip,
     .glossary-term.is-open .glossary-tooltip { opacity: 1; visibility: visible; }
     @media (max-width: 640px) {
       .glossary-tooltip {
@@ -398,6 +398,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
         placeTooltip(term);
         term.classList.toggle('is-open', open);
         term.setAttribute('aria-expanded', String(open));
+        if (!open) term.blur();
       });
       term.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
@@ -414,7 +415,10 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       const open = terms.find(term => term.classList.contains('is-open'));
       if (open) placeTooltip(open);
     }, { passive: true });
-    document.addEventListener('click', function () { closeAll(); });
+    document.addEventListener('click', function () {
+      closeAll();
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    });
   })();
 </script>
 
