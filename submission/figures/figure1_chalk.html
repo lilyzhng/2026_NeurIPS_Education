@@ -12,8 +12,8 @@
   /* falls back gracefully when standalone; inherits your site's tokens when embedded */
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
   --_ink: var(--ink, #2A2A26);
-  --chalk:#F2EFE4;
-  --chalk-dim:rgba(242,239,228,.6);
+  --chalk:#DFDBCE;
+  --chalk-dim:rgba(223,219,206,.55);
   --board:#33443C;
   --frame:#7A5230;
 }
@@ -49,10 +49,10 @@ h2{
 }
 .axistrack{
   position:relative;flex:1;height:34px;
-  border-bottom:2px dotted rgba(242,239,228,.35);
+  border-bottom:2px dotted rgba(223,219,206,.3);
 }
 .axistick{
-  position:absolute;bottom:0;height:7px;border-left:1.5px solid rgba(242,239,228,.45);
+  position:absolute;bottom:0;height:7px;border-left:1.5px solid rgba(223,219,206,.4);
 }
 .axisnum{
   position:absolute;top:0;transform:translateX(-50%);
@@ -60,11 +60,10 @@ h2{
 }
 .playhead{
   position:absolute;top:0;bottom:-4px;width:0;
-  border-left:2px solid var(--chalk);
-  box-shadow:0 0 4px rgba(242,239,228,.5);
+  border-left:2px solid rgba(223,219,206,.7);
 }
 .lane{
-  border:1.5px dashed rgba(242,239,228,.5);border-radius:12px;
+  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;
   padding:16px 18px;margin-bottom:18px;
 }
 .lane:last-child{margin-bottom:0}
@@ -73,7 +72,6 @@ h2{
 .lanehead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 .lanename{
   font-weight:700;
-  text-shadow:0 0 2px currentColor;
 }
 .lanename{color:var(--chalk);font-size:1.5rem;letter-spacing:.18em}
 .donebadge{
@@ -89,11 +87,11 @@ h2{
 }
 .chips{display:flex;gap:8px;flex-wrap:wrap;min-height:42px}
 .chip{
-  border:1.7px solid rgba(242,239,228,.85);
+  border:1.7px solid rgba(223,219,206,.75);
   border-radius:10px 8px 11px 7px;
   padding:5px 14px;font-size:1.35rem;font-weight:700;
-  color:var(--chalk);text-shadow:0 0 2px rgba(242,239,228,.3);
-  background:rgba(242,239,228,.04);
+  color:var(--chalk);
+  background:rgba(223,219,206,.05);
   opacity:0;transition:opacity .3s;
 }
 .chip:nth-child(odd){transform:rotate(-1.1deg)}
@@ -103,16 +101,15 @@ h2{
   display:inline-flex;gap:8px;flex-wrap:wrap;padding:6px;border-radius:12px;
   border:1.7px dashed transparent;transition:border-color .3s;
 }
-.chunk.show{border-color:rgba(242,239,228,.75)}
+.chunk.show{border-color:rgba(223,219,206,.6)}
 .chunk .chip{transform:none}
 .trackwrap{position:relative;height:9px;margin-top:12px}
-.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(242,239,228,.3)}
+.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(223,219,206,.28)}
 .fill{
   position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;
 }
 .fill{
-  background:repeating-linear-gradient(90deg,var(--chalk) 0 6px,rgba(242,239,228,.55) 6px 9px);
-  box-shadow:0 0 4px rgba(242,239,228,.45);
+  background:repeating-linear-gradient(90deg,rgba(223,219,206,.85) 0 6px,rgba(223,219,206,.45) 6px 9px);
 }
 .status{font-size:1.15rem;color:var(--chalk-dim);margin-top:9px;min-height:22px}
 @media(max-width:640px){.slate{padding:20px 16px}}
