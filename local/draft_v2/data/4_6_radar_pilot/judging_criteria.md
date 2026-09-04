@@ -17,6 +17,11 @@ tie there means both arms actually delivered.)
 - Controls: agent temperature 0, user simulator pinned `gpt-4o` temperature 0,
   seed 300, identical task list (retail 0-9) both arms, branch
   `fix/ab-scoring-artifacts` (post-T19 scoring fix).
+- Max steps: pilot ran `--max-steps 80`; from 2026-09-03 (Lily's call) all
+  future tau3 runs use `--max-steps 60`. Data basis: all 20 pilot episodes
+  completed naturally within 52 steps (the 52-step episode was a pass), only
+  one runaway hit 80; 60 preserves every natural trajectory while cutting the
+  runaway cost cap by 25%. Real dialogue rounds never exceeded 9.
 - A/B aggregation: per-task winner by reward on paired episodes; equal reward
   = tie (one point each). Episodes that die of infrastructure are rerun or
   dropped from BOTH arms, never scored.
