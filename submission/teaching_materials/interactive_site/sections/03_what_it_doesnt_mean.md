@@ -27,16 +27,10 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 
 Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)
 
-<pre><code>NON-ANTICIPATING (lossless)           PEEKING SCHEDULER (selection bias)
-
-draft:  [t1]..[tk-1] [tk] [tk+1]      draft:  [t1]..[tk-1] [tk] [tk+1]
-              |       ?                             |        ?     |
-verify tk? ---+                       verify tk? ---+              |
-uses prefix 1..k-1 only                  ... but also the score of tk+1,
-                                         which was computed FROM tk
-decision independent of tk               admission of tk depends on tk itself
-=&gt; output distribution preserved      =&gt; output distribution shifts</code></pre>
-<figcaption><strong>Figure 8 (mock).</strong> Peeking at the token at k+1.</figcaption>
+<figure>
+<iframe src="../figures/figure8_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of non-anticipating and peeking schedulers"></iframe>
+</figure>
+<figcaption><strong>Figure 8.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
 
 DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:
 
