@@ -133,12 +133,10 @@ Unlike the previous models that optimize the draft mechanism, **DSpark** ([DeepS
 - A lightweight sequential head restores dependencies inside the block, so later positions can condition on earlier ones.
 - A confidence head estimates how likely each draft prefix is to survive verification, and a load-aware scheduler sets the verification length per request, based on the estimated survival probability and the engine's throughput profile.
 
-<pre><code>DFLASH draft              DSPARK draft
-[t1|t2|t3|t4|t5]          [t1|t2|t3|t4|t5]   &lt;- sequential head: positions chained
-all sent to verify        c: .9 .8 .7 .3 .2  &lt;- confidence head scores
-                          [t1|t2|t3]  t4 t5  &lt;- low-score tail dropped, saves
-                                                 verification capacity</code></pre>
-<figcaption><strong>Figure 4 (mock).</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
+<figure class="wide">
+<iframe src="../figures/figure4_chalk.html" style="width:100%;height:620px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
+</figure>
+<figcaption><strong>Figure 4.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
 
 Consequently, DSpark cuts verification time. Offline, DSpark improves accepted length by 16–31% over state-of-the-art drafters. Deployed in the DeepSeek-V4 production serving stack, it accelerates per-user generation by 60–85% at matched throughput over the MTP-1 production baseline ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)). DeepSeek open-sourced the DSpark checkpoints together with DeepSpec, an open-source training repository for speculative decoding.
 
