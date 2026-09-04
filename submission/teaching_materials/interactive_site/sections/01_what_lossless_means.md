@@ -181,11 +181,11 @@ With all 4 models introduced, the race can now run in full comparison. See Figur
 <tr><td>EAGLE-3</td><td><span class="num">2.66</span></td><td>6.5x</td><td>SGLang, vLLM</td><td>Llama, Qwen, DeepSeek V3, Kimi K2.5</td></tr>
 <tr><td>DFlash</td><td><span class="num">3.11</span></td><td>&gt;6x</td><td>SGLang, vLLM, TRT-LLM, llama.cpp</td><td>Meta, Poolside, NVIDIA, Xiaomi</td></tr>
 <tr><td>DSpark</td><td><span class="num">3.72</span></td><td>60–85% vs MTP-1</td><td>DeepSeek-V4 stack</td><td>GLM-5.2, Kimi K3 (RedHat)</td></tr>
-<tr><td>DFlash 2</td><td>(to be measured)</td><td>2.7–3.4x</td><td>SGLang, vLLM, llama.cpp, Ollama</td><td>Qwen3.8-27B, Muse Glimmer</td></tr>
+<tr><td>DFlash 2</td><td><span class="num">~3.76</span> (+21% vs DFlash, reported)</td><td>2.7–3.4x</td><td>SGLang, vLLM, llama.cpp, Ollama</td><td>Qwen3.8-27B, Muse Glimmer</td></tr>
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 2 (mock). The four models at a glance.</strong></figcaption>
+<figcaption><strong>Table 2.</strong> The four models at a glance.</figcaption>
 
 All four models are in production today. Since March 2025, EAGLE-3 draft heads ship for Llama, Qwen, and DeepSeek V3. By spring 2026, DFlash was integrated into SGLang, vLLM, TensorRT-LLM, and llama.cpp, and NVIDIA reported up to 15x throughput with it on Blackwell GPUs ([NVIDIA, 2026](https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/)). DFlash alone has been downloaded more than 3.5 million times in seven months. By mid-2026, model builders release official drafters alongside the models themselves: Meta, Poolside, and NVIDIA for DFlash ([Inco, 2026](https://inco.ai/blog/dflash2/)), Red Hat for DSpark ([RedHatAI, 2026](https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview)), and in July 2026, Kimi K3 shipped with its own speculator, trained during post-training ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). See Table 2.
 
