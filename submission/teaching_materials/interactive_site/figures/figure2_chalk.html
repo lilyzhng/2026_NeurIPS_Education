@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure 2 — Vanilla speculative decoding vs EAGLE-3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --chalk:#DFDBCE;
+  --chalk-dim:rgba(223,219,206,.55);
+  --chalk-faint:rgba(223,219,206,.32);
+  --board:#33443C;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
+.wrap{max-width:1000px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px}
+.slate{
+  font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:28px 32px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.secttl{
+  font-size:1.35rem;font-weight:700;letter-spacing:.14em;color:var(--chalk);
+  margin:0 0 14px;
+}
+.cols{display:grid;grid-template-columns:1fr 1.35fr;gap:20px;align-items:start}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.pane{
+  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;padding:15px 17px;
+}
+.pane.a{transform:rotate(-0.3deg)}
+.pane.b{transform:rotate(0.25deg)}
+.panettl{font-size:1.2rem;font-weight:700;letter-spacing:.1em;color:var(--chalk-dim);margin-bottom:12px}
+.el{opacity:0;transition:opacity .45s}
+.el.show{opacity:1}
+.box{
+  border:1.7px solid rgba(223,219,206,.75);border-radius:11px 9px 12px 8px;
+  padding:9px 14px;font-size:1.2rem;font-weight:700;display:inline-block;
+  background:rgba(223,219,206,.05);
+}
+.box.sm{font-size:1.1rem;padding:6px 12px;font-weight:400}
+.note{font-size:1.05rem;color:var(--chalk-dim)}
+.arrow{font-size:1.3rem;color:var(--chalk-dim);padding:0 4px}
+.down{font-size:1.3rem;color:var(--chalk-dim);display:block;text-align:center;margin:4px 0}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.stack{display:flex;flex-direction:column;gap:7px}
+.feats{display:flex;flex-direction:column;gap:6px}
+.outer{
+  border:1.7px solid rgba(223,219,206,.6);border-radius:12px;padding:13px 15px;
+  margin-bottom:8px;
+}
+.outerttl{font-size:1.1rem;color:var(--chalk-dim);letter-spacing:.08em;margin-bottom:10px}
+.center{text-align:center}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{
+  border:1.7px solid rgba(223,219,206,.75);border-radius:10px 8px 11px 7px;
+  padding:4px 13px;font-size:1.2rem;font-weight:700;color:var(--chalk);
+  background:rgba(223,219,206,.05);opacity:0;transition:opacity .35s,border-color .35s,color .35s;
+}
+.chip:nth-child(odd){transform:rotate(-1deg)}
+.chip:nth-child(even){transform:rotate(.8deg)}
+.chip.show{opacity:1}
+.chip.bad{
+  border-style:dashed;border-color:var(--chalk-faint);color:var(--chalk-faint);
+  text-decoration:line-through;
+}
+.rule{border:0;border-top:1.5px dashed rgba(223,219,206,.3);margin:24px 0 20px}
+.trow{
+  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;padding:14px 16px;margin-bottom:12px;
+}
+.trow.w1{transform:rotate(-0.2deg)}
+.trow.w2{transform:rotate(0.2deg)}
+.tlabel{font-size:1.25rem;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
+.tline{font-size:1.1rem;color:var(--chalk-dim);line-height:1.5}
+.verdict{font-size:1.15rem;font-weight:700;margin-top:6px}
+.controls{display:flex;justify-content:flex-end;margin-top:12px}
+.replay{
+  font-family:'Amatic SC',cursive;font-size:1.2rem;font-weight:700;
+  color:#5A5750;background:none;border:1.7px solid rgba(90,87,80,.5);
+  border-radius:10px 8px 11px 7px;padding:4px 16px;cursor:pointer;transform:rotate(-0.6deg);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.replay:hover{background:rgba(90,87,80,.07);border-color:rgba(90,87,80,.8);color:#3B3934}
+.replay:active{transform:rotate(-0.6deg) scale(.97)}
+.replay:focus-visible{outline:2px solid rgba(90,87,80,.6);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .pane,.trow,.chip{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board"><div class="slate">
+
+    <div class="cols">
+      <div class="pane a">
+        <div class="panettl">VANILLA SPEC DECODING (2023)</div>
+        <div class="stack">
+          <span class="el box" data-t="0.4">Draft LLM<br><span class="note">separate small model</span></span>
+          <span class="el" data-t="1.1"><span class="note">guesses from scratch</span> <span class="arrow">&rarr;</span></span>
+          <span class="el box sm" data-t="1.6">[draft tokens]</span>
+          <span class="el down" data-t="2.2">&darr;</span>
+          <span class="el box sm" data-t="2.6">[target verifies]</span>
+        </div>
+      </div>
+
+      <div class="pane b">
+        <div class="panettl">EAGLE-3</div>
+        <div class="el outer" data-t="3.3">
+          <div class="outerttl">TARGET MODEL</div>
+          <div class="flow">
+            <span class="feats">
+              <span class="el box sm" data-t="3.7">low</span>
+              <span class="el box sm" data-t="4.0">mid</span>
+              <span class="el box sm" data-t="4.3">high</span>
+            </span>
+            <span class="el arrow" data-t="4.6">&rarr;</span>
+            <span class="el box" data-t="4.9">Fuse &rarr; Draft Layer</span>
+          </div>
+          <span class="el down" data-t="5.5">&darr;</span>
+          <div class="center"><span class="el box sm" data-t="5.8">Target LM Head</span></div>
+          <span class="el down" data-t="6.3">&darr;</span>
+          <div class="center"><span class="el box sm" data-t="6.6">[draft tokens]</span></div>
+        </div>
+        <div class="el note center" data-t="7.1">draft reuses target features</div>
+      </div>
+    </div>
+
+    <hr class="rule">
+
+    <div class="secttl">TRAINING-TIME TEST</div>
+
+    <div class="el trow w1" data-t="7.9">
+      <div class="tlabel">without</div>
+      <div class="tline">training teaches step 1 only. at step 2 the draft consumes its own step-1 output, a distribution it never saw</div>
+      <div class="chips" id="chipsBad"></div>
+      <div class="el verdict" data-t="10.2">&rarr; acceptance collapses</div>
+    </div>
+
+    <div class="el trow w2" data-t="10.9">
+      <div class="tlabel">with</div>
+      <div class="tline">during training the draft unrolls several steps and consumes its own outputs &rarr; training distribution = inference distribution</div>
+      <div class="chips" id="chipsOk"></div>
+      <div class="el verdict" data-t="13.2">&rarr; more data, longer acceptance</div>
+    </div>
+
+  </div></div>
+
+  <div class="controls">
+    <button class="replay" id="replay" type="button">&#8635; replay</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var END = 13.9;
+
+  // timed elements declared inline via data-t
+  var timed = Array.prototype.slice.call(document.querySelectorAll('.el[data-t]'))
+    .map(function(el){ return { el: el, t: parseFloat(el.dataset.t) }; });
+
+  // token chips: without-unrolling collapses after t1; with-unrolling holds
+  var badSpec = [
+    {w:'t1 ok', t:8.6, bad:false},
+    {w:'t2 \u2715', t:9.2, bad:true},
+    {w:'t3 \u2715', t:9.7, bad:true}
+  ];
+  var okSpec = [
+    {w:'t1 ok', t:11.6, bad:false},
+    {w:'t2 ok', t:12.1, bad:false},
+    {w:'t3 ok', t:12.6, bad:false}
+  ];
+
+  function buildChips(hostId, spec){
+    var host = document.getElementById(hostId), out = [];
+    spec.forEach(function(s){
+      var c = document.createElement('span');
+      c.className = 'chip' + (s.bad ? ' bad' : '');
+      c.textContent = s.w;
+      host.appendChild(c);
+      out.push({ el: c, t: s.t });
+    });
+    return out;
+  }
+  var badChips = buildChips('chipsBad', badSpec);
+  var okChips  = buildChips('chipsOk', okSpec);
+
+  function paint(t){
+    timed.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    badChips.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    okChips.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+  }
+
+  var t0 = performance.now(), raf = null;
+
+  function tick(){
+    var t = (performance.now() - t0) / 1000;
+    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if (raf) cancelAnimationFrame(raf);
+    t0 = performance.now();
+    paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+})();
+</script>
+</body>
+</html>

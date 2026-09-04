@@ -96,31 +96,10 @@ Earlier EAGLE models do not improve acceptance length with more training data. T
 
 **EAGLE-3** ([Li et al., 2025](https://arxiv.org/abs/2503.01840)) addresses this with a less-is-more training objective: it drops feature prediction and predicts the token directly, with features fused from low, middle, and high target layers instead of the top layer only. However, this introduces a new problem: at inference, the draft consumes its own outputs, which drift away from the training distribution, and acceptance collapses from the second step on. EAGLE-3 fixes this with training-time test: during training, the draft unrolls several steps and consumes its own outputs, so the distribution it trains on is the distribution it sees at inference.
 
-<pre><code>VANILLA SPEC DECODING (2023)          EAGLE-3
-+------------+                        +- Target model ----------------+
-| Draft LLM   guesses from scratch    |  low  -&gt;                      |
-| (separate   ---&gt; [draft tokens]     |  mid  ---&gt; Fuse -&gt; Draft      |
-|  small                              |  high -&gt;          Layer       |
-|  model)                             |                 |             |
-+------------+                        |         Target LM Head        |
-      v                               |                 |             |
-[Target verifies]                     |         [draft tokens]        |
-                                      +-------------------------------+
-                                        draft reuses target features
-
-TRAINING-TIME TEST
-+----------------------------------------------------------------------+
-| without:  training teaches step 1 only.                              |
-|           at step 2 the draft consumes its own step-1 output,        |
-|           a distribution it never saw -&gt; acceptance collapses        |
-|           [t1 ok] [t2 x] [t3 x] ...                                  |
-|                                                                      |
-| with:     during training the draft unrolls several steps and        |
-|           consumes its own outputs -&gt; training distribution =        |
-|           inference distribution -&gt; more data, longer acceptance     |
-|           [t1 ok] [t2 ok] [t3 ok] ...                                |
-+----------------------------------------------------------------------+</code></pre>
-<figcaption><strong>Figure 2 (mock).</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's own hidden features and LM head.</figcaption>
+<figure class="wide">
+<iframe src="../figures/figure2_chalk.html" style="width:100%;height:620px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of vanilla speculative decoding and EAGLE-3"></iframe>
+</figure>
+<figcaption><strong>Figure 2.</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's hidden features and LM head.</figcaption>
 
 The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6.5x over vanilla decoding, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.
 
