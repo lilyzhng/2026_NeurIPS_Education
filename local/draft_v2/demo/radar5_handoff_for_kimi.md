@@ -1,58 +1,65 @@
-# Radar Figure 10 update task (for Kimi) — 3 axes → 5 axes
+# Figure 10 radar update (for Kimi) — replace placeholder values with measured data
 
-Update the LosslessBench Figure 10 radar from 3 axes to 5, and replace its
-caption. Same visual language as before (you built the current version):
-arm A dark green solid markers, arm B pink open markers, domain name with
-green value / gray slash / pink value beneath, light polygon grid, legend at
-bottom. Grid becomes a pentagon (5 axes).
+The live Figure 10 (5-axis radar, independently scaled axes) carries placeholder
+values on two axes. Replace them with the measured numbers from today's runs.
+Keep everything else about the figure exactly as is (your visual language:
+green solid vanilla markers, pink open DFlash markers, per-axis independent
+scales, value pair under each axis label).
 
-## Files to touch
+## Files
 
-1. Figure source: `local/draft_v2/demo/fig_radar_spec_pilot.svg` (edit in place)
-2. Export PNG 2x: `local/draft_v2/figures_v4/fig_radar_spec_pilot.png` (overwrite)
-3. Copy the SVG to the site:
-   `submission/teaching_materials/interactive_site/figures/fig_radar_spec_pilot.svg`
-4. Caption: in `submission/teaching_materials/interactive_site/index.html`, find
-   the Figure 10 caption under the losslessbench section and replace it with the
-   text below.
+1. `submission/teaching_materials/interactive_site/figures/fig_radar_spec_pilot.svg`
+   (the live figure source — this is the one the site embeds)
+2. Same-name copies if you keep them in sync: `local/draft_v2/demo/fig_radar_spec_pilot.svg`,
+   `local/draft_v2/figures_v4/fig_radar_spec_pilot.png` (2x PNG export)
+3. Caption + metric bullet: `submission/teaching_materials/interactive_site/index.html`
+   (figcaption near line 635, bullet list near line 625)
 
-## New data (5 axes, this order around the pentagon)
+## Value changes (only these two axes)
 
-| axis label | vanilla Qwen3-8B (green) | + DFlash draft (pink) | metric |
+| axis | now (placeholder) | change to | source |
 |---|---|---|---|
-| Frontend Design | 54.5 | 45.5 | win rate x100, interactive judge, n=11 |
-| Creative Writing | 70 | 30 | win rate x100, EQ-Bench judge, n=10 |
-| Guardrail | 80 | 80 | accuracy vs gold, n=10 |
-| Agent Workflow | 20 | 30 | tau3-bench retail pass rate x100, n=10 |
-| Coding | 0 | 0 | Terminal-Bench pass rate x100, n=10 |
+| Coding | 80 / 80 | **0 / 0** | Terminal-Bench pass rate, 10 tasks, both arms 0 |
+| Agentic | 73 / 71 | **61.3 / 82.3** | tau3 retail action match rate (paired_ab: 38/62 vs 51/62) |
 
-Coding axis: draw both markers AT the center (value 0), do NOT omit the axis,
-do NOT grey it out, no asterisk, no footnote — the caption carries the
-explanation.
+Frontend 54.5/45.5, Creative 70/30, Guardrail 80/80 stay unchanged.
 
-## New caption (replace the existing Figure 10 caption verbatim)
+Coding axis rendering: both markers at the axis origin (0). Keep the axis and
+its label. No asterisk, no footnote, no greying — the caption explains it.
+Rescale that axis's ring labels sensibly for a 0 value (or keep the scale and
+just plot at center).
 
-Figure 10. Five-domain LosslessBench pilot: vanilla Qwen3-8B (green) vs the
-same model with a DFlash draft (pink). Frontend and creative report win rate
-x100 (interactive judge, n=11; EQ-Bench judge, n=10); guardrail reports label
-accuracy (n=10); agent reports tau3-bench retail pass rate x100 (n=10,
-official environment reward); coding reports Terminal-Bench pass rate x100
-(n=10). Both arms score 0 on coding: Qwen3-8B sits below Terminal-Bench's
-task floor, so this axis detects no quality difference at 8B scale — lossless
-verification requires a model inside the benchmark's measurement range, and
-this axis is scheduled for a retest with a stronger target model. At n≈10 per
-axis, single-task swings are within noise.
+## Metric bullet fix (index.html ~line 629)
+
+Change:
+    <li>Coding: Terminal-Bench pass rate.</li>
+to:
+    <li>Coding: Terminal-Bench pass rate (10 tasks).</li>
+
+(Agent bullet already says action match rate — correct, leave it.)
+
+## New caption (replace the figcaption near line 635 verbatim)
+
+<figcaption><strong>Figure 10.</strong> Qwen3-8B with vs without speculative
+decoding on LosslessBench. Axes are independently scaled, so each domain's
+relative gap is visible. Coding reads 0 / 0: both arms fail all 10
+Terminal-Bench tasks — Qwen3-8B sits below this benchmark's task floor, so the
+axis detects no quality difference at 8B scale and is scheduled for a retest
+with a stronger target model. On the agentic axis the DFlash arm follows the
+gold action sequence more closely (82.3% vs 61.3%); at n=10 per domain,
+single-task swings are within noise.</figcaption>
 
 ## Verify locally, do NOT deploy
 
-Serve `submission/teaching_materials/interactive_site/` locally (e.g.
-`python3 -m http.server 8902` in that dir), check #losslessbench renders the
-new figure + caption, and hand the preview URL to Lily. No vercel deploy —
-Lily reviews first.
+Serve `submission/teaching_materials/interactive_site/` (e.g.
+`python3 -m http.server 8902` in that dir), open
+http://127.0.0.1:8902/#losslessbench, confirm figure + caption, hand the URL
+to Lily. She reviews before any vercel deploy.
 
-## Data provenance (if you want to check the numbers)
+## Data provenance
 
-- Agent: `local/draft_v2/data/4_6_radar_pilot/agent_results/win_counts.json`
-  (vanilla 2/10, dflash 3/10; both-fail-scores-zero rule, JUDGING.md 2026-09-03)
 - Coding: `local/draft_v2/data/4_6_radar_pilot/coding_results/win_counts.json`
-  (0/10 both arms, half clean fails half 45-min agent timeouts)
+- Agentic action match: `python -m tau2.metrics.paired_ab` over
+  `agent_results/{vanilla,dflash}_results.json` (arm_a 38/62 = 61.3%,
+  arm_b 51/62 = 82.3%); pass counts 2/10 vs 3/10 are in
+  `agent_results/win_counts.json`
