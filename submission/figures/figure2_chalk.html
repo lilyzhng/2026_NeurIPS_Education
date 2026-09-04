@@ -13,16 +13,17 @@
   --chalk:#DFDBCE;
   --chalk-dim:rgba(223,219,206,.55);
   --chalk-faint:rgba(223,219,206,.32);
-  --board:#33443C;
+  --board:#12291d;
   --frame:#7A5230;
 }
 *{box-sizing:border-box}
-body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
-.wrap{max-width:1000px;margin:0 auto}
-.board{background:var(--frame);border-radius:16px;padding:12px}
+html{zoom:0.8}
+body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
+.wrap{max-width:940px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
 .slate{
-  font-family:'Amatic SC',cursive;
-  border-radius:10px;padding:28px 32px;color:var(--chalk);
+  position:relative;font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
     radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
@@ -83,16 +84,21 @@ body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
 .tlabel{font-size:1.25rem;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
 .tline{font-size:1.1rem;color:var(--chalk-dim);line-height:1.5}
 .verdict{font-size:1.15rem;font-weight:700;margin-top:6px}
-.controls{display:flex;justify-content:flex-end;margin-top:12px}
 .replay{
-  font-family:'Amatic SC',cursive;font-size:1.2rem;font-weight:700;
-  color:#5A5750;background:none;border:1.7px solid rgba(90,87,80,.5);
-  border-radius:10px 8px 11px 7px;padding:4px 16px;cursor:pointer;transform:rotate(-0.6deg);
-  transition:background .15s,border-color .15s,color .15s;
+  position:absolute;bottom:18px;right:28px;z-index:2;
+  display:flex;align-items:center;gap:9px;
+  background:none;border:none;cursor:pointer;padding:0;
+  opacity:0;pointer-events:none;transition:opacity .3s;
 }
-.replay:hover{background:rgba(90,87,80,.07);border-color:rgba(90,87,80,.8);color:#3B3934}
-.replay:active{transform:rotate(-0.6deg) scale(.97)}
-.replay:focus-visible{outline:2px solid rgba(90,87,80,.6);outline-offset:3px}
+.replay svg{display:block}
+.replay .eraser{
+  width:34px;height:17px;border-radius:3px;flex:none;
+  background:linear-gradient(#e9e7e2 0%, #cfccc5 58%, #57544d 59%, #45423c 100%);
+  box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.replay.show{opacity:1;pointer-events:auto}
+.replay:hover .eraser{filter:brightness(1.08)}
+.replay:focus-visible{outline:2px solid rgba(223,219,206,.6);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){
   *{transition-duration:.01ms!important}
   .pane,.trow,.chip{transform:none!important}
@@ -102,6 +108,7 @@ body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
 <body>
 <div class="wrap">
   <div class="board"><div class="slate">
+    <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M19.2 12.3 A7.2 7.2 0 1 1 16.6 6.1" stroke="#DFDBCE" stroke-width="2" stroke-linecap="round"/><path d="M16.4 3.2 L16.6 6.3 L19.5 7.1" stroke="#DFDBCE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="eraser"></span></button>
 
     <div class="cols">
       <div class="pane a">
@@ -156,10 +163,6 @@ body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
     </div>
 
   </div></div>
-
-  <div class="controls">
-    <button class="replay" id="replay" type="button">&#8635; replay</button>
-  </div>
 </div>
 
 <script>
@@ -202,11 +205,12 @@ body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
     okChips.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
   }
 
+  var replay = document.getElementById('replay');
   var t0 = performance.now(), raf = null;
 
   function tick(){
     var t = (performance.now() - t0) / 1000;
-    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    if (t >= END){ paint(END); raf = null; replay.classList.add('show'); return; }
     paint(t);
     raf = requestAnimationFrame(tick);
   }
@@ -215,10 +219,11 @@ body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
     if (raf) cancelAnimationFrame(raf);
     t0 = performance.now();
     paint(0);
+    replay.classList.remove('show');
     raf = requestAnimationFrame(tick);
   }
 
-  document.getElementById('replay').addEventListener('click', play);
+  replay.addEventListener('click', play);
   play();
 })();
 </script>
