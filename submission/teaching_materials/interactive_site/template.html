@@ -188,6 +188,30 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       padding: 0.6rem 1.25rem 0.6rem 0;
       text-align: left; vertical-align: top; border-bottom: 1px solid var(--line);
     }
+
+    .glossary-term {
+      position: relative; display: inline; padding: 0; border: 0;
+      font: inherit; color: inherit; background: none; cursor: help;
+      text-decoration: underline dotted 1.5px; text-underline-offset: 0.18em;
+      text-decoration-color: #1f5c3d;
+    }
+    .glossary-term:focus-visible { outline: 2px solid #1f5c3d; outline-offset: 3px; border-radius: 2px; }
+    .glossary-tooltip {
+      position: absolute; z-index: 10; left: 50%; bottom: calc(100% + 0.65rem);
+      width: min(18rem, calc(100vw - 2.5rem)); padding: 0.7rem 0.8rem;
+      transform: translateX(-50%); border: 1px solid rgba(31,92,61,.3); border-radius: 7px;
+      background: #183b29; color: #f5f3eb; box-shadow: 0 8px 22px rgba(0,0,0,.16);
+      font: 500 0.82rem/1.4 var(--sans); letter-spacing: 0; text-align: left;
+      opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s ease, visibility .15s ease;
+    }
+    .glossary-tooltip::after {
+      content: ''; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px;
+      background: #183b29; border-right: 1px solid rgba(31,92,61,.3); border-bottom: 1px solid rgba(31,92,61,.3);
+      transform: translateX(-50%) rotate(45deg);
+    }
+    .glossary-term:hover .glossary-tooltip,
+    .glossary-term:focus .glossary-tooltip,
+    .glossary-term.is-open .glossary-tooltip { opacity: 1; visibility: visible; }
     th { font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line-strong); font-size: 1.05rem; letter-spacing: 0.02em; }
     tbody tr:last-child td { border-bottom: 1px solid var(--line-strong); }
     td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
@@ -322,6 +346,36 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 </script>
 
 <script src="sptc-code.js"></script>
+
+<script>
+  // Glossary terms: hover/focus on desktop; tap to toggle on touch devices.
+  (function () {
+    const terms = [...document.querySelectorAll('.glossary-term')];
+    function closeAll(except) {
+      terms.forEach(term => {
+        if (term === except) return;
+        term.classList.remove('is-open');
+        term.setAttribute('aria-expanded', 'false');
+      });
+    }
+    terms.forEach(term => {
+      term.addEventListener('click', function (event) {
+        event.stopPropagation();
+        const open = !term.classList.contains('is-open');
+        closeAll(term);
+        term.classList.toggle('is-open', open);
+        term.setAttribute('aria-expanded', String(open));
+      });
+      term.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
+        term.classList.remove('is-open');
+        term.setAttribute('aria-expanded', 'false');
+        term.blur();
+      });
+    });
+    document.addEventListener('click', function () { closeAll(); });
+  })();
+</script>
 
 <script>
   // Auto-size iframes whose embedded page posts {chalkHeight, chalkSrc}
