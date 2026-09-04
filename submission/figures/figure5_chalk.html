@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure 5 — Independent top-1 vs path selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --chalk:#DFDBCE;
+  --chalk-dim:rgba(223,219,206,.55);
+  --chalk-faint:rgba(223,219,206,.32);
+  --board:#33443C;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
+.wrap{max-width:1020px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px}
+.slate{
+  font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:28px 32px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.cols{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.pane{border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;padding:15px 17px;display:flex;flex-direction:column}
+.pane.a{transform:rotate(-0.3deg)}
+.pane.b{transform:rotate(0.25deg)}
+.panettl{font-size:1.25rem;font-weight:700;letter-spacing:.09em;color:var(--chalk);margin-bottom:12px}
+.el{opacity:0;transition:opacity .45s}
+.el.show{opacity:1}
+.posrow{display:flex;gap:8px;font-size:1.05rem;color:var(--chalk-dim);margin-bottom:4px;padding-left:2px}
+.posrow span{width:54px;text-align:center}
+.tokrow{display:flex;gap:8px;margin-bottom:2px}
+.tok{
+  width:54px;text-align:center;
+  border:1.7px solid rgba(223,219,206,.75);border-radius:10px 8px 11px 7px;
+  padding:4px 0;font-size:1.2rem;font-weight:700;color:var(--chalk);
+  background:rgba(223,219,206,.05);
+  opacity:0;transition:opacity .35s,border-color .35s,color .35s;
+}
+.tok:nth-child(odd){transform:rotate(-1deg)}
+.tok:nth-child(even){transform:rotate(.8deg)}
+.tok.show{opacity:1}
+.tok.faded{border-color:var(--chalk-faint);color:var(--chalk-faint);border-style:dashed}
+.tok.chosen{border-color:rgba(223,219,206,.95);background:rgba(223,219,206,.13)}
+.linkrow{position:relative;height:16px;margin:0 0 2px}
+.link{
+  position:absolute;top:7px;height:0;border-top:1.7px dashed rgba(223,219,206,.7);
+  opacity:0;transition:opacity .35s;
+}
+.branch{
+  font-size:1.05rem;color:var(--chalk-dim);padding-left:34px;margin-top:-2px;
+}
+.note{font-size:1.08rem;color:var(--chalk-dim);line-height:1.45;margin-top:10px}
+.annot{font-size:1.02rem;color:var(--chalk-dim)}
+.rule{border:0;border-top:1.5px dashed rgba(223,219,206,.3);margin:22px 0 18px}
+.acc{margin-top:auto;padding-top:14px}
+.acclbl{font-size:1.1rem;color:var(--chalk-dim);letter-spacing:.08em;margin-bottom:6px}
+.curvewrap{display:flex;align-items:flex-end;gap:10px}
+svg{overflow:visible}
+.curve{
+  fill:none;stroke:rgba(223,219,206,.85);stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset 1.4s linear;
+}
+.curve.draw{stroke-dashoffset:0}
+.axisline{stroke:rgba(223,219,206,.4);stroke-width:1.6}
+.axistxt{font-size:13px;fill:rgba(223,219,206,.5);font-family:'Amatic SC',cursive}
+.controls{display:flex;justify-content:flex-end;margin-top:12px}
+.replay{
+  font-family:'Amatic SC',cursive;font-size:1.2rem;font-weight:700;
+  color:#5A5750;background:none;border:1.7px solid rgba(90,87,80,.5);
+  border-radius:10px 8px 11px 7px;padding:4px 16px;cursor:pointer;transform:rotate(-0.6deg);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.replay:hover{background:rgba(90,87,80,.07);border-color:rgba(90,87,80,.8);color:#3B3934}
+.replay:active{transform:rotate(-0.6deg) scale(.97)}
+.replay:focus-visible{outline:2px solid rgba(90,87,80,.6);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .pane,.tok{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board"><div class="slate">
+    <div class="cols">
+
+      <!-- LEFT: independent top-1 -->
+      <div class="pane a">
+        <div class="panettl">INDEPENDENT TOP-1 (DFLASH)</div>
+        <div class="el posrow" data-t="0.4"><span>pos 1</span><span>2</span><span>3</span><span>4</span></div>
+        <div class="tokrow" id="rowA"></div>
+        <div class="el note" data-t="2.6">scored, each position picks alone,<br>the sequence may not connect</div>
+        <div class="acc">
+          <div class="el acclbl" data-t="7.6">acceptance</div>
+          <div class="curvewrap">
+            <svg width="190" height="76" viewBox="0 0 190 76" aria-label="acceptance sags toward later positions">
+              <line class="axisline" x1="10" y1="66" x2="180" y2="66"/>
+              <line class="axisline" x1="10" y1="8" x2="10" y2="66"/>
+              <path id="curveA" class="curve" d="M14,16 L52,18 L86,24 L112,40 L140,56 L176,62"/>
+              <text class="axistxt" x="176" y="76" text-anchor="end">pos</text>
+            </svg>
+            <span class="el annot" data-t="9.4">&larr; tail sags</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: path selection -->
+      <div class="pane b">
+        <div class="panettl">PATH SELECTION (DFLASH 2)</div>
+        <div class="el posrow" data-t="3.4"><span>pos 1</span><span>2</span><span>3</span><span>4</span></div>
+        <div class="tokrow" id="rowB1"></div>
+        <div class="linkrow" id="linksB"></div>
+        <div class="tokrow" id="rowB2" style="padding-left:62px"></div>
+        <div class="el annot" data-t="5.4" style="padding-left:62px">&larr; adjacent pairs</div>
+        <div class="el note" data-t="6.6">one coherent path chosen</div>
+        <div class="acc">
+          <div class="el acclbl" data-t="7.6">acceptance</div>
+          <div class="curvewrap">
+            <svg width="190" height="76" viewBox="0 0 190 76" aria-label="acceptance holds longer before dipping">
+              <line class="axisline" x1="10" y1="66" x2="180" y2="66"/>
+              <line class="axisline" x1="10" y1="8" x2="10" y2="66"/>
+              <path id="curveB" class="curve" d="M14,16 L54,17 L92,19 L124,23 L152,34 L176,50"/>
+              <text class="axistxt" x="176" y="76" text-anchor="end">pos</text>
+            </svg>
+            <span class="el annot" data-t="9.4">&larr; local conv lifts the tail</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div></div>
+
+  <div class="controls">
+    <button class="replay" id="replay" type="button">&#8635; replay</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var END = 10.6;
+
+  // ---- build token rows ----
+  function mkRow(hostId, labels, baseT, gap){
+    var host = document.getElementById(hostId), out = [];
+    labels.forEach(function(w, i){
+      var s = document.createElement('span');
+      s.className = 'tok'; s.textContent = '[' + w + ']';
+      host.appendChild(s);
+      out.push({ el: s, t: baseT + i * gap });
+    });
+    return out;
+  }
+
+  // left: each position picks alone — [a][x][c][d], x is the incoherent pick
+  var rowA = mkRow('rowA', ['a','x','c','d'], 0.9, 0.35);
+
+  // right: top row a-b-c-d, second row the alternative branch x-c-d
+  var rowB1 = mkRow('rowB1', ['a','b','c','d'], 3.8, 0.28);
+  var rowB2 = mkRow('rowB2', ['x','c','d'], 4.6, 0.28);
+
+  // ---- chalk links between adjacent pairs (drawn over the gaps) ----
+  var linksHost = document.getElementById('linksB');
+  var linkSpecs = [
+    { left: 54,  width: 8,  t: 5.0 },
+    { left: 116, width: 8,  t: 5.15 },
+    { left: 178, width: 8,  t: 5.3 }
+  ];
+  var links = linkSpecs.map(function(spec){
+    var d = document.createElement('span');
+    d.className = 'link';
+    d.style.left = spec.left + 'px';
+    d.style.width = spec.width + 'px';
+    linksHost.appendChild(d);
+    return { el: d, t: spec.t };
+  });
+
+  // ---- prep the acceptance curves for stroke-draw ----
+  ['curveA','curveB'].forEach(function(id){
+    var p = document.getElementById(id);
+    var len = p.getTotalLength ? p.getTotalLength() : 200;
+    p.style.setProperty('--len', len);
+  });
+  var curveA = document.getElementById('curveA'), curveB = document.getElementById('curveB');
+
+  var timed = Array.prototype.slice.call(document.querySelectorAll('.el[data-t]'))
+    .map(function(el){ return { el: el, t: parseFloat(el.dataset.t) }; });
+
+  function paint(t){
+    timed.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+
+    rowA.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    rowB1.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    rowB2.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    links.forEach(function(o){ o.el.style.opacity = t >= o.t ? '1' : '0'; });
+
+    // left: the lone pick at pos 2 is the one that doesn't connect
+    rowA[1].el.classList.toggle('faded', t >= 2.4);
+
+    // right: the chosen coherent path lights, the alternative dims
+    var chosen = t >= 6.2;
+    rowB1.forEach(function(o){ o.el.classList.toggle('chosen', chosen); });
+    rowB2.forEach(function(o){ o.el.classList.toggle('faded', chosen); });
+
+    // acceptance curves draw themselves in
+    curveA.classList.toggle('draw', t >= 8.0);
+    curveB.classList.toggle('draw', t >= 8.0);
+  }
+
+  var t0 = performance.now(), raf = null;
+
+  function tick(){
+    var t = (performance.now() - t0) / 1000;
+    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if (raf) cancelAnimationFrame(raf);
+    t0 = performance.now();
+    curveA.classList.remove('draw'); curveB.classList.remove('draw');
+    paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+})();
+</script>
+</body>
+</html>

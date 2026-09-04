@@ -150,18 +150,10 @@ Consequently, DSpark cuts verification time. Offline, DSpark improves accepted l
 
 **DFlash 2** ([Inco, 2026](https://inco.ai/blog/dflash2/)) addresses this decay on the draft side, with two additions to the DFlash architecture. A lightweight path selector scores adjacent token pairs and picks a coherent sequence through the top candidates at each position, instead of taking independent top-1 predictions. Two-tap local convolutions in the backbone strengthen dependencies within the block, reducing the accuracy drop toward block ends.
 
-<pre><code>   independent top-1 (DFlash)       PATH SELECTION (DFlash 2)
-   pos:   1    2    3    4          pos:   1    2    3    4
-          [a]  [x]  [c]  [d]               [a]--[b]  [c]   [d]
-                                            \_[x]--[c]--[d]  &lt;- adjacent pairs
-scored,
-each position picks alone,               one coherent path chosen
-the sequence may not connect
-
-acceptance                         acceptance
-|~~~~\__   &lt;- tail sags           |~~~~~~~\_   &lt;- local conv lifts the tail
-+--------- pos                     +--------- pos</code></pre>
-<figcaption><strong>Figure 5 (mock).</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
+<figure class="wide">
+<iframe src="../figures/figure5_chalk.html" style="width:100%;height:620px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
+</figure>
+<figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
 As we can tell, DFlash 2 raises acceptance length. The two additions produce 21% more output per verification pass than DFlash, at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
 
