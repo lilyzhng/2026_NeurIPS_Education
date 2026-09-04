@@ -120,7 +120,7 @@ Section 1 showed that a reported acceptance length is an implicit token-level di
 <figure class="plain">
 <img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
 </figure>
-<figcaption><strong>Figure 10.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence (Leviathan et al. 2023, Thm 3.5). Qwen3-8B with the z-lab DFlash-b16 draft, vLLM strict verification, temperature 1, thinking off, 5 original tasks per axis (agentic coding = Terminal-Bench 2, agentic workflow = tau2-bench); whiskers show min–max over tasks.</figcaption>
+<figcaption><strong>Figure 10.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence.</figcaption>
 
 <figure class="mid plain">
 <img src="figures/fig_radar_spec_pilot.svg" alt="Radar chart of Qwen3-8B with vs without speculative decoding across five domains on LosslessBench" />
