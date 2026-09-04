@@ -168,12 +168,12 @@ h2{
 
 <script>
 (function(){
-  var words = ['A','harness','is','the','system','surrounding','a','base','model'];
-  var PASS = 1.0, V_DONE = 9.0, S_DONE = 3.3, AXIS = 9.5, LOOP = 10.5;
-  var rounds = [{n:5, t:1.65},{n:4, t:3.3}];
+  var words = ['Happiness','can','be','found','even','in','the','darkest','of','times'];
+  var PASS = 1.0, V_DONE = 10.0, S_DONE = 3.3, AXIS = 10.5, LOOP = 11.5;
+  var rounds = [{n:5, t:1.65},{n:5, t:3.3}];
 
   var track = document.getElementById('axistrack');
-  for (var sec = 0; sec <= 9; sec++){
+  for (var sec = 0; sec <= 10; sec++){
     var x = (sec / AXIS * 100) + '%';
     var num = document.createElement('span');
     num.className = 'axisnum'; num.style.left = x; num.textContent = sec + 's';
@@ -219,8 +219,8 @@ h2{
     clockS.textContent = ts.toFixed(1) + 's';
 
     chipsV.forEach(function(c, i){ c.classList.toggle('show', t >= (i + 1) * PASS); });
-    statusV.textContent = t >= V_DONE ? '9 target passes' :
-      'target pass ' + Math.min(9, Math.floor(t / PASS) + 1) + ' of 9\u2026';
+    statusV.textContent = t >= V_DONE ? '10 target passes' :
+      'target pass ' + Math.min(10, Math.floor(t / PASS) + 1) + ' of 10\u2026';
 
     chunks.forEach(function(g, i){
       var on = t >= rounds[i].t;
