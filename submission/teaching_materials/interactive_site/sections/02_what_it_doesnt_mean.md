@@ -78,7 +78,7 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
 <figure>
-<img src="figures/fig8_openrouter_treemap.png" alt="Treemap of OpenRouter traffic by task type, showing which task types are covered by speculative-decoding benchmarks" />
+<iframe src="../figures/figure9_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated walkthrough of OpenRouter traffic by task type and speculative-decoding benchmark coverage"></iframe>
 </figure>
 <figcaption><strong>Figure 9.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
 
@@ -102,7 +102,7 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 
 The benchmarks in these papers are simple, single-turn tasks such as grade-school math and function-level coding. They capture only a narrow slice of what models are asked to do in practice, which motivates the five domains above for LosslessBench.
 
-Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement. That makes it a natural probe for the five new domains (Figure 10). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, however, acceptance falls from 5.24 to 1.84. The draft distribution drifts furthest exactly on the domains the papers never measured. Frontend design is an instructive exception: its acceptance stays high while the generated pages break (Figure 12), a reminder that acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 11 examines.
+Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement, which makes it a natural probe for the five new domains (Figure 10). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, acceptance falls from 5.24 to 1.84. The draft drifts furthest on the domains the papers never measured. Frontend design is an exception: its acceptance stays high while the generated pages break (Figure 12), because acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 11 examines.
 
 <figure class="plain">
 <img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
