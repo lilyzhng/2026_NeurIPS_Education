@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure 7 — Rejection sampling keeps the target's mix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --chalk:#DFDBCE;
+  --chalk-dim:rgba(223,219,206,.55);
+  --chalk-faint:rgba(223,219,206,.3);
+  --board:#33443C;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
+.wrap{max-width:1060px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px}
+.slate{
+  font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:26px 30px 22px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.setup{
+  font-size:1.3rem;font-weight:700;letter-spacing:.07em;color:var(--chalk);
+  margin-bottom:20px;
+}
+.setup .q{color:var(--chalk-dim);font-weight:400}
+.panels{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:820px){.panels{grid-template-columns:1fr}}
+.panel{
+  border:1.5px dashed rgba(223,219,206,.4);border-radius:12px;padding:14px 14px 10px;
+}
+.panel:nth-child(1){transform:rotate(-0.25deg)}
+.panel:nth-child(2){transform:rotate(0.2deg)}
+.panel:nth-child(3){transform:rotate(-0.15deg)}
+.ptitle{
+  font-size:1.25rem;font-weight:700;letter-spacing:.09em;text-align:center;color:var(--chalk);
+}
+.psub{
+  font-size:1.05rem;text-align:center;color:var(--chalk-dim);margin-bottom:10px;min-height:20px;
+}
+svg{display:block;width:100%;height:auto}
+.grid{stroke:rgba(223,219,206,.18);stroke-width:1}
+.axis{stroke:rgba(223,219,206,.45);stroke-width:1.6}
+.ytick{font-size:11px;fill:rgba(223,219,206,.5);font-family:'Amatic SC',cursive}
+.ylab{font-size:12px;fill:rgba(223,219,206,.45);font-family:'Amatic SC',cursive}
+.xlab{font-size:16px;fill:var(--chalk);font-family:'Amatic SC',cursive;font-weight:700}
+.val{font-size:17px;fill:var(--chalk);font-family:'Amatic SC',cursive;font-weight:700}
+.bar{fill:rgba(223,219,206,.16);stroke:rgba(223,219,206,.75);stroke-width:1.7}
+.bar.hatch{fill:url(#hatch)}
+.hatchline{stroke:rgba(223,219,206,.4);stroke-width:1.1}
+.footnote{
+  font-size:1.1rem;color:var(--chalk-dim);margin-top:16px;text-align:center;
+}
+@media(prefers-reduced-motion:reduce){.panel{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board"><div class="slate">
+
+    <div class="setup">
+      "THE BEST PET IS A ___" &middot; TEMPERATURE 1 &middot;
+      <span class="q">draft prefers dog: q = 0.2 / 0.8</span>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+          <line class="hatchline" x1="0" y1="0" x2="0" y2="7"/>
+        </pattern>
+      </defs>
+    </svg>
+
+    <div class="panels">
+
+      <div class="panel">
+        <div class="ptitle">TARGET MODEL p(x)</div>
+        <div class="psub">&nbsp;</div>
+        <svg viewBox="0 0 260 210" role="img" aria-label="Target model: cat 0.5, dog 0.5">
+          <line class="grid" x1="52" y1="30"  x2="250" y2="30"/>
+          <line class="grid" x1="52" y1="70"  x2="250" y2="70"/>
+          <line class="grid" x1="52" y1="110" x2="250" y2="110"/>
+          <line class="grid" x1="52" y1="150" x2="250" y2="150"/>
+          <text class="ytick" x="46" y="34"  text-anchor="end">1.00</text>
+          <text class="ytick" x="46" y="74"  text-anchor="end">0.75</text>
+          <text class="ytick" x="46" y="114" text-anchor="end">0.50</text>
+          <text class="ytick" x="46" y="154" text-anchor="end">0.25</text>
+          <text class="ytick" x="46" y="194" text-anchor="end">0.00</text>
+          <text class="ylab" x="16" y="115" text-anchor="middle" transform="rotate(-90 16 115)">probability of next token</text>
+          <line class="axis" x1="52" y1="30" x2="52" y2="190"/>
+          <line class="axis" x1="52" y1="190" x2="250" y2="190"/>
+          <rect class="bar" x="78"  y="110" width="60" height="80"/>
+          <rect class="bar" x="168" y="110" width="60" height="80"/>
+          <text class="val" x="108" y="102" text-anchor="middle">0.5</text>
+          <text class="val" x="198" y="102" text-anchor="middle">0.5</text>
+          <text class="xlab" x="108" y="207" text-anchor="middle">cat</text>
+          <text class="xlab" x="198" y="207" text-anchor="middle">dog</text>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle">REJECTION SAMPLING OUTPUT</div>
+        <div class="psub">(lossless)</div>
+        <svg viewBox="0 0 260 210" role="img" aria-label="Rejection sampling output: cat 0.5, dog 0.5 — matches the target">
+          <line class="grid" x1="30" y1="30"  x2="250" y2="30"/>
+          <line class="grid" x1="30" y1="70"  x2="250" y2="70"/>
+          <line class="grid" x1="30" y1="110" x2="250" y2="110"/>
+          <line class="grid" x1="30" y1="150" x2="250" y2="150"/>
+          <line class="axis" x1="30" y1="30" x2="30" y2="190"/>
+          <line class="axis" x1="30" y1="190" x2="250" y2="190"/>
+          <rect class="bar" x="66"  y="110" width="62" height="80"/>
+          <rect class="bar" x="156" y="110" width="62" height="80"/>
+          <text class="val" x="97"  y="102" text-anchor="middle">0.5</text>
+          <text class="val" x="187" y="102" text-anchor="middle">0.5</text>
+          <text class="xlab" x="97"  y="207" text-anchor="middle">cat</text>
+          <text class="xlab" x="187" y="207" text-anchor="middle">dog</text>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle">RELAXED RULE OUTPUT</div>
+        <div class="psub">(follows the draft)</div>
+        <svg viewBox="0 0 260 210" role="img" aria-label="Relaxed rule output: cat 0.2, dog 0.8 — drifted toward the draft">
+          <line class="grid" x1="30" y1="30"  x2="250" y2="30"/>
+          <line class="grid" x1="30" y1="70"  x2="250" y2="70"/>
+          <line class="grid" x1="30" y1="110" x2="250" y2="110"/>
+          <line class="grid" x1="30" y1="150" x2="250" y2="150"/>
+          <line class="axis" x1="30" y1="30" x2="30" y2="190"/>
+          <line class="axis" x1="30" y1="190" x2="250" y2="190"/>
+          <rect class="bar hatch" x="66"  y="158" width="62" height="32"/>
+          <rect class="bar hatch" x="156" y="62"  width="62" height="128"/>
+          <text class="val" x="97"  y="150" text-anchor="middle">0.2</text>
+          <text class="val" x="187" y="54"  text-anchor="middle">0.8</text>
+          <text class="xlab" x="97"  y="207" text-anchor="middle">cat</text>
+          <text class="xlab" x="187" y="207" text-anchor="middle">dog</text>
+        </svg>
+      </div>
+
+    </div>
+
+    <div class="footnote">same speed story, different distribution &mdash; the relaxed rule has moved the output toward q</div>
+
+  </div></div>
+</div>
+</body>
+</html>

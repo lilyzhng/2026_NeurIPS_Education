@@ -21,9 +21,9 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 - A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.
 
 <figure>
-<img src="figures/fig7_pet_distribution.svg" alt="Rejection sampling keeps the target's 50/50 cat-dog mix; a relaxed threshold rule shifts the output to the draft's 80/20 preference" />
+<iframe src="../figures/figure7_chalk.html" style="width:100%;height:460px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
 </figure>
-<figcaption><strong>Figure 7 (mock).</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
+<figcaption><strong>Figure 7.</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
 Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)
 
