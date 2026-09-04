@@ -8,7 +8,7 @@ Why is it faster than the vanilla model decoding? With speculative decoding, a s
 
 Today, speculative decoding runs under nearly every hosted LLM, the speed and quality of decoding affects everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model ([OpenAI, 2026](https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484)), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate ([Anthropic, 2026](https://platform.claude.com/docs/en/build-with-claude/fast-mode)), DeepSeek ships DSpark in its serving engine for a 51% throughput gain ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)), and Kimi K3 ships with its own draft model ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). It is a cornerstone topic to learn in the LLM stack.
 
-**The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this article. The content is designed progressively, each section building on the previous one:
+**The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
 
 1. What lossless means. How does speculative decoding work? Why is it lossless in theory?  
 2. What it doesn't mean. Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.  
