@@ -88,16 +88,30 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 
 ![Figure 10 radar](figures_v4/fig_radar_spec_pilot.png) 
 Figure 10.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.
+The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model. This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
+
+| behavior | vanilla Qwen3-8B | + DFlash draft |
+|---|---|---|
+| conversation | wraps early, premature submission | stays in the loop until something is executed |
+| information gathering | skips lookups and answers from assumption | verifies with tool calls before acting |
+| the final write action | discusses the exchange, ends without executing it | executes it, sometimes more than once |
+| typical failure | task left unfinished | over-acting, duplicate writes corrupt the state |
+
+**Table 5.** How the two models behave in the agentic loop (tau-bench).
+
+The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them. 
 
 <!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 11 example degradation was caused by quantization. -->
 
 ![Figure 11](figures_v4/fig16_race_demo_frontend.jpg)
 **Figure 11.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html).
 
+
+Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
+
 ![Figure 12](figures_v4/fig17_race_demo_creative.jpg)
 **Figure 12.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html).
 
-Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
 
 Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
@@ -112,19 +126,6 @@ Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSp
 Overall, DFlash wins. Fiction lives on shape and character before compliance, and DFlash is the only story that delivers a complete day, a side character you remember, and a closing image that lands. Its violations are copyedit-level fixes. EAGLE-3 and DSpark followed every rule and produced the piece you forget first.
 
 Interestingly, DFlash wrote the worst calendar page but the best story. Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
-
-The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model. This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
-
-| behavior | vanilla Qwen3-8B | + DFlash draft |
-|---|---|---|
-| conversation | wraps early, premature submission | stays in the loop until something is executed |
-| information gathering | skips lookups and answers from assumption | verifies with tool calls before acting |
-| the final write action | discusses the exchange, ends without executing it | executes it, sometimes more than once |
-| typical failure | task left unfinished | over-acting, duplicate writes corrupt the state |
-
-**Table 5.** How the two arms behave in the agentic loop (tau-bench, temperature 0). Same weights, different follow-through: the arm that persists completes more transactions.
-
-The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them. 
 
 <!-- mechanism 段暂存（2026-09-03，Lily：100-task run 出结果后再定去留）：
 The gain is not extra intelligence, and it is not speed either: the two arms share the same weights, and tau-bench has no time budget. The likely cause is the same trajectory divergence as above. Decisions like ending the thinking block or issuing one more tool call are near ties at temperature 0, the verification pass's numerics tip them, and the flip compounds over turns. With n=10 per domain this remains a hypothesis, and the larger run will test whether acceleration is behavior-neutral in agentic loops.
