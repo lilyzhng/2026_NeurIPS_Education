@@ -316,7 +316,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <div id="intro" class="section">
 
 <h2 id="introduction">Introduction</h2>
-<p><strong>Every LLM you use generates one token at a time.</strong> This is autoregressive decoding, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding, introduced in 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>), is an approach to accelerate this: a lightweight draft model proposes a short run of upcoming tokens, and the full target model verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is lossless in theory.</p>
+<p><strong>Every LLM you use generates one token at a time.</strong> This is autoregressive decoding, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding, introduced in 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>), is an approach to accelerate this: a lightweight draft model proposes the next few tokens, and the full target model verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is lossless in theory.</p>
 <p><strong>Why is it faster than the vanilla model decoding?</strong> With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single forward pass, which costs about the same as decoding one token. Speed comes from both sides: better drafts get accepted more often, and smarter verification wastes less compute on bad drafts.</p>
 <p><strong>Today, speculative decoding runs under nearly every hosted LLM</strong>, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model (<a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">OpenAI, 2026</a>), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate (<a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">Anthropic, 2026</a>), DeepSeek ships DSpark in its serving engine for a 51% throughput gain (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>), and Kimi K3 ships with its own draft model (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). It is a cornerstone topic to learn in the LLM stack.</p>
 <p>In this teaching material, we have designed content progressively. Each section builds on the previous one:</p>
@@ -364,7 +364,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
 </pre></div>
 
-<p>The above wraps up the measurement of speculative decoding speed. But how is it lossless in theory? How does it work exactly? The answer is the verification step. The target model checks every draft token against its own probabilities and accepts or rejects each one, a rule called rejection sampling. The output follows the target model's own distribution. Here is how rejection sampling works in pseudocode:</p>
+<p>The above wraps up the measurement of speculative decoding speed. But how is it lossless in theory? How does it work exactly? The answer is the verification step. The target model checks every draft token against its own probabilities and accepts or rejects each one, a rule called rejection sampling. Verifying losslessness is critical, and it was proven exactly once: as long as verification performs exact rejection sampling, the output provably follows the target model's own distribution (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al. 2023</a>, Appendix A.1). Here is how rejection sampling works in pseudocode:</p>
 <div class="sptc-py" data-lang="python"><pre>
 # p(x): target model's probability for token x
 # q(x): draft model's probability for token x
@@ -389,6 +389,16 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
                 = p(x)                       # same as the target's probability
 </pre></div>
 
+<p>From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:</p>
+<blockquote>
+<p>α = 1 − E[D_LK(p, q)]</p>
+</blockquote>
+<p>where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:</p>
+<blockquote>
+<p>τ = (1 − α^(γ+1)) / (1 − α)</p>
+</blockquote>
+<p>where γ is the number of draft tokens per verification cycle.</p>
+<p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness, and DFlash contains no explicit validation for being lossless. Then how do we know? The papers do report acceptance length. A reported τ gives the acceptance rate α, and by Theorem 3.5, α is a distributional distance. Read τ, and you are reading how far the draft's distribution sits from the target's.</p>
 <p>To summarize, speculative decoding speed comes down to three factors: <strong>(1) drafting time, (2) verification time, and (3) acceptance length.</strong> In the following section, we'll go through the state-of-the-art of model architectures and how each model improves these deciding factors.</p>
 </div>
 
@@ -616,7 +626,7 @@ decision independent of tk               admission of tk depends on tk itself
 
 <h3 id="23-introducing-lossless-bench">2.3 Introducing Lossless Bench</h3>
 <p>The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math, we built the <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>.</p>
-<p><strong><a href="https://huggingface.co/datasets/lilyzhng/lossless_bench">LosslessBench</a></strong> evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:</p>
+<p><strong><a href="https://huggingface.co/datasets/lilyzhng/lossless_bench">LosslessBench</a></strong> evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 11, each axis uses its domain's own benchmark and metric:</p>
 <ul>
 <li>Frontend: OpenDesign. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works.</li>
 <li>Creative: EQ-Bench longform score, judged over multi-chapter creative writing.</li>
@@ -624,23 +634,30 @@ decision independent of tk               admission of tk depends on tk itself
 <li>Coding: Terminal-Bench pass rate.</li>
 <li>Agent workflow: tau3-bench long-horizon agent tasks, action match rate.</li>
 </ul>
+<p>The benchmarks in these papers are simple, single-turn tasks such as grade-school math and function-level coding. They capture only a narrow slice of what models are asked to do in practice, which motivates the five domains above for LosslessBench.</p>
+<p>Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement. That makes it a natural probe for the five new domains (Figure 10). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, however, acceptance falls from 5.24 to 1.84. The draft distribution drifts furthest exactly on the domains the papers never measured. Frontend design is an instructive exception: its acceptance stays high while the generated pages break (Figure 12), a reminder that acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 11 examines.</p>
+<figure class="mid plain">
+<img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
+</figure>
+<figcaption><strong>Figure 10.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence (Leviathan et al. 2023, Thm 3.5). Qwen3-8B with the z-lab DFlash-b16 draft, vLLM strict verification, temperature 1, thinking off, 5 original tasks per axis (agentic coding = Terminal-Bench 2, agentic workflow = tau2-bench); whiskers show min–max over tasks.</figcaption>
+
 <figure class="mid plain">
 <img src="figures/fig_radar_spec_pilot.svg" alt="Radar chart of Qwen3-8B with vs without speculative decoding across five domains on LosslessBench" />
 </figure>
-<figcaption><strong>Figure 10.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
+<figcaption><strong>Figure 11.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 <figure class="wide">
 <iframe src="race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption><strong>Figure 11.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s.</figcaption>
+<figcaption><strong>Figure 12.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s.</figcaption>
 
 <figure class="wide">
 <iframe src="creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
-<figcaption><strong>Figure 12.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.</figcaption>
+<figcaption><strong>Figure 13.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s.</figcaption>
 
-<p>Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
-<p>Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
+<p>Look closely at Figure 12: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.</p>
+<p>Figure 13 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>
 <tr>

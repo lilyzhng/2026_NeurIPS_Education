@@ -78,7 +78,7 @@ So does lossless hold on the 83% domains/tasks that have never been measured?
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math,  we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 
-**[LosslessBench](https://huggingface.co/datasets/lilyzhng/lossless_bench)** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 10, each axis uses its domain's own benchmark and metric:
+**[LosslessBench](https://huggingface.co/datasets/lilyzhng/lossless_bench)** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 11, each axis uses its domain's own benchmark and metric:
 
 * Frontend: OpenDesign. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works. 
 * Creative: EQ-Bench longform score, judged over multi-chapter creative writing. 
@@ -86,8 +86,17 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 * Coding: Terminal-Bench pass rate. 
 * Agent workflow: tau-bench long-horizon agent tasks, action match rate.
 
-![Figure 10 radar](figures_v4/fig_radar_spec_pilot.png) 
-Figure 10.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.
+The benchmarks in these papers are simple, single-turn tasks such as grade-school math and function-level coding. They capture only a narrow slice of what models are asked to do in practice, which motivates the five domains above for lossless bench.
+
+
+
+Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement. That makes it a natural probe for the five new domains (Figure 10). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, however, acceptance falls from 5.24 to 1.84. The draft distribution drifts furthest exactly on the domains the papers never measured. Frontend design is an instructive exception: its acceptance stays high while the generated pages break (Figure 12), a reminder that acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 11 examines.
+
+![Figure 10](figures_v4/fig_alpha_divergence.png)
+**Figure 10.** DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Acceptance rate α = 1 − D_LK, the draft–target total variation distance ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Thm 3.5), so lower bars mean larger token-level distributional divergence. Qwen3-8B with the z-lab DFlash-b16 draft, vLLM strict verification, temperature 1, thinking off, 5 original tasks per axis (agentic coding = Terminal-Bench 2, agentic workflow = tau2-bench); whiskers show min–max over tasks.
+
+![Figure 11 radar](figures_v4/fig_radar_spec_pilot.png) 
+Figure 11.  Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.
 The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model. This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
 
 | behavior | vanilla Qwen3-8B | + DFlash draft |
@@ -101,19 +110,19 @@ The agentic workflow (tau-bench) produced the most surprising result: DFlash bea
 
 The environment rewards a completed transaction, so the model that gives up early loses tasks it could have finished, while the model that over-acts still completes some of them. 
 
-<!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 11 example degradation was caused by quantization. -->
+<!-- TODO (v5 remote, 9/2): add another before/after comparison on a speculative decoding model — the Figure 12 example degradation was caused by quantization. -->
 
-![Figure 11](figures_v4/fig16_race_demo_frontend.jpg)
-**Figure 11.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html).
-
-
-Look closely at Figure 11: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
-
-![Figure 12](figures_v4/fig17_race_demo_creative.jpg)
-**Figure 12.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html).
+![Figure 12](figures_v4/fig16_race_demo_frontend.jpg)
+**Figure 12.** The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 8.9s, DFlash 3.3s. Live version embedded on the site (demo/race_demo.html).
 
 
-Figure 12 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
+Look closely at Figure 12: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 1,282 tokens on the calendar brief, the accelerated lanes 1,127 to 1,185. DFlash finished fastest, and its calendar came out visibly broken.
+
+![Figure 13](figures_v4/fig17_race_demo_creative.jpg)
+**Figure 13.** The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 16.9s, DFlash 9.2s. Live version embedded on the site (demo/creative_race_demo.html).
+
+
+Figure 13 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
 | story | instruction following | Latin vocabulary | writing style |
 |---|---|---|---|

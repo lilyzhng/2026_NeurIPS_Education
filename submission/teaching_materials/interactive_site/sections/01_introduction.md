@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**Every LLM you use generates one token at a time.** This is autoregressive decoding, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding, introduced in 2023 ([Leviathan et al., 2023](https://arxiv.org/abs/2211.17192)), is an approach to accelerate this: a lightweight draft model proposes a short run of upcoming tokens, and the full target model verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model ([Chen et al., 2023](https://arxiv.org/abs/2302.01318)), which is why speculative decoding is lossless in theory.
+**Every LLM you use generates one token at a time.** This is autoregressive decoding, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. Speculative decoding, introduced in 2023 ([Leviathan et al., 2023](https://arxiv.org/abs/2211.17192)), is an approach to accelerate this: a lightweight draft model proposes the next few tokens, and the full target model verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model ([Chen et al., 2023](https://arxiv.org/abs/2302.01318)), which is why speculative decoding is lossless in theory.
 
 **Why is it faster than the vanilla model decoding?** With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single forward pass, which costs about the same as decoding one token. Speed comes from both sides: better drafts get accepted more often, and smarter verification wastes less compute on bad drafts.
 

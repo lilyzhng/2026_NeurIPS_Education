@@ -39,7 +39,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
 </pre></div>
 
-The above wraps up the measurement of speculative decoding speed. But how is it lossless in theory? How does it work exactly? The answer is the verification step. The target model checks every draft token against its own probabilities and accepts or rejects each one, a rule called rejection sampling. The output follows the target model's own distribution. Here is how rejection sampling works in pseudocode:
+The above wraps up the measurement of speculative decoding speed. But how is it lossless in theory? How does it work exactly? The answer is the verification step. The target model checks every draft token against its own probabilities and accepts or rejects each one, a rule called rejection sampling. Verifying losslessness is critical, and it was proven exactly once: as long as verification performs exact rejection sampling, the output provably follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Here is how rejection sampling works in pseudocode:
 
 <div class="sptc-py" data-lang="python"><pre>
 # p(x): target model's probability for token x
@@ -65,6 +65,18 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
                 = min(p(x), q(x)) + max(0, p(x) - q(x))
                 = p(x)                       # same as the target's probability
 </pre></div>
+
+From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:
+
+> α = 1 − E[D_LK(p, q)]
+
+where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:
+
+> τ = (1 − α^(γ+1)) / (1 − α)
+
+where γ is the number of draft tokens per verification cycle.
+
+Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness, and DFlash contains no explicit validation for being lossless. Then how do we know? The papers do report acceptance length. A reported τ gives the acceptance rate α, and by Theorem 3.5, α is a distributional distance. Read τ, and you are reading how far the draft's distribution sits from the target's.
 
 To summarize, speculative decoding speed comes down to three factors: **(1) drafting time, (2) verification time, and (3) acceptance length.** In the following section, we'll go through the state-of-the-art of model architectures and how each model improves these deciding factors.
 
