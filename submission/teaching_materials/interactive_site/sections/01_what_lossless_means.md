@@ -103,7 +103,7 @@ Earlier EAGLE models do not improve acceptance length with more training data. T
 
 The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6.5x over vanilla decoding, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.
 
-<u>But one bottleneck remains: the draft layer proposes tokens one at a time, so drafting itself is still sequential.</u>
+<p class="pullquote">One bottleneck remains: the draft layer still proposes tokens one at a time. Can drafting be parallel too?</p>
 
 </div>
 
