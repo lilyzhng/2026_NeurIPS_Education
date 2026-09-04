@@ -118,11 +118,11 @@ Overall, DFlash wins. Fiction lives on shape and character before compliance, an
 
 Interestingly, DFlash wrote the worst calendar page but the best story. Why do EAGLE-3 and DSpark match in writing and front end code, while DFlash stands apart? EAGLE-3 and DSpark share DeepSpec's training data, propose similar tokens. DFlash differs in training data, block size, and serving path, so the exact cause cannot be ruled out here, but likely caused by the difference in training data.
 
-The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model (retail pass 3/10 vs 2/10). This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
+The agentic workflow (tau-bench) produced the most surprising result: DFlash beat the base model. This is counterintuitive, because you would expect the accelerated model to lose precision, not perform better on the more complicated agentic tasks. So we looked into the agent traces: the two models behave differently in the loop, and that behavioral difference decides the final result:
 
 | behavior | vanilla Qwen3-8B | + DFlash draft |
 |---|---|---|
-| conversation | wraps up early, satisfied with a plan | stays in the loop until something is executed |
+| conversation | wraps early, premature submission | stays in the loop until something is executed |
 | information gathering | skips lookups and answers from assumption | verifies with tool calls before acting |
 | the final write action | discusses the exchange, ends without executing it | executes it, sometimes more than once |
 | typical failure | task left unfinished | over-acting, duplicate writes corrupt the state |
