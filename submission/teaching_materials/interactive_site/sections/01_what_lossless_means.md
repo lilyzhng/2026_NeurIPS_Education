@@ -103,7 +103,7 @@ Earlier EAGLE models do not improve acceptance length with more training data. T
 
 The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6.5x over vanilla decoding, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.
 
-<p class="pullquote">One bottleneck remains: the draft layer still proposes tokens one at a time. Can drafting be parallel too?</p>
+<p class="pullquote">One bottleneck remains. A small draft model runs fast, but it still proposes one token at a time. Can drafting be parallel instead?</p>
 
 </div>
 
@@ -120,7 +120,7 @@ The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2
 
 As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.
 
-<u>However, parallelism introduces its own cost: the block positions are predicted independently, so draft tokens cannot see each other, and acceptance decays toward the end of the block.</u>
+<p class="pullquote">The block positions are predicted independently, so draft tokens cannot see each other. How do we handle the acceptance decay toward the end of the block?</p>
 
 </div>
 
@@ -140,7 +140,7 @@ Unlike the previous models that optimize the draft mechanism, **DSpark** ([DeepS
 
 Consequently, DSpark cuts verification time. Offline, DSpark improves accepted length by 16–31% over state-of-the-art drafters. Deployed in the DeepSeek-V4 production serving stack, it accelerates per-user generation by 60–85% at matched throughput over the MTP-1 production baseline ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)). DeepSeek open-sourced the DSpark checkpoints together with DeepSpec, an open-source training repository for speculative decoding.
 
-<u>DSpark cuts verification time, and keeps DFlash's parallel drafting. What about acceptance length? Positions in the block are still predicted independently, so the decay problem at the end of long blocks still remains.</u>
+<p class="pullquote">DSpark cuts verification time, and its sequential head eases the decay. But that head walks token by token again. Was giving up parallel drafting the right trade?</p>
 
 </div>
 
@@ -155,9 +155,9 @@ Consequently, DSpark cuts verification time. Offline, DSpark improves accepted l
 </figure>
 <figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
-As we can tell, DFlash 2 raises acceptance length. The two additions produce 21% more output per verification pass than DFlash, at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
+As we can tell, DFlash 2 raises acceptance length. The two additions produce 21% more output per verification pass than DFlash, at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)). Note that DFlash 2 argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.
 
-<u>Note that DFlash 2 argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector. After going through the evolution of these four architectures, do you have a new speculative decoding idea that could win the next SOTA number?</u>
+<p class="pullquote">After four generations of draft architectures, do you have an idea that could be the next SOTA?</p>
 
 </div>
 
@@ -165,12 +165,12 @@ As we can tell, DFlash 2 raises acceptance length. The two additions produce 21%
 
 ### 1.5 Case study: the decoding race
 
-With all 5 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.
+With all 4 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.
 
 <figure class="wide">
 <iframe src="../figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption><strong>Figure 6.</strong> The full decoding race.</figcaption>
+<figcaption><strong>Figure 6.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100 (same prompt, same target model), scaled to the 230 tok/s baseline; on this harness DFlash lands at 1.92x while its paper reports 2.75x on a B200. DFlash 2's lane uses Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>

@@ -114,10 +114,10 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
   // group sizes per lane, and measured finish times
   var LANES = [
     { name:'VANILLA',  group:1, done:9.0, rate:'9.0s  \u00b7  230 tok/s',   tau:'' },
-    { name:'EAGLE-3',  group:3, done:5.5, rate:'5.5s  \u00b7  ~375 tok/s',  tau:'\u03c4 2.66' },
-    { name:'DFLASH',   group:3, done:3.3, rate:'3.3s  \u00b7  ~630 tok/s',  tau:'\u03c4 3.11' },
-    { name:'DSPARK',   group:4, done:null, rate:'speed to be measured',     tau:'\u03c4 3.72' },
-    { name:'DFLASH 2', group:6, done:null, rate:'to be measured',           tau:'' }
+    { name:'EAGLE-3',  group:3, done:5.4, rate:'5.4s  \u00b7  ~382 tok/s',  tau:'\u03c4 2.66' },
+    { name:'DFLASH',   group:3, done:4.7, rate:'4.7s  \u00b7  ~442 tok/s',  tau:'\u03c4 3.11' },
+    { name:'DSPARK',   group:4, done:3.0, rate:'3.0s  \u00b7  ~690 tok/s',  tau:'\u03c4 3.72' },
+    { name:'DFLASH 2', group:6, done:3.0, rate:'\u22483.0s  \u00b7  2.7\u20133.4x (reported)', tau:'' }
   ];
   var PENDING_PACE = 3.3;  // unmeasured lanes draw at DFlash-like pace, but claim no time
 
