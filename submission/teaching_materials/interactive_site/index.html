@@ -419,7 +419,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="12-dflash-2026--shorter-drafting-time">1.2 DFlash (2026) – shorter drafting time</h3>
 <p>The key design choice of <strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) is to make drafting parallel: the whole block at once, instead of token by token. The draft is a lightweight block diffusion model: it predicts an entire block of tokens in a single forward pass, conditioned on context features extracted from the target model.</p>
 <figure class="wide">
-<iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
+<iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
 <figcaption><strong>Figure 3.</strong> EAGLE-3 drafts tokens serially, one at a time. DFlash drafts a whole block in parallel, with the target model's context features injected once per block.</figcaption>
 
