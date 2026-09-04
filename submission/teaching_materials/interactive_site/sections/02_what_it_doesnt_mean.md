@@ -159,14 +159,14 @@ This section is a hands-on tutorial: adjust the acceptance threshold and watch w
 
 #### Turn the knob yourself
 
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where exact rejection sampling provably matches the target model. Lowering it accepts draft tokens more aggressively, trading the guarantee for speed. We swept 1.0 → 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1), recording label accuracy, acceptance length, and decode speed at each stop. Every number below is a measurement, not a simulation.
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where exact rejection sampling provably matches the target model. Lowering it accepts draft tokens more aggressively, trading the guarantee for speed. We swept 1.0 → 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1), recording label accuracy, acceptance length, and decode speed at each stop.
 
 <figure class="wide">
 <iframe src="knob_demo.html" style="width:100%;height:520px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
 </figure>
 <figcaption><strong>Figure 14.</strong> The acceptance-threshold knob on XSTest guardrail task.</figcaption>
 
-The result is itself a lesson. Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.
+Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.
 
 
 </div>

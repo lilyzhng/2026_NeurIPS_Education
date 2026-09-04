@@ -648,13 +648,13 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="24-hands-on-lab">2.4 Hands-On Lab</h3>
 <p>This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens.</p>
 <h4 id="turn-the-knob-yourself">Turn the knob yourself</h4>
-<p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where exact rejection sampling provably matches the target model. Lowering it accepts draft tokens more aggressively, trading the guarantee for speed. We swept 1.0 → 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1), recording label accuracy, acceptance length, and decode speed at each stop. Every number below is a measurement, not a simulation.</p>
+<p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where exact rejection sampling provably matches the target model. Lowering it accepts draft tokens more aggressively, trading the guarantee for speed. We swept 1.0 → 0.3 on the safety-guardrail task (XSTest, n=50 per stop, temperature 1), recording label accuracy, acceptance length, and decode speed at each stop.</p>
 <figure class="wide">
 <iframe src="knob_demo.html" style="width:100%;height:520px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
 </figure>
 <figcaption><strong>Figure 14.</strong> The acceptance-threshold knob on XSTest guardrail task.</figcaption>
 
-<p>The result is itself a lesson. Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.</p>
+<p>Below 1.0 the lossless guarantee is gone, yet the accuracy holds flat: a one-token answer gives the leak exactly one chance to flip a high-confidence position, so this metric cannot see the damage. The guarantee disappears before the dashboard notices. Long-form domains, where every position is a content position, are where the leak lands, and Figure 10's divergence ceilings say how much can land there.</p>
 </div>
 
 <div id="servefirst" class="section">
