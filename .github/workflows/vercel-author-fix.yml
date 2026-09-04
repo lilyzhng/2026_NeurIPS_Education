@@ -1,0 +1,38 @@
+name: Vercel author fix
+# Vercel only builds commits whose author is a member of the Vercel team.
+# Agent commits (Madison/alchemz) get skipped, so after any non-lilyzhng
+# push to main, land an empty commit authored by lilyzhng to trigger the deploy.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vercel-author-fix
+  cancel-in-progress: false
+
+jobs:
+  adopt:
+    if: github.event.head_commit.author.username != 'lilyzhng'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Empty commit as lilyzhng
+        run: |
+          git config user.name "lilyzhng"
+          git config user.email "10191088+lilyzhng@users.noreply.github.com"
+          adopted=$(git rev-parse --short HEAD)
+          adopted_by=$(git log -1 --format='%an')
+          git commit --allow-empty -m "vercel: adopt $adopted (by $adopted_by) for deploy"
+          git pull --rebase origin main
+          git push origin main
+
+      # GITHUB_TOKEN pushes don't retrigger workflows, so fire the deploy
+      # hook here the same way deploy.yml does for human pushes.
+      - name: Fire Vercel deploy hook
+        run: curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
