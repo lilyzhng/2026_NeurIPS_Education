@@ -144,3 +144,15 @@
 - **Lesson**: **A/B 实验先 diff 两臂的全部 serve 参数,任何不对称都要么
   消除要么写进报告**;同一批失败里混着两种病因时,重跑只能洗掉瞬态,
   洗不掉配置病。
+
+## R15 · `modal app stop` 不带 -y 在脚本里静默失效(9/3 晚)
+
+- **Assumption**: 监控脚本里 `modal app stop <app>` 会停 app。
+- **Action**: TB dflash 跑完后自动触发 stop,脚本正常退出。
+- **Result**: 25 分钟后查 `modal app list`,dflash 还活着(health 200)。
+  非交互 shell 下 stop 会打印 "Aborted: no interactive terminal detected.
+  Rerun with --yes (-y)" 然后不执行 — 而我的脚本只 tail 了输出没检查。
+  多烧 ~25 min H100(~$2)。
+- **Lesson**: **actuator 动作(stop/delete/scale)必须验证效果**(stop 后
+  打 health 期待 404),不能只看命令退出;脚本里 modal 的破坏性命令一律
+  带 `-y`。R9"失败即停 app"的执行面补丁。

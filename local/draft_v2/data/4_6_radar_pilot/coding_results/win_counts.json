@@ -1,0 +1,113 @@
+{
+ "vanilla": 10,
+ "dflash": 10,
+ "n": 10,
+ "ties": 10,
+ "task_ids": [
+  "fix-git",
+  "gcode-to-text",
+  "filter-js-from-html",
+  "openssl-selfsigned-cert",
+  "nginx-request-logging",
+  "regex-log",
+  "sqlite-db-truncate",
+  "vulnerable-secret",
+  "count-dataset-tokens",
+  "configure-git-webserver"
+ ],
+ "per_task": {
+  "fix-git": "tie (0.0 vs 0.0)",
+  "gcode-to-text": "tie (0.0 vs 0.0)",
+  "filter-js-from-html": "tie (0.0 vs 0.0)",
+  "openssl-selfsigned-cert": "tie (0.0 vs 0.0)",
+  "nginx-request-logging": "tie (0.0 vs 0.0)",
+  "regex-log": "tie (0.0 vs 0.0)",
+  "sqlite-db-truncate": "tie (0.0 vs 0.0)",
+  "vulnerable-secret": "tie (0.0 vs 0.0)",
+  "count-dataset-tokens": "tie (0.0 vs 0.0)",
+  "configure-git-webserver": "tie (0.0 vs 0.0)"
+ },
+ "detail": {
+  "vanilla": {
+   "regex-log": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "nginx-request-logging": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "sqlite-db-truncate": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "vulnerable-secret": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "gcode-to-text": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "filter-js-from-html": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "fix-git": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "openssl-selfsigned-cert": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "count-dataset-tokens": {
+    "reward": 0.0,
+    "exception": null
+   }
+  },
+  "dflash": {
+   "regex-log": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "nginx-request-logging": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "openssl-selfsigned-cert": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "filter-js-from-html": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "configure-git-webserver": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "count-dataset-tokens": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "fix-git": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "gcode-to-text": {
+    "reward": 0.0,
+    "exception": null
+   },
+   "vulnerable-secret": {
+    "reward": 0.0,
+    "exception": "AgentTimeoutError"
+   },
+   "sqlite-db-truncate": {
+    "reward": 0.0,
+    "exception": null
+   }
+  }
+ },
+ "note": "terminus-2/harbor, temp 0, k=1. All 20 trials reward 0: Qwen3-8B fails every pinned TB task on both arms (mix of clean fails and 2700s AgentTimeoutError; vanilla configure-git-webserver aborted by server stop at ~45min, counted 0 like its dflash counterpart timeout). No separation at n=10."
+}
