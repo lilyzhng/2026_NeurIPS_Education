@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure 6 — The full decoding race</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --chalk:#DFDBCE;
+  --chalk-dim:rgba(223,219,206,.55);
+  --chalk-faint:rgba(223,219,206,.32);
+  --board:#33443C;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#F7F6F1;font-family:var(--_serif)}
+.wrap{max-width:1080px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px}
+.slate{
+  font-family:'Amatic SC',cursive;
+  border-radius:10px;padding:26px 30px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.axis{display:flex;align-items:flex-end;gap:12px;margin:0 2px 18px}
+.axislbl{font-size:1.15rem;color:var(--chalk-dim);white-space:nowrap;padding-bottom:6px}
+.axistrack{position:relative;flex:1;height:30px;border-bottom:2px dotted rgba(223,219,206,.3)}
+.axistick{position:absolute;bottom:0;height:6px;border-left:1.5px solid rgba(223,219,206,.4)}
+.axisnum{position:absolute;top:0;transform:translateX(-50%);font-size:1.1rem;color:var(--chalk-dim)}
+.playhead{position:absolute;top:0;bottom:-4px;width:0;border-left:2px solid rgba(223,219,206,.7)}
+.lane{
+  border:1.5px dashed rgba(223,219,206,.4);border-radius:11px;
+  padding:11px 14px;margin-bottom:10px;
+}
+.lane:nth-child(odd){transform:rotate(-0.18deg)}
+.lane:nth-child(even){transform:rotate(0.15deg)}
+.lane.pending{border-style:dotted;border-color:rgba(223,219,206,.28)}
+.lanehead{display:flex;align-items:baseline;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.lanename{font-size:1.3rem;font-weight:700;letter-spacing:.13em;color:var(--chalk);min-width:112px}
+.result{
+  margin-left:auto;font-size:1.12rem;color:var(--chalk-dim);
+  font-variant-numeric:tabular-nums;opacity:0;transition:opacity .35s;
+}
+.result.show{opacity:1}
+.tau{font-size:1.08rem;color:var(--chalk-faint);opacity:0;transition:opacity .35s}
+.tau.show{opacity:1}
+.chunks{display:flex;gap:7px;flex-wrap:wrap;min-height:36px;align-items:center}
+.chunk{
+  display:inline-flex;gap:5px;padding:4px 8px;border-radius:9px 7px 10px 6px;
+  border:1.7px solid rgba(223,219,206,.7);background:rgba(223,219,206,.05);
+  opacity:0;transition:opacity .3s;
+}
+.chunk.show{opacity:1}
+.chunk:nth-child(odd){transform:rotate(-.7deg)}
+.chunk:nth-child(even){transform:rotate(.6deg)}
+.chunk.pending{border-style:dashed;border-color:rgba(223,219,206,.45)}
+.w{font-size:1.15rem;font-weight:700;color:var(--chalk)}
+.chunk.pending .w{color:var(--chalk-dim)}
+.trackwrap{position:relative;height:8px;margin-top:9px}
+.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(223,219,206,.26)}
+.fill{
+  position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;
+  background:repeating-linear-gradient(90deg,rgba(223,219,206,.8) 0 6px,rgba(223,219,206,.4) 6px 9px);
+}
+.lane.pending .fill{background:repeating-linear-gradient(90deg,rgba(223,219,206,.3) 0 4px,transparent 4px 9px)}
+.controls{display:flex;justify-content:flex-end;margin-top:12px}
+.replay{
+  font-family:'Amatic SC',cursive;font-size:1.2rem;font-weight:700;
+  color:#5A5750;background:none;border:1.7px solid rgba(90,87,80,.5);
+  border-radius:10px 8px 11px 7px;padding:4px 16px;cursor:pointer;transform:rotate(-0.6deg);
+  transition:background .15s,border-color .15s,color .15s;
+}
+.replay:hover{background:rgba(90,87,80,.07);border-color:rgba(90,87,80,.8);color:#3B3934}
+.replay:active{transform:rotate(-0.6deg) scale(.97)}
+.replay:focus-visible{outline:2px solid rgba(90,87,80,.6);outline-offset:3px}
+@media(max-width:640px){.slate{padding:20px 16px}.lanename{min-width:auto}}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .lane,.chunk{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="board"><div class="slate">
+
+    <div class="axis">
+      <span class="axislbl">time &rarr;</span>
+      <div class="axistrack" id="axistrack"><div class="playhead" id="playhead"></div></div>
+    </div>
+
+    <div id="lanes"></div>
+
+  </div></div>
+
+  <div class="controls">
+    <button class="replay" id="replay" type="button">&#8635; replay</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var SENT = ['It','does','not','do','to','dwell','on','dreams','and','forget','to','live'];
+  var AXIS = 9.5, END = 9.9;
+
+  // group sizes per lane, and measured finish times
+  var LANES = [
+    { name:'VANILLA',  group:1, done:9.0, rate:'9.0s  \u00b7  230 tok/s',   tau:'' },
+    { name:'EAGLE-3',  group:3, done:5.5, rate:'5.5s  \u00b7  ~375 tok/s',  tau:'\u03c4 2.66' },
+    { name:'DFLASH',   group:3, done:3.3, rate:'3.3s  \u00b7  ~630 tok/s',  tau:'\u03c4 3.11' },
+    { name:'DSPARK',   group:4, done:null, rate:'speed to be measured',     tau:'\u03c4 3.72' },
+    { name:'DFLASH 2', group:6, done:null, rate:'to be measured',           tau:'' }
+  ];
+  var PENDING_PACE = 3.3;  // unmeasured lanes draw at DFlash-like pace, but claim no time
+
+  // ---- time ruler ----
+  var track = document.getElementById('axistrack');
+  for (var s = 0; s <= 9; s++){
+    var x = (s / AXIS * 100) + '%';
+    var num = document.createElement('span');
+    num.className = 'axisnum'; num.style.left = x; num.textContent = s + 's';
+    track.appendChild(num);
+    var tk = document.createElement('span');
+    tk.className = 'axistick'; tk.style.left = x;
+    track.appendChild(tk);
+  }
+  var playhead = document.getElementById('playhead');
+
+  // ---- lanes ----
+  var host = document.getElementById('lanes');
+  var built = LANES.map(function(cfg){
+    var lane = document.createElement('div');
+    lane.className = 'lane' + (cfg.done === null ? ' pending' : '');
+
+    var head = document.createElement('div');
+    head.className = 'lanehead';
+    head.innerHTML = '<span class="lanename">' + cfg.name + '</span>'
+      + '<span class="tau">' + cfg.tau + '</span>'
+      + '<span class="result">' + cfg.rate + '</span>';
+    lane.appendChild(head);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'chunks';
+    var chunks = [], i = 0, span = cfg.done === null ? PENDING_PACE : cfg.done;
+    var nGroups = Math.ceil(SENT.length / cfg.group);
+    while (i < SENT.length){
+      var g = document.createElement('span');
+      g.className = 'chunk' + (cfg.done === null ? ' pending' : '');
+      SENT.slice(i, i + cfg.group).forEach(function(w){
+        var e = document.createElement('span');
+        e.className = 'w'; e.textContent = w;
+        g.appendChild(e);
+      });
+      wrap.appendChild(g);
+      chunks.push({ el: g, t: span * (chunks.length + 1) / nGroups });
+      i += cfg.group;
+    }
+    lane.appendChild(wrap);
+
+    var tw = document.createElement('div');
+    tw.className = 'trackwrap';
+    tw.innerHTML = '<div class="trackbase"></div><div class="fill"></div>';
+    lane.appendChild(tw);
+
+    host.appendChild(lane);
+    return {
+      cfg: cfg,
+      chunks: chunks,
+      fill: tw.querySelector('.fill'),
+      result: head.querySelector('.result'),
+      tau: head.querySelector('.tau'),
+      span: span
+    };
+  });
+
+  function paint(t){
+    playhead.style.left = (Math.min(t, AXIS) / AXIS * 100) + '%';
+
+    built.forEach(function(L){
+      var cap = Math.min(t, L.span);
+      L.fill.style.width = (cap / AXIS * 100) + '%';
+      L.chunks.forEach(function(c){ c.el.classList.toggle('show', t >= c.t); });
+      var finished = t >= L.span;
+      L.result.classList.toggle('show', finished);
+      L.tau.classList.toggle('show', finished);
+    });
+  }
+
+  var t0 = performance.now(), raf = null;
+
+  function tick(){
+    var t = (performance.now() - t0) / 1000;
+    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if (raf) cancelAnimationFrame(raf);
+    t0 = performance.now();
+    paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+})();
+</script>
+</body>
+</html>
