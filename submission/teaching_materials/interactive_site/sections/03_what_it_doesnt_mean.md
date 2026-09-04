@@ -21,7 +21,7 @@ Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say th
 - A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.
 
 <figure>
-<iframe src="../figures/figure7_chalk.html" style="width:100%;height:460px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
+<iframe src="../figures/figure7_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
 </figure>
 <figcaption><strong>Figure 7.</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
