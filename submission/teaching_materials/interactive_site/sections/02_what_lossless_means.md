@@ -168,7 +168,7 @@ As we can tell, DFlash 2 raises acceptance length. The two additions produce 21%
 With all 5 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.
 
 <figure class="wide">
-<iframe src="../figures/figure6_chalk.html" style="width:100%;height:680px;border:1px solid var(--line);border-radius:10px;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
+<iframe src="../figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
 <figcaption><strong>Figure 6.</strong> The full decoding race.</figcaption>
 
