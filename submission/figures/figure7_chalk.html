@@ -99,8 +99,8 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
     catShare.textContent = Math.round(cat*100) + '%';
     dogShare.textContent = Math.round(dog*100) + '%';
     verdict.innerHTML = mode === 'strict'
-      ? 'dog proposals are accepted with probability p/q = 0.5/0.8, the rest resample to cat. <span class="dim">the output keeps the target\'s 50/50</span>'
-      : 'every dog proposal that clears the threshold is accepted. <span class="dim">the output follows the draft\'s preference: the best pet becomes a dog</span>';
+      ? 'the output keeps the target\'s 50/50'
+      : 'the best pet becomes a dog';
   }
 
   mStrict.addEventListener('click', function(){ render('strict'); });
