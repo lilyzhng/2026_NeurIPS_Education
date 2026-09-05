@@ -8,7 +8,7 @@ Speculative decoding speed comes down to three factors: **drafting time, verific
 
 <div id="eagle3" class="section">
 
-### 1.1 EAGLE-3 (2025) – longer acceptance length
+### 1.1 EAGLE-3 (NeurIPS 2025) – longer acceptance length
 
 The 2023 papers use a separate small LLM as the draft. It guesses from scratch, and hosting a second model costs memory. Medusa ([Cai et al., 2024](https://arxiv.org/abs/2401.10774)) replaced it with extra prediction heads on the target; EAGLE ([Li et al., 2024](https://arxiv.org/abs/2401.15077)) replaced the heads with a single decoder layer that reads the target's hidden features and drafts autoregressively. We highlight EAGLE-3 because it is what ships in production.
 
@@ -29,7 +29,7 @@ The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6
 
 <div id="dflash" class="section">
 
-### 1.2 DFlash (2026) – shorter drafting time
+### 1.2 DFlash (ICML 2026) – shorter drafting time
 
 The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: generate whole block at once, instead of token by token.
 
