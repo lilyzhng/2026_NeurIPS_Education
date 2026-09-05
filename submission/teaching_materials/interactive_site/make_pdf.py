@@ -73,7 +73,7 @@ html = re.sub(r'<iframe src="([^"]+)"[^>]*></iframe>', sub, html)
 open(os.path.join(HERE, 'print.html'), 'w').write(html)
 
 # 3. PDF
-pdf = os.path.abspath(os.path.join(HERE, '..', '..', 'speculative-decoding-site.pdf'))
+pdf = os.path.abspath(os.path.join(HERE, '..', 'pdf', 'teaching_writeup.pdf'))
 subprocess.run([CHROME, '--headless=new', '--disable-gpu',
                 '--window-size=1400,1000', '--no-pdf-header-footer',
                 '--virtual-time-budget=15000',
