@@ -133,9 +133,9 @@ h2{
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
-  <filter id="grain1"><feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.2" xChannelSelector="R" yChannelSelector="G"/></filter>
-  <filter id="grain2"><feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
-  <filter id="grain3"><feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip1" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip2" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip3" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
 </svg>
 <div class="wrap">
   <div class="board"><div class="slate">
@@ -269,14 +269,17 @@ h2{
 </script>
 <script>
 (function(){
-  // hand-drawn imperfection: each element gets grain by lottery, most stay clean
+  // hand-drawn slips: long strokes are harder to draw straight, so bigger
+  // elements are more likely to waver somewhere along the edge; small ones
+  // mostly stay clean. Low-frequency noise = one local waver, not a shiver.
   var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given');
+  var slips = ['url(#slip1)', 'url(#slip2)', 'url(#slip3)'];
   els.forEach(function(el, i){
-    var r = ((i * 2654435761) % 100) / 100;  // stable pseudo-random per position
-    if (r < 0.45) return;                    // 45%: clean
-    else if (r < 0.75) el.style.filter = 'url(#grain1)';
-    else if (r < 0.95) el.style.filter = 'url(#grain2)';
-    else el.style.filter = 'url(#grain3)';
+    var w = el.offsetWidth || 0;
+    var r = ((i * 2654435761) % 100) / 100;
+    var pClean = w < 60 ? 0.85 : w < 160 ? 0.55 : 0.25;
+    if (r < pClean) return;
+    el.style.filter = slips[i % 3];
   });
 })();
 </script>
