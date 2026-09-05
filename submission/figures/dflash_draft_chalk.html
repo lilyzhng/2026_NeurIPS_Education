@@ -238,7 +238,7 @@ body{
 
   function postHeight(){
     parent.postMessage({
-      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height),
+      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height) + 60,
       chalkSrc: location.pathname.split('/').pop()
     }, '*');
   }
