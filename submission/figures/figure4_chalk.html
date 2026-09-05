@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure 4 — DFlash draft vs DSpark draft</title>
-<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.slate{filter:url(#chalkgrain)}
-</style>
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
@@ -114,10 +113,9 @@ body{
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
-  <filter id="chalkgrain">
-    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
+  <filter id="grain1"><feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="grain2"><feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="grain3"><feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="2" seed="11" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
 </svg>
 <div class="wrap">
   <div class="board"><div class="slate">
@@ -264,6 +262,19 @@ body{
   }
   window.addEventListener('load', postHeight);
   window.addEventListener('resize', postHeight);
+})();
+</script>
+<script>
+(function(){
+  // hand-drawn imperfection: each element gets grain by lottery, most stay clean
+  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given');
+  els.forEach(function(el, i){
+    var r = ((i * 2654435761) % 100) / 100;  // stable pseudo-random per position
+    if (r < 0.45) return;                    // 45%: clean
+    else if (r < 0.75) el.style.filter = 'url(#grain1)';
+    else if (r < 0.95) el.style.filter = 'url(#grain2)';
+    else el.style.filter = 'url(#grain3)';
+  });
 })();
 </script>
 </body>
