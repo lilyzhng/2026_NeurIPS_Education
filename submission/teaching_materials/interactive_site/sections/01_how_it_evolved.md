@@ -37,7 +37,7 @@ The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash
 
 Speculative decoding is a natural setting for block diffusion. A standalone diffusion LLM underperforms autoregressive models, and it needs many denoising steps to recover quality. As a drafter, neither weakness matters: the target model verifies every token, so the diffusion model only has to guess well, and one denoising step is enough.
 
-Parallel drafting also changes the economics of the draft itself. An autoregressive draft pays one forward pass per token, so it must stay shallow to stay fast: EAGLE-3 is a single layer. A parallel draft pays one pass per block no matter the block size, so DFlash can afford five layers. The deeper draft guesses better and still runs faster: five layers generating 16 tokens beat EAGLE-3's single layer generating 8 on both drafting cost and acceptance length ([Chen et al., 2026](https://arxiv.org/abs/2602.06036), Section 3.2).
+Parallel drafting also lifts the size constraint on the draft. An autoregressive draft pays one forward pass per token, so it must stay shallow to stay fast: EAGLE-3 is a single layer. A parallel draft pays one pass per block no matter the block size, so DFlash can afford five layers. The deeper draft guesses better and still runs faster: five layers generating 16 tokens beat EAGLE-3's single layer generating 8 on both drafting cost and acceptance length ([Chen et al., 2026](https://arxiv.org/abs/2602.06036), Section 3.2).
 
 <figure class="wide">
 <iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
