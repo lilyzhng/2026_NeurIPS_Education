@@ -31,9 +31,9 @@ The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6
 
 ### 1.2 DFlash (2026) – shorter drafting time
 
-The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: the whole block at once, instead of token by token. The draft is a lightweight block diffusion model: it predicts an entire block of tokens in a single forward pass, conditioned on context features extracted from the target model.
+The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: the whole block at once, instead of token by token.
 
-The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting. The draft block starts as a row of MASK tokens, and one denoising pass, conditioned on the target's context features, fills in the whole block at once.
+The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.
 
 Speculative decoding turns out to be the natural home for this idea. A standalone diffusion LLM underperforms autoregressive models, and it needs many denoising steps to recover quality. As a drafter it needs neither: the target model verifies every token, so the diffusion model only has to guess well, and one denoising step is enough.
 
