@@ -265,6 +265,7 @@ Run it twice, once on the vanilla server and once on the DSpark server, and comp
 </tbody>
 </table>
 </div>
+<figcaption><strong>Table 5.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
 
 The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).
 
@@ -276,7 +277,7 @@ Speed has the same domain dependence as the outputs. The per-domain rates (`race
 | creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 265.6 (1.92x) |
 | frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 274.0 (1.99x) |
 
-**Table 5.** Decoding speed by domain: the same draft buys different speedups on different text.
+**Table 6.** Decoding speed by domain: the same draft buys different speedups on different text.
 
 Vanilla is flat across domains, the speculators are not: acceptance is domain-conditional, so the same draft buys different speedups on different text (DSpark: 3.0x on creative, 2.3x on coding). The ranking is recipe-dependent too: DSpark (τ 3.5) leads, DFlash (τ 2.2 to 2.5, domain-dependent) follows, EAGLE-3 trails (τ 1.3, under-tuned in our relabeled config rather than at its ceiling). A caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
 
