@@ -245,7 +245,7 @@ These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
 
 #### Run LosslessBench on your own server
 
-Section 2.3 found its frontend gap under a full vendor stack, where quantization was the culprit. Here you isolate one variable: speculative decoding alone, on the same brief Figure 11 used (OpenDesign id 673, "Stunning translucent calendar popup that smoothly blends into the interface").
+Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."
 
 ```bash
 python3 generate_frontend_task.py --url <your-url> --label vanilla   # rerun per lane
