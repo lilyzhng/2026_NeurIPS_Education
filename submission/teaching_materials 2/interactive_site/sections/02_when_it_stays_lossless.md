@@ -133,7 +133,7 @@ Section 1 showed that a reported acceptance length is an implicit token-level di
 </figure>
 <figcaption><strong>Figure 16.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
 
-Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
+Look closely at Figure 15: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
 
 Figure 16 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
@@ -173,7 +173,7 @@ The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), w
 
 ```bash
 pip install modal && modal setup                    # one-time account link
-git clone https://github.com/lilyzhng/2026_NeurIPS_Education && cd */teaching_materials/lab
+git clone https://github.com/lilyzhng/2026_NeurIPS_Education && cd 2026_NeurIPS_Education/submission/teaching_materials/lab
 SPEC_MODE=vanilla modal deploy modal_vllm_serve.py   # prints your server URL
 ```
 
@@ -240,7 +240,7 @@ modal run modal_dflash_offline.py            # DFlash, see note below
 python3 build_race_demo.py                   # assembles the demo from your outputs
 ```
 
-These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
+These commands reproduce the two live demos in Section 2.3 (Figures 15 and 16).
 
 <sub>Note: `vllm serve` crashes on DFlash in stable 0.28.0, and only the offline `LLM()` path is CI-tested, so `modal_dflash_offline.py` runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub>
 
