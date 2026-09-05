@@ -270,7 +270,7 @@ Speed has the same domain dependence as the outputs. The per-domain rates (`race
 | creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 265.6 (1.92x) |
 | frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 274.0 (1.99x) |
 
-**Table 5.** Per-domain decoding rates, tokens per second. One prompt per domain, so this is a probe of domain-conditional acceptance, not a benchmark. DSpark and EAGLE-3 use DeepSpec drafts on `vllm serve`. DFlash uses the z-lab draft on the offline path, which carries slightly less HTTP overhead.
+**Table 5.** Decoding speed by domain: the same draft buys different speedups on different text.
 
 Vanilla is flat across domains, the speculators are not: acceptance is domain-conditional, so the same draft buys different speedups on different text (DSpark: 3.0x on creative, 2.3x on coding). The ranking is recipe-dependent too: DSpark (τ 3.5) leads, DFlash (τ 2.2 to 2.5, domain-dependent) follows, EAGLE-3 trails (τ 1.3, under-tuned in our relabeled config rather than at its ceiling). A caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
 
