@@ -16,7 +16,7 @@ import subprocess
 
 from PIL import Image
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 OUT_DIR = os.path.join(HERE, 'figures', 'print')
 os.makedirs(OUT_DIR, exist_ok=True)

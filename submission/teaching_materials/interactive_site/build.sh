@@ -9,5 +9,5 @@ if ! command -v pandoc >/dev/null 2>&1; then
   exit 1
 fi
 
-python3 build.py
+python3 scripts/build.py
 open index.html

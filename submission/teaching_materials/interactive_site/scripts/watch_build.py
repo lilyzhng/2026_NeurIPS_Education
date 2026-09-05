@@ -5,8 +5,8 @@
 """
 import os, subprocess, time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-WATCH = [os.path.join(HERE, 'template.html'), os.path.join(HERE, 'build.py')]
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WATCH = [os.path.join(HERE, 'template.html'), os.path.join(HERE, 'scripts', 'build.py')]
 
 
 def snapshot():
@@ -24,6 +24,6 @@ while True:
         if last:
             changed = [os.path.basename(f) for f in cur if cur.get(f) != last.get(f)]
             print(time.strftime('%H:%M:%S'), 'changed:', ', '.join(changed))
-        subprocess.run(['python3', os.path.join(HERE, 'build.py')], cwd=HERE)
+        subprocess.run(['python3', os.path.join(HERE, 'scripts', 'build.py')], cwd=HERE)
         last = cur
     time.sleep(1)

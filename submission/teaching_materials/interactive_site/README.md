@@ -11,12 +11,13 @@ sections/               # source of truth — edit these
   04_references.md           # References + citation block
   05_appendix.md             # Appendix (A.1, A.2)
 template.html           # page shell: CSS (incl. print styles), TOC, scripts
-build.py                # sections → pandoc → index.html (regenerates TOC, copies figures + fonts)
 index.html              # COMPILED OUTPUT
 figures/                # chalkboard figures (self-hosted PencilPete font, final-frame print hooks)
 demo/                   # interactive demos (knob_demo.html = the acceptance-rate demo, Figure 14)
-watch_build.py          # auto-rebuild on save (for live preview while editing)
-make_pdf.py             # site → ../pdf/teaching_writeup.pdf (final-frame screenshots + page numbers)
+scripts/
+  build.py                   # sections → pandoc → index.html (regenerates TOC, copies figures + fonts)
+  watch_build.py             # auto-rebuild on save (for live preview while editing)
+  make_pdf.py                # site → ../pdf/teaching_writeup.pdf (final-frame screenshots + page numbers)
 ```
 
 ## Workflow
@@ -24,15 +25,15 @@ make_pdf.py             # site → ../pdf/teaching_writeup.pdf (final-frame scre
 ```bash
 # 1. edit a file under sections/
 # 2. rebuild:
-python3 build.py
+python3 scripts/build.py
 # or auto-rebuild on every save while editing:
-python3 watch_build.py
+python3 scripts/watch_build.py
 ```
 
 ## PDF snapshot
 
 ```bash
-python3 make_pdf.py
+python3 scripts/make_pdf.py
 ```
 
 Screenshots every chalk figure at its finished animation state, swaps the

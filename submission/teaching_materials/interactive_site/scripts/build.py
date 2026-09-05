@@ -11,7 +11,7 @@ Usage: python3 build.py
 """
 import re, subprocess, os, shutil, glob
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def pandoc(md):
     # protect whole MathJax blocks — gfm would strip backslashes and read _ as emphasis
