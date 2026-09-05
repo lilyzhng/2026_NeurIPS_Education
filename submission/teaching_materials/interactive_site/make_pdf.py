@@ -5,7 +5,7 @@
    its finished animation state (?final query) into figures/print/*.png.
 2. Build print.html from index.html with each figure iframe replaced by the
    screenshot <img>.
-3. Print print.html to ../../speculative-decoding-site.pdf.
+3. Print print.html to ../pdf/teaching_writeup.pdf.
 
 Usage: python3 make_pdf.py
 """
