@@ -285,7 +285,7 @@ The outputs vary by domain, and so does the speed. Measure each decoding method 
 
 **Table 6.** Decoding speed by domain: the same draft buys different speedups on different text.
 
-Vanilla is flat across domains, the speculators are not: acceptance is domain-conditional, so the same draft buys different speedups on different text (DSpark: 3.0x on creative, 2.3x on coding). The ranking is recipe-dependent too: DSpark (τ 3.5) leads, DFlash (τ 2.2 to 2.5, domain-dependent) follows, EAGLE-3 trails (τ 1.3, under-tuned in our relabeled config rather than at its ceiling). A caveat on the creative row: at temperature 0, open-ended prose loops, and repetitive text is easy to draft. Rerun at temperature 0.7 and compare.
+Vanilla decodes at about 138 tok/s in every domain. The speculators' speed moves with the domain, because acceptance depends on how well the draft guesses that kind of text: DSpark reaches 3.0x on creative and 2.3x on coding. On this harness DSpark leads with τ 3.5, DFlash follows at τ 2.2 to 2.5, and EAGLE-3 trails at τ 1.3, likely under-tuned in our relabeled config. One caveat on the creative row: at temperature 0, open-ended prose falls into loops, and loops are easy to draft. Rerun at temperature 0.7 and compare.
 
 Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race, and report three numbers together: acceptance rate, task correctness, domain coverage. LosslessBench samples 100 such tasks across the full OpenRouter distribution if you want a ready-made prompt set. If the numbers move this much when the domain changes, what else moved that acceptance rate cannot see?
 
