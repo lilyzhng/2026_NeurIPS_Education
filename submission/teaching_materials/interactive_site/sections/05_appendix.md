@@ -9,16 +9,26 @@
 <h3 class="glossary-heading">Glossary</h3>
 
 <dl class="glossary-list">
+<dt>Acceptance length (τ)</dt><dd>The average number of draft tokens the target model accepts each time it checks a batch, counting the extra token it adds itself.</dd>
+<dt>Acceptance rate (α)</dt><dd>How often a proposed draft token passes the target model's check. The more the draft agrees with the target, the higher it is.</dd>
+<dt>Acceptance threshold</dt><dd>A serving setting for how strictly draft tokens are checked. At 1.0 the check is exact; lowering it lets more draft tokens through.</dd>
 <dt>Autoregressive decoding</dt><dd>Generating text one token at a time, with each token depending on the one before it.</dd>
+<dt>Block diffusion</dt><dd>Predicting a whole block of masked tokens at once, instead of one token at a time.</dd>
+<dt>Bonus token</dt><dd>The one extra token the target model produces itself each time it checks the draft.</dd>
 <dt>Draft model</dt><dd>A cheaper model or draft layer that proposes several likely next tokens.</dd>
 <dt>Forward pass</dt><dd>Running the model on its current input to produce scores for possible next tokens.</dd>
+<dt>Greedy decoding</dt><dd>Always picking the single most likely next token, so the same prompt gives the same output.</dd>
 <dt>KV cache</dt><dd>Stored attention information from earlier tokens that lets the model avoid recomputing the whole context.</dd>
 <dt>Lossless</dt><dd>The model produces the same distribution of outputs as the unaccelerated version.</dd>
+<dt>MASK token</dt><dd>A placeholder slot in a draft block that the model fills in with a predicted token.</dd>
 <dt>Probability distribution</dt><dd>The model's probabilities over all possible next tokens.</dd>
 <dt>Quantization</dt><dd>Storing model weights with fewer bits to make inference faster and cheaper, sometimes with accuracy loss.</dd>
 <dt>Rejection sampling</dt><dd>A method that accepts or replaces draft tokens so the final outputs still follow the target model's distribution.</dd>
 <dt>Speculative decoding</dt><dd>A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</dd>
 <dt>Target model</dt><dd>The larger model whose output distribution we want to preserve.</dd>
+<dt>Temperature</dt><dd>A setting for how random sampling is. At 0 the model always picks its top choice; at 1 it samples with its natural randomness.</dd>
+<dt>Total variation distance</dt><dd>A measure of how different two sets of probabilities are. The closer the draft's guesses are to the target's, the more tokens get accepted.</dd>
+<dt>Vanilla model</dt><dd>The target model running without any acceleration, used as the speed baseline.</dd>
 </dl>
 
 </div>

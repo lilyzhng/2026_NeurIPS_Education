@@ -35,6 +35,11 @@ The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2
 
 The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.
 
+<figure class="wide">
+<iframe src="../figures/dflash_diffusion_analogy_chalk-v2.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting, parallel image denoising, and DFlash parallel block drafting"></iframe>
+</figure>
+<figcaption>Diffusion drafting, three ways to fill a canvas. Painting serially fills one cell at a time; diffusion denoises every pixel in parallel; DFlash does the same to a block of MASK tokens, filling every position in one pass.</figcaption>
+
 Diffusion drafting brings two benefits.
 
 - **Generating the whole block in a single forward pass makes drafting fast.** An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows. The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length.
@@ -77,17 +82,18 @@ Consequently, DSpark cuts verification time. Offline, DSpark improves accepted l
 
 DSpark tries to address the acceptance decay with a sequential token head, but **DFlash 2** ([Inco, 2026](https://inco.ai/blog/dflash2/)) argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.
 
-What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. The recall numbers say the same: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, while the top-16 list only falls from 99.5% to 87.8%. The job is selection, and selection can run in parallel.
+What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. The recall numbers say the same: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, while the top-16 list only falls from 99.5% to 87.8%. The job is selection, and selection can run in parallel (Figure 5).
+
+<figure class="wide">
+<iframe src="../figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
+</figure>
+<figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
 DFlash 2 does it with two additions.
 
 - **A path selector picks a coherent sequence.** It scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token replaces independent guesses, at 2M added parameters and 0.6% latency.
 - **Two-tap convolutions keep neighbors consistent.** Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block.
 
-<figure class="wide">
-<iframe src="../figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
-</figure>
-<figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
 As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
 

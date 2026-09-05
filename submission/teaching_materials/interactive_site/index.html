@@ -522,6 +522,11 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="12-dflash-icml-2026--shorter-drafting-time">1.2 DFlash (ICML 2026) – shorter drafting time</h3>
 <p>The key design choice of <strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) is to make drafting parallel: generate whole block at once, instead of token by token.</p>
 <p>The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.</p>
+<figure class="wide">
+<iframe src="figures/dflash_diffusion_analogy_chalk-v2.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting, parallel image denoising, and DFlash parallel block drafting"></iframe>
+</figure>
+<figcaption>Diffusion drafting, three ways to fill a canvas. Painting serially fills one cell at a time; diffusion denoises every pixel in parallel; DFlash does the same to a block of MASK tokens, filling every position in one pass.</figcaption>
+
 <p>Diffusion drafting brings two benefits.</p>
 <ul>
 <li><strong>Generating the whole block in a single forward pass makes drafting fast.</strong> An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows. The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length.</li>
@@ -559,17 +564,17 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 
 <h3 id="14-dflash-2-2026--longer-acceptance-length">1.4 DFlash 2 (2026) – longer acceptance length</h3>
 <p>DSpark tries to address the acceptance decay with a sequential token head, but <strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.</p>
-<p>What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. The recall numbers say the same: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, while the top-16 list only falls from 99.5% to 87.8%. The job is selection, and selection can run in parallel.</p>
-<p>DFlash 2 does it with two additions.</p>
-<ul>
-<li><strong>A path selector picks a coherent sequence.</strong> It scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token replaces independent guesses, at 2M added parameters and 0.6% latency.</li>
-<li><strong>Two-tap convolutions keep neighbors consistent.</strong> Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block.</li>
-</ul>
+<p>What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. The recall numbers say the same: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, while the top-16 list only falls from 99.5% to 87.8%. The job is selection, and selection can run in parallel (Figure 5).</p>
 <figure class="wide">
 <iframe src="figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
 </figure>
 <figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
+<p>DFlash 2 does it with two additions.</p>
+<ul>
+<li><strong>A path selector picks a coherent sequence.</strong> It scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token replaces independent guesses, at 2M added parameters and 0.6% latency.</li>
+<li><strong>Two-tap convolutions keep neighbors consistent.</strong> Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block.</li>
+</ul>
 <p>As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>).</p>
 <p class="pullquote">After four generations of draft architectures, do you have an idea that could be the next SOTA?</p>
 
@@ -983,16 +988,26 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <h3 class="glossary-heading">Glossary</h3>
 
 <dl class="glossary-list">
+<dt>Acceptance length (τ)</dt><dd>The average number of draft tokens the target model accepts each time it checks a batch, counting the extra token it adds itself.</dd>
+<dt>Acceptance rate (α)</dt><dd>How often a proposed draft token passes the target model's check. The more the draft agrees with the target, the higher it is.</dd>
+<dt>Acceptance threshold</dt><dd>A serving setting for how strictly draft tokens are checked. At 1.0 the check is exact; lowering it lets more draft tokens through.</dd>
 <dt>Autoregressive decoding</dt><dd>Generating text one token at a time, with each token depending on the one before it.</dd>
+<dt>Block diffusion</dt><dd>Predicting a whole block of masked tokens at once, instead of one token at a time.</dd>
+<dt>Bonus token</dt><dd>The one extra token the target model produces itself each time it checks the draft.</dd>
 <dt>Draft model</dt><dd>A cheaper model or draft layer that proposes several likely next tokens.</dd>
 <dt>Forward pass</dt><dd>Running the model on its current input to produce scores for possible next tokens.</dd>
+<dt>Greedy decoding</dt><dd>Always picking the single most likely next token, so the same prompt gives the same output.</dd>
 <dt>KV cache</dt><dd>Stored attention information from earlier tokens that lets the model avoid recomputing the whole context.</dd>
 <dt>Lossless</dt><dd>The model produces the same distribution of outputs as the unaccelerated version.</dd>
+<dt>MASK token</dt><dd>A placeholder slot in a draft block that the model fills in with a predicted token.</dd>
 <dt>Probability distribution</dt><dd>The model's probabilities over all possible next tokens.</dd>
 <dt>Quantization</dt><dd>Storing model weights with fewer bits to make inference faster and cheaper, sometimes with accuracy loss.</dd>
 <dt>Rejection sampling</dt><dd>A method that accepts or replaces draft tokens so the final outputs still follow the target model's distribution.</dd>
 <dt>Speculative decoding</dt><dd>A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</dd>
 <dt>Target model</dt><dd>The larger model whose output distribution we want to preserve.</dd>
+<dt>Temperature</dt><dd>A setting for how random sampling is. At 0 the model always picks its top choice; at 1 it samples with its natural randomness.</dd>
+<dt>Total variation distance</dt><dd>A measure of how different two sets of probabilities are. The closer the draft's guesses are to the target's, the more tokens get accepted.</dd>
+<dt>Vanilla model</dt><dd>The target model running without any acceleration, used as the speed baseline.</dd>
 </dl>
 
 </div>
