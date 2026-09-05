@@ -19,13 +19,8 @@ local/
 *.log
 .vercel/
 
-# Exception: the article drafts + our own figures go to GitHub (2026-09-01)
-!local/
-local/*
-!local/draft_v2/
-local/draft_v2/related_work/
-local/draft_v2/.claude/
 
 # Local-only research folders inside the site dir (2026-09-04: moved from local/draft_v2/)
 submission/teaching_materials/interactive_site/references/
 submission/teaching_materials/interactive_site/related_work/
+meeting_sync/
