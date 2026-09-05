@@ -4,7 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure 5 — Independent top-1 vs path selection</title>
-<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}
+.prefix{font-size:1.25rem;text-align:center;margin-bottom:14px;color:var(--chalk)}
+.prefix .q{color:var(--chalk-dim)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.colttl{font-size:.95rem;color:var(--chalk-dim);text-align:center;margin-bottom:6px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.cand{border:1.6px solid rgba(245,244,239,.55);border-radius:9px 7px 10px 6px;
+  padding:3px 10px;font-size:1.05rem;color:var(--chalk-dim);background:rgba(245,244,239,.04)}
+.cand.pick{border-color:rgba(245,244,239,.95);color:var(--chalk);font-weight:700}
+.cand.dup{border-style:dashed;color:#e8b9a8;border-color:rgba(232,150,120,.8)}
+.res{font-size:1.15rem;text-align:center;margin:6px 0 10px}
+.res .bad{color:#e8b9a8}
+.res .ok{color:#bcd9a8}
+.picrow{text-align:center;font-size:2rem;margin:2px 0 8px;line-height:1}
+</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
@@ -102,14 +116,36 @@ svg{overflow:visible}
 </svg>
 <div class="wrap">
   <div class="board"><div class="slate">
+    <div class="prefix">verified prefix: "The fastest way to <span class="q">__ __ __ __</span>"</div>
     <div class="cols">
 
       <!-- LEFT: independent top-1 -->
       <div class="pane a">
         <div class="panettl">INDEPENDENT TOP-1 (DFLASH)</div>
-        <div class="el posrow" data-t="0.4"><span>pos 1</span><span>2</span><span>3</span><span>4</span></div>
-        <div class="tokrow" id="rowA"></div>
-        <div class="el note" data-t="2.6">scored, each position picks alone,<br>the sequence may not connect</div>
+        <div class="el grid4" data-t="0.5">
+          <div><div class="colttl">pos 1</div><div class="col"><span class="cand pick">get</span><span class="cand">learn</span><span class="cand">travel</span></div></div>
+          <div><div class="colttl">pos 2</div><div class="col"><span class="cand pick">to</span><span class="cand">started</span><span class="cand">around</span></div></div>
+          <div><div class="colttl">pos 3</div><div class="col"><span class="cand pick dup">to</span><span class="cand">school</span><span class="cand">work</span></div></div>
+          <div><div class="colttl">pos 4</div><div class="col"><span class="cand pick">school</span><span class="cand">quickly</span><span class="cand">early</span></div></div>
+        </div>
+        <div class="el res" data-t="2.2">"get <span class="bad">to to</span> school" &#10007;</div>
+        <div class="el picrow" data-t="2.5"><svg width="170" height="52" viewBox="0 0 170 52" fill="none" stroke="#F5F4EF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-label="road blocked by construction">
+  <!-- stopped walker, arms up -->
+  <circle cx="22" cy="12" r="5"/>
+  <path d="M22 17 L22 32"/>
+  <path d="M22 20 L13 14 M22 20 L31 14"/>
+  <path d="M22 32 L16 44 M22 32 L28 44"/>
+  <!-- question mark -->
+  <path d="M34 6 C38 2, 44 4, 42 9 C41 11, 38 11, 38 14" stroke-opacity=".6"/>
+  <path d="M38 18 L38 18.6" stroke-opacity=".6"/>
+  <!-- arrow, cut short -->
+  <path d="M50 28 L78 28" stroke-opacity=".7"/>
+  <!-- construction barrier -->
+  <path d="M96 22 L146 22 L146 32 L96 32 Z"/>
+  <path d="M104 32 L100 44 M138 32 L142 44"/>
+  <path d="M102 32 L112 22 M116 32 L126 22 M130 32 L140 22"/>
+</svg></div>
+        <div class="el note" data-t="2.9">each position picks alone, neighbors collide</div>
         <div class="acc">
           <div class="el acclbl" data-t="7.6">acceptance</div>
           <div class="curvewrap">
@@ -127,12 +163,29 @@ svg{overflow:visible}
       <!-- RIGHT: path selection -->
       <div class="pane b">
         <div class="panettl">PATH SELECTION (DFLASH 2)</div>
-        <div class="el posrow" data-t="3.4"><span>pos 1</span><span>2</span><span>3</span><span>4</span></div>
-        <div class="tokrow" id="rowB1"></div>
-        <div class="linkrow" id="linksB"></div>
-        <div class="tokrow" id="rowB2" style="padding-left:62px"></div>
-        <div class="el annot" data-t="5.4" style="padding-left:62px">&larr; adjacent pairs</div>
-        <div class="el note" data-t="6.6">one coherent path chosen</div>
+        <div class="el grid4" data-t="3.6">
+          <div><div class="colttl">pos 1</div><div class="col"><span class="cand pick">get</span><span class="cand">learn</span><span class="cand">travel</span></div></div>
+          <div><div class="colttl">pos 2</div><div class="col"><span class="cand pick">to</span><span class="cand">started</span><span class="cand">around</span></div></div>
+          <div><div class="colttl">pos 3</div><div class="col"><span class="cand">to</span><span class="cand pick">school</span><span class="cand">work</span></div></div>
+          <div><div class="colttl">pos 4</div><div class="col"><span class="cand">school</span><span class="cand pick">quickly</span><span class="cand">early</span></div></div>
+        </div>
+        <div class="el res" data-t="5.4">"get <span class="ok">to school quickly</span>" &#10003;</div>
+        <div class="el picrow" data-t="5.7"><svg width="170" height="52" viewBox="0 0 170 52" fill="none" stroke="#F5F4EF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-label="running to school">
+  <!-- runner -->
+  <circle cx="22" cy="12" r="5"/>
+  <path d="M22 17 L20 30"/>
+  <path d="M21 21 L12 24 M21 21 L30 17"/>
+  <path d="M20 30 L11 38 M20 30 L28 36 L27 44"/>
+  <!-- motion dashes -->
+  <path d="M2 24 L7 24 M0 30 L5 30" stroke-opacity=".55"/>
+  <!-- arrow -->
+  <path d="M44 28 L86 28 M86 28 L79 23 M86 28 L79 33" stroke-opacity=".7"/>
+  <!-- schoolhouse -->
+  <path d="M104 44 L104 24 L124 12 L144 24 L144 44 Z"/>
+  <path d="M120 44 L120 32 L128 32 L128 44"/>
+  <path d="M124 12 L124 3 L132 5 L124 7"/>
+</svg></div>
+        <div class="el note" data-t="6.2">adjacent pairs scored, one coherent path chosen</div>
         <div class="acc">
           <div class="el acclbl" data-t="7.6">acceptance</div>
           <div class="curvewrap">
@@ -155,43 +208,9 @@ svg{overflow:visible}
 <script>
 (function(){
   var END = 10.6;
+  var timed = Array.prototype.slice.call(document.querySelectorAll('.el[data-t]'))
+    .map(function(el){ return { el: el, t: parseFloat(el.dataset.t) }; });
 
-  // ---- build token rows ----
-  function mkRow(hostId, labels, baseT, gap){
-    var host = document.getElementById(hostId), out = [];
-    labels.forEach(function(w, i){
-      var s = document.createElement('span');
-      s.className = 'tok'; s.textContent = '[' + w + ']';
-      host.appendChild(s);
-      out.push({ el: s, t: baseT + i * gap });
-    });
-    return out;
-  }
-
-  // left: each position picks alone — [a][x][c][d], x is the incoherent pick
-  var rowA = mkRow('rowA', ['a','x','c','d'], 0.9, 0.35);
-
-  // right: top row a-b-c-d, second row the alternative branch x-c-d
-  var rowB1 = mkRow('rowB1', ['a','b','c','d'], 3.8, 0.28);
-  var rowB2 = mkRow('rowB2', ['x','c','d'], 4.6, 0.28);
-
-  // ---- chalk links between adjacent pairs (drawn over the gaps) ----
-  var linksHost = document.getElementById('linksB');
-  var linkSpecs = [
-    { left: 54,  width: 8,  t: 5.0 },
-    { left: 116, width: 8,  t: 5.15 },
-    { left: 178, width: 8,  t: 5.3 }
-  ];
-  var links = linkSpecs.map(function(spec){
-    var d = document.createElement('span');
-    d.className = 'link';
-    d.style.left = spec.left + 'px';
-    d.style.width = spec.width + 'px';
-    linksHost.appendChild(d);
-    return { el: d, t: spec.t };
-  });
-
-  // ---- prep the acceptance curves for stroke-draw ----
   ['curveA','curveB'].forEach(function(id){
     var p = document.getElementById(id);
     var len = p.getTotalLength ? p.getTotalLength() : 200;
@@ -199,57 +218,41 @@ svg{overflow:visible}
   });
   var curveA = document.getElementById('curveA'), curveB = document.getElementById('curveB');
 
-  var timed = Array.prototype.slice.call(document.querySelectorAll('.el[data-t]'))
-    .map(function(el){ return { el: el, t: parseFloat(el.dataset.t) }; });
-
   function paint(t){
     timed.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
-
-    rowA.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
-    rowB1.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
-    rowB2.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
-    links.forEach(function(o){ o.el.style.opacity = t >= o.t ? '1' : '0'; });
-
-    // left: the lone pick at pos 2 is the one that doesn't connect
-    rowA[1].el.classList.toggle('faded', t >= 2.4);
-
-    // right: the chosen coherent path lights, the alternative dims
-    var chosen = t >= 6.2;
-    rowB1.forEach(function(o){ o.el.classList.toggle('chosen', chosen); });
-    rowB2.forEach(function(o){ o.el.classList.toggle('faded', chosen); });
-
-    // acceptance curves draw themselves in
     curveA.classList.toggle('draw', t >= 8.0);
     curveB.classList.toggle('draw', t >= 8.0);
   }
 
+  var replay = document.getElementById('replay');
   var t0 = performance.now(), raf = null;
-
   function tick(){
     var t = (performance.now() - t0) / 1000;
-    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    if (t >= END){ paint(END); raf = null; return; }
     paint(t);
     raf = requestAnimationFrame(tick);
   }
-
   function play(){
     if (raf) cancelAnimationFrame(raf);
     t0 = performance.now();
-    curveA.classList.remove('draw'); curveB.classList.remove('draw');
     paint(0);
     raf = requestAnimationFrame(tick);
   }
-
-  document.getElementById('replay').addEventListener('click', play);
+  replay.addEventListener('click', play);
   play();
 
   window.addEventListener('beforeprint', function(){
-    try { if (typeof raf !== 'undefined' && raf) cancelAnimationFrame(raf); } catch(e){}
+    try { if (raf) cancelAnimationFrame(raf); } catch(e){}
     try { paint(1e9); } catch(e){}
   });
+  if (location.search.indexOf('final') !== -1) setTimeout(function(){
+    try { if (raf) cancelAnimationFrame(raf); } catch(e){}
+    try { paint(1e9); } catch(e){}
+  }, 300);
+
   function postHeight(){
     parent.postMessage({
-      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height),
+      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height) ,
       chalkSrc: location.pathname.split('/').pop()
     }, '*');
   }
@@ -257,21 +260,6 @@ svg{overflow:visible}
   window.addEventListener('resize', postHeight);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight);
   setTimeout(postHeight, 1500);
-})();
-</script>
-<script>
-(function(){
-  // hand-drawn slips: long strokes are harder to draw straight, so the longer
-  // the element, the more likely (and eventually certain) a waver somewhere.
-  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given, .slate .bar, .slate .seg, .slate .card, .slate .pill, .slate .pane, .slate .panel, .slate .trow, .slate .outer, .slate .chunk');
-  var slips = ['url(#slip1)', 'url(#slip2)', 'url(#slip3)'];
-  els.forEach(function(el, i){
-    var w = el.offsetWidth || 0;
-    var r = ((i * 61 + 17) % 100) / 100;
-    var pClean = w < 60 ? 0.85 : w < 160 ? 0.5 : w < 280 ? 0.15 : 0;
-    if (r < pClean) return;
-    el.style.filter = slips[i % 3];
-  });
 })();
 </script>
 </body>
