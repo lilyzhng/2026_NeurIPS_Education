@@ -37,7 +37,7 @@
 
 ### A.2 Frontend gap under a vendor-assembled stack
 
-We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2 (Figure A2). Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 11). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.
+We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2 (Figure A2). Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 12). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.
 
 <figure>
 <div class="fig2">
@@ -57,9 +57,9 @@ Step by step, acceleration is moving from the serving layer into frontier labs. 
 <figure class="plain">
 <img src="figures/fig14_ownership_migration.svg" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
 </figure>
-<figcaption><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 5, boundary redrawn as steps.</figcaption>
+<figcaption><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> Figure 6, boundary redrawn as steps.</figcaption>
 
-See Figure A3. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer ([LosslessBench](https://lilyzh.ng/writing/losslessbench/), Figure 5).
+See Figure A3. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer ([LosslessBench](https://lilyzh.ng/writing/losslessbench/), Figure 6).
 
 <u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u>
 

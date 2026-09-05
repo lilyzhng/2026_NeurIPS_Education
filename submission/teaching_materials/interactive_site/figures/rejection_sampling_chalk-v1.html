@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rejection sampling: the target grades the draft</title>
+<title>Rejection sampling</title>
 <style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
 <style>
 :root{
@@ -28,20 +28,17 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
     var(--board);
 }
 .title{font-size:1.35rem;font-weight:700;letter-spacing:.08em;transform:rotate(-0.3deg)}
-.formulaband{
-  margin:12px auto 4px;text-align:center;
-}
-.formulaband .f{font-size:1.5rem;font-weight:700;letter-spacing:.03em}
-.formulaband .legend{font-size:1.02rem;color:var(--chalk-dim);margin-top:2px}
 .sentence{
-  display:flex;gap:10px;justify-content:center;align-items:flex-end;
+  display:flex;gap:14px;justify-content:center;align-items:flex-start;
   margin-top:34px; /* reserved space for corrections above */
-  min-height:52px;
+  min-height:190px;
 }
-.tokcol{position:relative;display:flex;flex-direction:column;align-items:center}
+.tokcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.chipwrap{position:relative;display:inline-block}
 .chip{
   border:1.8px solid rgba(245,244,239,.8);border-radius:10px 8px 11px 7px;
   padding:5px 13px;font-size:1.3rem;font-weight:700;color:var(--chalk);
+  display:inline-block;text-align:center;
   background:rgba(245,244,239,.05);white-space:nowrap;
   opacity:0;transition:opacity .4s, border-color .3s, color .3s;
 }
@@ -58,22 +55,27 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
 .correction.show{opacity:1}
 .correction .word{font-size:1.35rem;font-weight:700;color:var(--good);white-space:nowrap}
 .correction .caret{font-size:1.1rem;color:var(--good);margin-top:-2px}
-.grades{
-  display:flex;gap:10px;justify-content:center;margin-top:10px;min-height:74px;
-}
-.grade{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;transition:opacity .4s;min-width:86px}
+.grade{display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transition:opacity .4s}
 .grade.show{opacity:1}
-.grade .mark{font-size:1.5rem;line-height:1}
+.grade .bars{display:flex;align-items:flex-end;gap:9px;height:88px}
+.grade .barcol{display:flex;flex-direction:column;align-items:center;gap:2px}
+.grade .bval{font-size:.82rem;color:var(--chalk-dim);line-height:1}
+.grade .bar{width:16px;border-radius:3px 3px 1px 1px}
+.grade .bar.p{background:rgba(245,244,239,.9)}
+.grade .bar.q{border:1.6px dashed rgba(245,244,239,.65);background:rgba(245,244,239,.08)}
+.grade .mark{font-size:1.35rem;line-height:1.1}
 .grade.okc .mark{color:var(--good)}
 .grade.no .mark{color:var(--bad)}
-.grade.dim{opacity:.45}
-.grade .nums{font-size:.98rem;color:var(--chalk-dim);text-align:center;line-height:1.45}
-.grade .nums b{color:var(--chalk);font-weight:700}
-.outline{margin-top:14px;font-size:1.35rem;text-align:center;min-height:34px}
+.grade.dim{opacity:.4}
+.grade .acc{font-size:.95rem;color:var(--chalk-dim)}
+.barlegend{position:absolute;left:26px;bottom:14px;display:flex;flex-direction:column;gap:3px;font-size:.85rem;color:var(--chalk-dim)}
+.barlegend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.barlegend .sw.p{background:rgba(245,244,239,.9)}
+.barlegend .sw.q{border:1.6px dashed rgba(245,244,239,.65)}
+.barlegend .sw.a{visibility:hidden}
+.barlegend sub{font-size:.72em}
+.outline{margin-top:14px;font-size:1.35rem;text-align:center;min-height:34px;padding-left:220px}
 .outline .k{color:var(--chalk-dim);font-size:1.02rem;letter-spacing:.08em;margin-right:10px}
-.punch{margin-top:8px;font-size:1.28rem;text-align:center;opacity:0;transition:opacity .6s;transform:rotate(-0.4deg);min-height:30px}
-.punch.show{opacity:1}
-.footnote{margin-top:4px;text-align:center;font-size:.98rem;color:var(--chalk-dim);min-height:22px}
 .replay{
   position:absolute;bottom:14px;right:24px;z-index:2;
   display:flex;align-items:center;gap:9px;
@@ -92,103 +94,99 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
   <div class="board"><div class="slate">
     <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M20.49 15 a9 9 0 1 1 -2.12 -9.36 L23 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" fill="none"/><polyline points="23 4 23 10 17 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="eraser"></span></button>
 
-    <div class="title">rejection sampling: the target grades the draft</div>
-
-    <div class="formulaband">
-      <div class="f">accept x with probability min(1, p(x) / q(x))</div>
-      <div class="legend">p = the target model's probability &nbsp;&middot;&nbsp; q = the draft model's probability</div>
-    </div>
+    <div class="title">rejection sampling</div>
 
     <div class="sentence" id="sentence"></div>
-    <div class="grades" id="grades"></div>
-
-    <div class="outline"><span class="k">OUTPUT</span><span id="output">NeurIPS 2026 is</span></div>
-    <div class="punch" id="punch">a wrong draft costs time, never correctness</div>
-    <div class="footnote">rejected &rarr; resample from norm(max(0, p&nbsp;&minus;&nbsp;q)), the rest of the draft is discarded</div>
+    <div class="outline"><span class="k">OUTPUT</span><span id="output">NeurIPS 2026 is in</span></div>
+    <div class="barlegend"><span><span class="sw p"></span>p(x<sub>i</sub>), the target model's probability</span><span><span class="sw q"></span>q(x<sub>i</sub>), the draft model's probability</span><span><span class="sw a"></span>a(x<sub>i</sub>) = min(1, p/q), the accept probability</span></div>
   </div></div>
 </div>
 
 <script>
 (function(){
-  var PREFIX = ['NeurIPS', '2026', 'is'];
+  var PREFIX = ['NeurIPS', '2026', 'is', 'in'];
   var TOKS = [
-    {w:'in',    p:'0.95', q:'0.90', a:'1.00', kind:'ok'},
-    {w:'San',   p:'0.05', q:'0.70', a:'0.07', kind:'no', repl:'Sydney'},
-    {w:'Diego', p:'0.10', q:'0.80', a:'0.13', kind:'dim'},
-    {w:',',     p:'0.60', q:'0.85', a:'0.71', kind:'dim'}
+    {w:'Sydney',     p:'0.85', q:'0.80', a:'1.00', kind:'ok'},
+    {w:',',          p:'0.90', q:'0.92', a:'0.98', kind:'ok'},
+    {w:'California', p:'0.05', q:'0.70', a:'0.07', kind:'no', repl:'Australia'},
+    {w:'.',          p:'0.60', q:'0.85', a:'0.71', kind:'dim'}
   ];
-  var OUT0 = 'NeurIPS 2026 is';
+  var OUT0 = 'NeurIPS 2026 is in';
 
   var sentence = document.getElementById('sentence');
-  var grades = document.getElementById('grades');
   var output = document.getElementById('output');
-  var punch = document.getElementById('punch');
   var chips = [], corr = null, gradeEls = [];
 
   function build(){
-    sentence.innerHTML = ''; grades.innerHTML = '';
+    sentence.innerHTML = '';
     chips = []; gradeEls = []; corr = null;
     PREFIX.forEach(function(w){
       var col = document.createElement('span'); col.className = 'tokcol';
-      col.innerHTML = '<span class="chip prefix">' + w + '</span>';
+      col.innerHTML = '<span class="chipwrap"><span class="chip prefix">' + w + '</span></span>';
       sentence.appendChild(col);
     });
     TOKS.forEach(function(t){
       var col = document.createElement('span'); col.className = 'tokcol';
-      var html = '';
+      var wrap = '<span class="chipwrap">';
       if (t.repl){
-        html += '<span class="correction" id="corr"><span class="word">' + t.repl + '</span><span class="caret">&#8963;</span></span>';
+        wrap += '<span class="correction" id="corr"><span class="word">' + t.repl + '</span><span class="caret">&#8963;</span></span>';
       }
-      html += '<span class="chip">' + t.w + '</span>';
-      col.innerHTML = html;
+      wrap += '<span class="chip">' + t.w + '</span></span>';
+      var mark = t.kind === 'ok' ? '&#10003;' : (t.kind === 'no' ? '&#10007;' : '&ndash;');
+      var ph = Math.round(parseFloat(t.p) * 60) + 4;
+      var qh = Math.round(parseFloat(t.q) * 60) + 4;
+      col.innerHTML = wrap +
+        '<span class="grade">' +
+          '<span class="bars">' +
+            '<span class="barcol"><span class="bval">' + t.p + '</span><span class="bar p" style="height:' + ph + 'px"></span></span>' +
+            '<span class="barcol"><span class="bval">' + t.q + '</span><span class="bar q" style="height:' + qh + 'px"></span></span>' +
+          '</span>' +
+          '<span class="mark">' + mark + '</span>' +
+          '<span class="acc">a = ' + t.a + '</span>' +
+        '</span>';
       sentence.appendChild(col);
       chips.push(col.querySelector('.chip'));
       if (t.repl) corr = col.querySelector('.correction');
-
-      var g = document.createElement('span');
-      g.className = 'grade';
-      var mark = t.kind === 'ok' ? '&#10003;' : (t.kind === 'no' ? '&#10007;' : '&ndash;');
-      g.innerHTML = '<span class="mark">' + mark + '</span>' +
-        '<span class="nums">p ' + t.p + ' &middot; q ' + t.q + '<br><b>&rarr; ' + t.a + '</b></span>';
-      grades.appendChild(g);
-      gradeEls.push(g);
+      gradeEls.push(col.querySelector('.grade'));
     });
-    // spacer grades under prefix? no: grades row centers under draft tokens only
   }
 
   var steps = [
     [0.4, function(){ chips.forEach(function(c,i){ setTimeout(function(){ c.classList.add('show'); }, i*140); }); }],
-    // in: graded ok
+    // Sydney: accepted
     [1.5, function(){ chips[0].classList.add('checking'); }],
     [2.2, function(){ chips[0].classList.remove('checking');
                       gradeEls[0].classList.add('show','okc');
-                      output.textContent = OUT0 + ' in'; }],
-    // San: graded, rejected, corrected
-    [3.2, function(){ chips[1].classList.add('checking'); }],
-    [4.0, function(){ chips[1].classList.remove('checking'); chips[1].classList.add('dead');
-                      gradeEls[1].classList.add('show','no'); }],
-    [4.8, function(){ corr.classList.add('show'); output.textContent = OUT0 + ' in Sydney'; }],
-    // suffix dies together, grades shown dim
-    [5.8, function(){ gradeEls[2].classList.add('show','dim'); gradeEls[3].classList.add('show','dim'); }],
-    [6.5, function(){ chips[2].classList.add('gone'); chips[3].classList.add('gone'); }],
-    [7.4, function(){ punch.classList.add('show'); }]
+                      output.textContent = OUT0 + ' Sydney'; }],
+    // ,: accepted
+    [3.0, function(){ chips[1].classList.add('checking'); }],
+    [3.7, function(){ chips[1].classList.remove('checking');
+                      gradeEls[1].classList.add('show','okc');
+                      output.textContent = OUT0 + ' Sydney,'; }],
+    // California: rejected, Australia resampled
+    [4.5, function(){ chips[2].classList.add('checking'); }],
+    [5.3, function(){ chips[2].classList.remove('checking'); chips[2].classList.add('dead');
+                      gradeEls[2].classList.add('show','no'); }],
+    [6.1, function(){ corr.classList.add('show'); output.textContent = OUT0 + ' Sydney, Australia'; }],
+    // suffix discarded
+    [7.0, function(){ gradeEls[3].classList.add('show','dim'); }],
+    [7.6, function(){ chips[3].classList.add('gone'); }],
   ];
   var timers = [];
   function stopAll(){ timers.forEach(clearTimeout); timers = []; }
   function play(){
     stopAll(); build();
-    output.textContent = OUT0; punch.classList.remove('show');
+    output.textContent = OUT0;
     steps.forEach(function(st){ timers.push(setTimeout(st[1], st[0]*1000)); });
   }
   function finalState(){
     stopAll(); build();
     chips.forEach(function(c){ c.classList.add('show'); });
-    chips[1].classList.add('dead'); chips[2].classList.add('gone'); chips[3].classList.add('gone');
-    gradeEls[0].classList.add('show','okc'); gradeEls[1].classList.add('show','no');
-    gradeEls[2].classList.add('show','dim'); gradeEls[3].classList.add('show','dim');
+    chips[2].classList.add('dead'); chips[3].classList.add('gone');
+    gradeEls[0].classList.add('show','okc'); gradeEls[1].classList.add('show','okc');
+    gradeEls[2].classList.add('show','no'); gradeEls[3].classList.add('show','dim');
     corr.classList.add('show');
-    output.textContent = OUT0 + ' in Sydney';
-    punch.classList.add('show');
+    output.textContent = OUT0 + ' Sydney, Australia';
   }
 
   document.getElementById('replay').addEventListener('click', play);

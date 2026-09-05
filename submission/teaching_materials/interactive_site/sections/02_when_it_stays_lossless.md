@@ -18,19 +18,19 @@ Even in the original papers, lossless is not unconditional. EAGLE-3 compares aga
 Taking a prompt with two valid continuations: "The best pet is a \_\_\_". Say the target model assigns cat 0.5 and dog 0.5, and the draft model prefers dog:
 
 - Rejection sampling: the draft proposes dog 80% of the time, but the target accepts only 5 out of 8 dog proposals (p/q = 0.5/0.8) and resamples the rest, so dog still comes out 50% of the time.
-- A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 9.
+- A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 10.
 
 <figure>
 <iframe src="../figures/figure7_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
 </figure>
-<figcaption><strong>Figure 9.</strong> Rejection sampling keeps the draft aligned with the target distribution. A relaxed rule follows the draft's preference.</figcaption>
+<figcaption><strong>Figure 10.</strong> Rejection sampling keeps the draft aligned with the target distribution. A relaxed rule follows the draft's preference.</figcaption>
 
-Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 10 example.)
+Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 11 example.)
 
 <figure>
 <iframe src="../figures/figure8_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of non-anticipating and peeking schedulers"></iframe>
 </figure>
-<figcaption><strong>Figure 10.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
+<figcaption><strong>Figure 11.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
 
 DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:
 
@@ -60,7 +60,7 @@ Lastly, the production stack is complicated: it accelerates inference well beyon
 
 Suppose a deployment gets everything above right: strict thresholds, a non-anticipating scheduler, a redesign for every engine constraint. How do we verify it still serves the end user's goal across all the different domains? Evidence for losslessness is limited to the domains where it was tested.
 
-The state-of-the-art speculative decoding methods are all evaluated on: coding, chat, and mathematics. EAGLE-3, DFlash, and DSpark report acceptance length and speedup on GSM8K, MATH-500, AIME25, HumanEval, MBPP, LiveCodeBench, MT-Bench, Alpaca, and Arena-Hard. DeepSpec uses the same nine benchmarks (Table 3). These benchmarks cover only a small slice of real-world tasks. Outside them, the empirical evidence for losslessness is simply absent. Figure 11 shows the 29 task types in OpenRouter's real traffic ([OpenRouter, 2026](https://openrouter.ai/rankings)): the tested domains account for only 17% of token usage, and the other 83% has never been measured.
+The state-of-the-art speculative decoding methods are all evaluated on: coding, chat, and mathematics. EAGLE-3, DFlash, and DSpark report acceptance length and speedup on GSM8K, MATH-500, AIME25, HumanEval, MBPP, LiveCodeBench, MT-Bench, Alpaca, and Arena-Hard. DeepSpec uses the same nine benchmarks (Table 3). These benchmarks cover only a small slice of real-world tasks. Outside them, the empirical evidence for losslessness is simply absent. Figure 12 shows the 29 task types in OpenRouter's real traffic ([OpenRouter, 2026](https://openrouter.ai/rankings)): the tested domains account for only 17% of token usage, and the other 83% has never been measured.
 
 <div class="table-wrap">
 <table>
@@ -80,7 +80,7 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 <figure>
 <iframe src="../figures/figure9_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated walkthrough of OpenRouter traffic by task type and speculative-decoding benchmark coverage"></iframe>
 </figure>
-<figcaption><strong>Figure 11.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
+<figcaption><strong>Figure 12.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
 
 <p class="pullquote">So does lossless hold on the 83% domains/tasks that have never been measured?</p>
 
@@ -92,7 +92,7 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 
 The previous sections covered theoretical and algorithmic losslessness. To measure speculative decoding and inference acceleration on domains beyond coding and math, we built the [LosslessBench](https://lilyzh.ng/writing/losslessbench/).
 
-**[LosslessBench](https://huggingface.co/datasets/lilyzhng/lossless_bench)** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 13, each axis uses its domain's own benchmark and metric:
+**[LosslessBench](https://huggingface.co/datasets/lilyzhng/lossless_bench)** evaluates across five domains: coding, agent workflows, creative writing, guardrails, and frontend design. See Figure 14, each axis uses its domain's own benchmark and metric:
 
 - Frontend: OpenDesign. Each page is judged twice: a GPT-4o vision judge scores the rendered screenshot on alignment, aesthetics, and structure, and a browser agent clicks every component to score whether the page actually works.
 - Creative: EQ-Bench longform score, judged over multi-chapter creative writing.
@@ -102,17 +102,17 @@ The previous sections covered theoretical and algorithmic losslessness. To measu
 
 The benchmarks in these papers are simple, single-turn tasks such as grade-school math and function-level coding. They capture only a narrow slice of what models are asked to do in practice, which motivates the five domains above for LosslessBench.
 
-Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement, which makes it a natural probe for the five new domains (Figure 12). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, acceptance falls from 5.24 to 1.84. The draft drifts furthest on the domains the papers never measured. Frontend design is an exception: its acceptance stays high while the generated pages break (Figure 14), because acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 13 examines.
+Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement, which makes it a natural probe for the five new domains (Figure 13). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, acceptance falls from 5.24 to 1.84. The draft drifts furthest on the domains the papers never measured. Frontend design is an exception: its acceptance stays high while the generated pages break (Figure 15), because acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what Figure 14 examines.
 
 <figure class="plain">
 <img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
 </figure>
-<figcaption><strong>Figure 12.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence.</figcaption>
+<figcaption><strong>Figure 13.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence.</figcaption>
 
 <figure class="mid plain">
 <img src="figures/fig_radar_spec_pilot.svg" alt="Radar chart of Qwen3-8B with vs without speculative decoding across five domains on LosslessBench" />
 </figure>
-<figcaption><strong>Figure 13.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
+<figcaption><strong>Figure 14.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 <p><strong>Explore the evaluation by yourself.</strong> Pick any domain and run the task:</p>
 <p style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -126,16 +126,16 @@ Section 1 showed that a reported acceptance length is an implicit token-level di
 <figure class="wide">
 <iframe src="demo/race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption><strong>Figure 14.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s.</figcaption>
+<figcaption><strong>Figure 15.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s.</figcaption>
 
 <figure class="wide">
 <iframe src="demo/creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
-<figcaption><strong>Figure 15.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
+<figcaption><strong>Figure 16.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
 
-Look closely at Figure 15: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
+Look closely at Figure 16: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
 
-Figure 15 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
+Figure 16 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
 | story | instruction following | Latin vocabulary | writing style |
 |---|---|---|---|
@@ -192,12 +192,12 @@ vllm serve Qwen/Qwen3-8B --port 8000 --speculative-config \
   '{"model": "deepseek-ai/dspark_qwen3_8b_block7", "method": "dspark", "num_speculative_tokens": 7}'
 ```
 
-Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 16):
+Across 5 runs on one H100, the speedup is stable (mean ± std, Figure 17):
 
 <figure class="mid">
 <img src="figures/fig13_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption><strong>Figure 16.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 17.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's `/metrics` counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:
 
@@ -216,12 +216,12 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 #### b. Adjust acceptance rate yourself
 
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 14, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 17). At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 15, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 18). At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
 
 <figure class="wide">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
 </figure>
-<figcaption><strong>Figure 17.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
+<figcaption><strong>Figure 18.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
 At 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the guarantee is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2, a 48% jump of draft-preferred tokens flooding in. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
 

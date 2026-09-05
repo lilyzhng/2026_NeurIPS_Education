@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rejection sampling: NeurIPS 2026 is ___</title>
+<title>Rejection sampling</title>
 <style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
 <style>
 :root{
@@ -11,6 +11,8 @@
   --chalk-dim:rgba(245,244,239,.55);
   --board:#12291d;
   --frame:#7A5230;
+  --good:#cfe4bd;
+  --bad:#e8b9a8;
 }
 *{box-sizing:border-box}
 html{zoom:0.8}
@@ -19,53 +21,67 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
 .board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
 .slate{
   position:relative;font-family:'PencilPete',cursive;
-  border-radius:10px;padding:28px 34px 26px;color:var(--chalk);
+  border-radius:10px;padding:26px 34px 24px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
     radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
     var(--board);
 }
-.title{font-size:1.35rem;font-weight:700;letter-spacing:.08em;margin-bottom:18px;transform:rotate(-0.3deg)}
-.gridwrap{display:grid;grid-template-columns:250px repeat(4,1fr);column-gap:10px;row-gap:14px;align-items:center}
-.rowlbl{font-size:1.05rem;color:var(--chalk-dim);text-align:right;padding-right:8px;line-height:1.3}
-.slot{position:relative;display:flex;justify-content:center}
-.prefixrow{display:flex;gap:8px;align-items:flex-end}
+.title{font-size:1.35rem;font-weight:700;letter-spacing:.08em;transform:rotate(-0.3deg)}
+.sentence{
+  display:flex;gap:14px;justify-content:center;align-items:flex-start;
+  margin-top:34px; /* reserved space for corrections above */
+  min-height:190px;
+}
+.tokcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.chipwrap{position:relative;display:inline-block}
 .chip{
   border:1.8px solid rgba(245,244,239,.8);border-radius:10px 8px 11px 7px;
-  padding:5px 13px;font-size:1.25rem;font-weight:700;color:var(--chalk);
-  background:rgba(245,244,239,.05);
-  opacity:0;transition:opacity .4s, border-color .3s, color .3s, background .3s;
-  white-space:nowrap;
+  padding:5px 13px;font-size:1.3rem;font-weight:700;color:var(--chalk);
+  display:inline-block;text-align:center;
+  background:rgba(245,244,239,.05);white-space:nowrap;
+  opacity:0;transition:opacity .4s, border-color .3s, color .3s;
 }
 .chip.show{opacity:1}
-.chip.prefix{background:rgba(245,244,239,.85);color:#12291d;border-color:rgba(245,244,239,.9)}
-.chip.checking{box-shadow:0 0 0 3px rgba(245,244,239,.2)}
-.chip.ok{border-color:rgba(188,217,168,.95)}
-.chip.dead{border-style:dashed;border-color:rgba(232,150,120,.85);color:rgba(232,150,120,.95);text-decoration:line-through}
-.chip.gone{opacity:.35;border-style:dashed;color:var(--chalk-dim);text-decoration:line-through;background:rgba(245,244,239,.10)}
-.repl{
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(6px);
-  opacity:0;transition:opacity .5s, transform .5s;
+.chip.prefix{background:rgba(245,244,239,.85);color:#12291d;border-color:rgba(245,244,239,.9);opacity:1}
+.chip.checking{box-shadow:0 0 0 3px rgba(245,244,239,.18)}
+.chip.dead{border-style:dashed;border-color:rgba(232,150,120,.85);color:var(--bad);text-decoration:line-through}
+.chip.gone{opacity:.3;border-style:dashed;color:var(--chalk-dim);text-decoration:line-through}
+.correction{
+  position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;line-height:1;
+  opacity:0;transition:opacity .5s;pointer-events:none;
 }
-.repl.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.repl .chip{opacity:1;border-color:rgba(188,217,168,.95);color:#cfe4bd}
-.num{font-size:1.3rem;font-weight:700;text-align:center;opacity:0;transition:opacity .35s;min-height:26px}
-.num.show{opacity:1}
-.num.hot{font-size:1.45rem}
-.num.no{color:#e8b9a8}
-.num.okc{color:#cfe4bd}
-.num.dim{color:var(--chalk-dim);font-weight:400}
-.outline{margin-top:22px;font-size:1.35rem}
-.outline .k{color:var(--chalk-dim);font-size:1.05rem;letter-spacing:.08em;margin-right:10px}
-.punch{margin-top:10px;font-size:1.3rem;text-align:center;opacity:0;transition:opacity .6s;transform:rotate(-0.4deg)}
-.punch.show{opacity:1}
-.formula{margin-top:6px;text-align:center;font-size:1rem;color:var(--chalk-dim)}
+.correction.show{opacity:1}
+.correction .word{font-size:1.35rem;font-weight:700;color:var(--good);white-space:nowrap}
+.correction .caret{font-size:1.1rem;color:var(--good);margin-top:-2px}
+.grade{display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transition:opacity .4s}
+.grade.show{opacity:1}
+.grade .bars{display:flex;align-items:flex-end;gap:9px;height:88px}
+.grade .barcol{display:flex;flex-direction:column;align-items:center;gap:2px}
+.grade .bval{font-size:.82rem;color:var(--chalk-dim);line-height:1}
+.grade .bar{width:16px;border-radius:3px 3px 1px 1px}
+.grade .bar.p{background:rgba(245,244,239,.9)}
+.grade .bar.q{border:1.6px dashed rgba(245,244,239,.65);background:rgba(245,244,239,.08)}
+.grade .mark{font-size:1.35rem;line-height:1.1}
+.grade.okc .mark{color:var(--good)}
+.grade.no .mark{color:var(--bad)}
+.grade.dim{opacity:.4}
+.grade .acc{font-size:.95rem;color:var(--chalk-dim)}
+.barlegend{position:absolute;left:26px;bottom:14px;display:flex;flex-direction:column;gap:3px;font-size:.85rem;color:var(--chalk-dim)}
+.barlegend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.barlegend .sw.p{background:rgba(245,244,239,.9)}
+.barlegend .sw.q{border:1.6px dashed rgba(245,244,239,.65)}
+.barlegend .sw.a{visibility:hidden}
+.barlegend sub{font-size:.72em}
+.outline{margin-top:14px;font-size:1.35rem;text-align:center;min-height:34px;padding-left:220px}
+.outline .k{color:var(--chalk-dim);font-size:1.02rem;letter-spacing:.08em;margin-right:10px}
 .replay{
-  position:absolute;bottom:16px;right:26px;z-index:2;
+  position:absolute;bottom:14px;right:24px;z-index:2;
   display:flex;align-items:center;gap:9px;
   background:none;border:none;cursor:pointer;padding:0;
 }
-.replay svg{display:block;filter:url(#slip2)}
+.replay svg{display:block}
 .replay .eraser{
   width:34px;height:17px;border-radius:3px;flex:none;
   background:linear-gradient(#e9e7e2 0%, #cfccc5 58%, #57544d 59%, #45423c 100%);
@@ -74,134 +90,103 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
-  <filter id="slip2" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
-</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
     <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M20.49 15 a9 9 0 1 1 -2.12 -9.36 L23 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" fill="none"/><polyline points="23 4 23 10 17 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="eraser"></span></button>
 
-    <div class="title">rejection sampling: the target always wins</div>
+    <div class="title">rejection sampling</div>
 
-    <div class="gridwrap" style="margin-bottom:4px">
-      <div class="rowlbl"></div>
-      <div class="slot" style="grid-column:2 / span 4; justify-content:flex-start">
-        <div class="prefixrow" id="prefixrow"></div>
-      </div>
-    </div>
-
-    <div class="gridwrap">
-      <div class="rowlbl">draft proposes</div>
-      <div class="slot" id="s0"></div>
-      <div class="slot" id="s1"></div>
-      <div class="slot" id="s2"></div>
-      <div class="slot" id="s3"></div>
-
-      <div class="rowlbl">target model probability p(x)</div>
-      <div class="num" id="p0"></div><div class="num" id="p1"></div><div class="num" id="p2"></div><div class="num" id="p3"></div>
-
-      <div class="rowlbl">draft model probability q(x)</div>
-      <div class="num" id="q0"></div><div class="num" id="q1"></div><div class="num" id="q2"></div><div class="num" id="q3"></div>
-
-      <div class="rowlbl">accepted with min(1, p/q)</div>
-      <div class="num hot" id="a0"></div><div class="num hot" id="a1"></div><div class="num hot" id="a2"></div><div class="num hot" id="a3"></div>
-    </div>
-
-    <div class="outline"><span class="k">OUTPUT</span> <span id="output">NeurIPS 2026 is</span></div>
-    <div class="punch" id="punch">a wrong draft costs time, never correctness</div>
-    <div class="formula">rejected &rarr; resample from norm(max(0, p&nbsp;&minus;&nbsp;q)), and the rest of the draft is discarded</div>
+    <div class="sentence" id="sentence"></div>
+    <div class="outline"><span class="k">OUTPUT</span><span id="output">NeurIPS 2026 is in</span></div>
+    <div class="barlegend"><span><span class="sw p"></span>p(x<sub>i</sub>), the target model's probability</span><span><span class="sw q"></span>q(x<sub>i</sub>), the draft model's probability</span><span><span class="sw a"></span>a(x<sub>i</sub>) = min(1, p/q), the accept probability</span></div>
   </div></div>
 </div>
 
 <script>
 (function(){
-  var PREFIX = ['NeurIPS', '2026', 'is'];
+  var PREFIX = ['NeurIPS', '2026', 'is', 'in'];
   var TOKS = [
-    {w:'in',    p:'0.95', q:'0.90', a:'1.00', ok:true},
-    {w:'San',   p:'0.05', q:'0.70', a:'0.07', ok:false, repl:'Sydney'},
-    {w:'Diego', p:'0.10', q:'0.80', a:'0.13'},
-    {w:',',     p:'0.60', q:'0.85', a:'0.71'}
+    {w:'Sydney',     p:'0.85', q:'0.80', a:'1.00', kind:'ok'},
+    {w:',',          p:'0.90', q:'0.92', a:'0.98', kind:'ok'},
+    {w:'California', p:'0.05', q:'0.70', a:'0.07', kind:'no', repl:'Australia'},
+    {w:'.',          p:'0.60', q:'0.85', a:'0.71', kind:'dim'}
   ];
-  var OUT0 = 'NeurIPS 2026 is';
+  var OUT0 = 'NeurIPS 2026 is in';
 
-  var prefixrow = document.getElementById('prefixrow');
+  var sentence = document.getElementById('sentence');
   var output = document.getElementById('output');
-  var punch = document.getElementById('punch');
-  var slots = [], nums = {p:[], q:[], a:[]}, chips = [], repls = [];
+  var chips = [], corr = null, gradeEls = [];
 
   function build(){
-    prefixrow.innerHTML = '';
+    sentence.innerHTML = '';
+    chips = []; gradeEls = []; corr = null;
     PREFIX.forEach(function(w){
-      var c = document.createElement('span');
-      c.className = 'chip prefix show'; c.textContent = w;
-      prefixrow.appendChild(c);
+      var col = document.createElement('span'); col.className = 'tokcol';
+      col.innerHTML = '<span class="chipwrap"><span class="chip prefix">' + w + '</span></span>';
+      sentence.appendChild(col);
     });
-    chips = []; repls = [];
-    TOKS.forEach(function(t, i){
-      var slot = document.getElementById('s' + i);
-      slot.innerHTML = '';
-      var c = document.createElement('span');
-      c.className = 'chip'; c.textContent = t.w;
-      slot.appendChild(c); chips.push(c);
-      var r = null;
+    TOKS.forEach(function(t){
+      var col = document.createElement('span'); col.className = 'tokcol';
+      var wrap = '<span class="chipwrap">';
       if (t.repl){
-        r = document.createElement('span');
-        r.className = 'repl';
-        r.innerHTML = '<span class="chip">' + t.repl + '</span>';
-        slot.appendChild(r);
+        wrap += '<span class="correction" id="corr"><span class="word">' + t.repl + '</span><span class="caret">&#8963;</span></span>';
       }
-      repls.push(r);
-      ['p','q','a'].forEach(function(k){
-        var el = document.getElementById(k + i);
-        el.textContent = ''; el.className = 'num' + (k === 'a' ? ' hot' : '');
-        nums[k][i] = el;
-      });
+      wrap += '<span class="chip">' + t.w + '</span></span>';
+      var mark = t.kind === 'ok' ? '&#10003;' : (t.kind === 'no' ? '&#10007;' : '&ndash;');
+      var ph = Math.round(parseFloat(t.p) * 60) + 4;
+      var qh = Math.round(parseFloat(t.q) * 60) + 4;
+      col.innerHTML = wrap +
+        '<span class="grade">' +
+          '<span class="bars">' +
+            '<span class="barcol"><span class="bval">' + t.p + '</span><span class="bar p" style="height:' + ph + 'px"></span></span>' +
+            '<span class="barcol"><span class="bval">' + t.q + '</span><span class="bar q" style="height:' + qh + 'px"></span></span>' +
+          '</span>' +
+          '<span class="mark">' + mark + '</span>' +
+          '<span class="acc">a = ' + t.a + '</span>' +
+        '</span>';
+      sentence.appendChild(col);
+      chips.push(col.querySelector('.chip'));
+      if (t.repl) corr = col.querySelector('.correction');
+      gradeEls.push(col.querySelector('.grade'));
     });
-  }
-
-  function showNum(k, i, cls){
-    var el = nums[k][i];
-    el.textContent = TOKS[i][k];
-    el.classList.add('show');
-    if (cls) el.classList.add(cls);
   }
 
   var steps = [
-    [0.4, function(){ chips.forEach(function(c,i){ setTimeout(function(){ c.classList.add('show'); }, i*130); }); }],
-    // token 0: in — accepted
-    [1.3, function(){ chips[0].classList.add('checking'); showNum('p',0); }],
-    [1.8, function(){ showNum('q',0); }],
-    [2.4, function(){ showNum('a',0,'okc'); chips[0].classList.remove('checking'); chips[0].classList.add('ok');
-                      output.textContent = OUT0 + ' in'; }],
-    // token 1: San — rejected, Sydney resampled
-    [3.4, function(){ chips[1].classList.add('checking'); showNum('p',1); }],
-    [3.9, function(){ showNum('q',1); }],
-    [4.6, function(){ showNum('a',1,'no'); chips[1].classList.remove('checking'); chips[1].classList.add('dead'); }],
-    [5.4, function(){ repls[1].classList.add('show'); output.textContent = OUT0 + ' in Sydney'; }],
-    // suffix: numbers appear dim, then columns die together
-    [6.2, function(){ showNum('p',2,'dim'); showNum('q',2,'dim'); showNum('a',2,'dim');
-                      showNum('p',3,'dim'); showNum('q',3,'dim'); showNum('a',3,'dim'); }],
-    [7.0, function(){ chips[2].classList.add('gone'); chips[3].classList.add('gone'); }],
-    [8.0, function(){ punch.classList.add('show'); }]
+    [0.4, function(){ chips.forEach(function(c,i){ setTimeout(function(){ c.classList.add('show'); }, i*140); }); }],
+    // Sydney: accepted
+    [1.5, function(){ chips[0].classList.add('checking'); }],
+    [2.2, function(){ chips[0].classList.remove('checking');
+                      gradeEls[0].classList.add('show','okc');
+                      output.textContent = OUT0 + ' Sydney'; }],
+    // ,: accepted
+    [3.0, function(){ chips[1].classList.add('checking'); }],
+    [3.7, function(){ chips[1].classList.remove('checking');
+                      gradeEls[1].classList.add('show','okc');
+                      output.textContent = OUT0 + ' Sydney,'; }],
+    // California: rejected, Australia resampled
+    [4.5, function(){ chips[2].classList.add('checking'); }],
+    [5.3, function(){ chips[2].classList.remove('checking'); chips[2].classList.add('dead');
+                      gradeEls[2].classList.add('show','no'); }],
+    [6.1, function(){ corr.classList.add('show'); output.textContent = OUT0 + ' Sydney, Australia'; }],
+    // suffix discarded
+    [7.0, function(){ gradeEls[3].classList.add('show','dim'); }],
+    [7.6, function(){ chips[3].classList.add('gone'); }],
   ];
   var timers = [];
   function stopAll(){ timers.forEach(clearTimeout); timers = []; }
   function play(){
     stopAll(); build();
-    output.textContent = OUT0; punch.classList.remove('show');
+    output.textContent = OUT0;
     steps.forEach(function(st){ timers.push(setTimeout(st[1], st[0]*1000)); });
   }
   function finalState(){
     stopAll(); build();
     chips.forEach(function(c){ c.classList.add('show'); });
-    chips[0].classList.add('ok'); chips[1].classList.add('dead');
-    chips[2].classList.add('gone'); chips[3].classList.add('gone');
-    showNum('p',0); showNum('q',0); showNum('a',0,'okc');
-    showNum('p',1); showNum('q',1); showNum('a',1,'no');
-    ['p','q','a'].forEach(function(k){ showNum(k,2,'dim'); showNum(k,3,'dim'); });
-    repls[1].classList.add('show');
-    output.textContent = OUT0 + ' in Sydney';
-    punch.classList.add('show');
+    chips[2].classList.add('dead'); chips[3].classList.add('gone');
+    gradeEls[0].classList.add('show','okc'); gradeEls[1].classList.add('show','okc');
+    gradeEls[2].classList.add('show','no'); gradeEls[3].classList.add('show','dim');
+    corr.classList.add('show');
+    output.textContent = OUT0 + ' Sydney, Australia';
   }
 
   document.getElementById('replay').addEventListener('click', play);
