@@ -13,7 +13,7 @@
 <figure class="wide">
 <iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
 </figure>
-<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model. The animation compares the resulting timelines.</figcaption>
+<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
 
 **Why is it faster than the vanilla model decoding?** With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from both sides: better drafts get accepted more often, and smarter verification wastes less compute on bad drafts.
 
