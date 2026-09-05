@@ -260,7 +260,7 @@ vanilla vs dspark:  identical for 8,299 chars (76% of the page),
                     and the trajectories separate from there (10,924 vs 10,535 chars)
 ```
 
-This is not the theorem failing. The guarantee is about distributions, not trajectories: the speculative path runs different kernels, the numerics shift by a hair, and a near-tie token (0.2s vs 0.3s was evidently one) falls the other way. vLLM's own docs drew this boundary in Section 2.2: theoretical losslessness holds "up to the precision limits of hardware numerics," and output stability is layer three, the one nobody guarantees. Both pages render, both satisfy the brief, and they are different pages. If your product depends on reproducing an exact output, lossless-in-distribution is not the property you think it is.
+The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).
 
 Speed has the same domain dependence as the outputs. The per-domain rates (`race_domains.py`, one prompt per domain, 512 tokens, greedy, median of 5 repeat runs):
 
