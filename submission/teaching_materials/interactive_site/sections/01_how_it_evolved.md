@@ -115,7 +115,7 @@ With all 4 models introduced, the race can now run in full comparison. See Figur
 <figure class="wide">
 <iframe src="../figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
+<figcaption><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark numbers are our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>
