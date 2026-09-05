@@ -36,9 +36,11 @@ The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2
 The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.
 
 <figure class="wide">
-<iframe src="../figures/dflash_diffusion_analogy_chalk-v2.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting, parallel image denoising, and DFlash parallel block drafting"></iframe>
+<iframe src="../figures/dflash_diffusion_analogy_chalk-v5.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting versus parallel image denoising, ending with the question of parallel drafting"></iframe>
 </figure>
-<figcaption>Diffusion drafting, three ways to fill a canvas. Painting serially fills one cell at a time; diffusion denoises every pixel in parallel; DFlash does the same to a block of MASK tokens, filling every position in one pass.</figcaption>
+<figcaption><strong>Figure 3.</strong> Two ways to fill a canvas. Painting serially fills one cell at a time; diffusion denoises every pixel in parallel. What about drafting tokens in parallel to make speculative decoding faster?</figcaption>
+
+
 
 Diffusion drafting brings two benefits.
 
@@ -46,9 +48,14 @@ Diffusion drafting brings two benefits.
 - **Conditioning on the target model's context features makes the drafts accurate.** Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache, so every layer sees the full context while the block is filled in. The result is high-quality drafts with higher acceptance rates.
 
 <figure class="wide">
+<iframe src="../figures/dflash_flat_cost_chalk-v1.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Interactive chart of drafting cost versus block size for EAGLE-3 and DFlash"></iframe>
+</figure>
+<figcaption><strong>Figure 4.</strong> Drafting cost versus block size. EAGLE-3 keeps one layer to stay fast, so drafting &gamma; tokens costs &gamma; passes; DFlash spends five layers in one pass, flat at any &gamma;.</figcaption>
+
+<figure class="wide">
 <iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
-<figcaption><strong>Figure 3.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
+<figcaption><strong>Figure 5.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
 
 As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.
 
@@ -68,7 +75,7 @@ Unlike the previous models that optimize the draft mechanism, **DSpark** ([DeepS
 <figure class="wide">
 <iframe src="../figures/figure4_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
 </figure>
-<figcaption><strong>Figure 4.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
+<figcaption><strong>Figure 6.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
 
 Consequently, DSpark cuts verification time. Offline, DSpark improves accepted length by 16–31% over state-of-the-art drafters. Deployed in the DeepSeek-V4 production serving stack, it accelerates per-user generation by 60–85% at matched throughput over the MTP-1 production baseline ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)). DeepSeek open-sourced the DSpark checkpoints together with DeepSpec, an open-source training repository for speculative decoding.
 
@@ -80,19 +87,19 @@ Consequently, DSpark cuts verification time. Offline, DSpark improves accepted l
 
 ### 1.4 DFlash 2 (2026) – longer acceptance length
 
-DSpark tries to address the acceptance decay with a sequential token head, but **DFlash 2** ([Inco, 2026](https://inco.ai/blog/dflash2/)) argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.
+DSpark tries to address the acceptance decay with a sequential token head, but **DFlash 2** ([Inco, 2026](https://inco.ai/blog/dflash2/)) argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector. The cost gap is the argument: the sequential head re-predicts a full vocabulary distribution at every position, 77.8M parameters and 9.6% latency, while the selector does its job with 2.0M and 0.6%.
 
-What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. The recall numbers say the same: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, while the top-16 list only falls from 99.5% to 87.8%. The job is selection, and selection can run in parallel (Figure 5).
+What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. Inco measured how much this is worth: if a perfect judge always picked the right candidate out of the top 16, acceptance length would jump from 4.27 to 6.79. The missing tokens are rarely the problem; the missing judgment is. The job is selection, and selection can run in parallel (Figure 7).
 
 <figure class="wide">
 <iframe src="../figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
 </figure>
-<figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
+<figcaption><strong>Figure 7.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
 DFlash 2 does it with two additions.
 
 - **A path selector picks a coherent sequence.** It scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token replaces independent guesses, at 2M added parameters and 0.6% latency.
-- **Two-tap convolutions keep neighbors consistent.** Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block.
+- **Two-tap convolutions keep neighbors consistent.** Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block. Reaching one position back recovers most of what ten extra layers would buy: the decay at the block's tail is a local problem, and a local fix is enough.
 
 
 As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
@@ -105,12 +112,12 @@ As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per 
 
 ### 1.5 Case study: the decoding race
 
-With all 4 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.
+With all 4 models introduced, the race can now run in full comparison. See Figure 8. All 5 models decode the same sentence on the same target model.
 
 <figure class="wide">
 <iframe src="../figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption><strong>Figure 6.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
+<figcaption><strong>Figure 8.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>

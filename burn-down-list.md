@@ -25,10 +25,10 @@
 | I4 | Venue lineage sentence in intro (blockwise parallel decoding NeurIPS 2018, spec decoding ICML 2023, EAGLE-3 NeurIPS 2025, DFlash ICML 2026), per chair guidance | 🟢 Lily |  |
 | I5 | Push all the chalkboard figures to GitHub | 🟡 Madison |  |
 | I6 | Hover glossary for jargon terms in "What lossless means" (B200, SGLang, vanilla), per Andrew's feedback | 🔴 Madison |  |
-| I7 | Mobile + cross-browser pass on the interactive demos (race iframes, replay buttons, Figure 10 SVG) | 🔴 Madison |  |
+| I7 | Mobile + cross-browser pass on the interactive demos (race iframes, replay buttons, Figure 12 SVG) | 🔴 Madison |  |
 | I8 | Link check across the site: all external links resolve (HF dataset, arXiv, OpenAI/Anthropic/DeepSeek refs) | 🔴 Madison |  |
-| I9 | New 2.4 lab subsection "Adjust acceptance rate yourself" (Figure 14): sweep SGLang acceptance threshold, show quality vs acceptance | 🟢 Lily | Shipped 9/4 2:10pm: swept 1.0 → 0.4 on the frontend design task (L101, temperature 1), τ 4.9 → 7.2; side-by-side generated pages, judged visually; greedy sweep was inert (byte-identical), documented in 2.4 |
-| I10 | Figure fixes (rest of site looks good): Figure 2 — Veo 3 block has a disjoint part after fuse; Figure 5 — needs fixing; Figure 7 — stretched on phone view | 🔴 Madison |  |
+| I9 | New 2.4 lab subsection "Adjust acceptance rate yourself" (Figure 17): sweep SGLang acceptance threshold, show quality vs acceptance | 🟢 Lily | Shipped 9/4 2:10pm: swept 1.0 → 0.4 on the frontend design task (L101, temperature 1), τ 4.9 → 7.2; side-by-side generated pages, judged visually; greedy sweep was inert (byte-identical), documented in 2.4 |
+| I10 | Figure fixes (rest of site looks good; numbers current as of 9/4 renumber): Figure 2 — Veo 3 block has a disjoint part after fuse; Figure 7 — needs fixing; Figure 9 — stretched on phone view | 🔴 Madison |  |
 
 ## Feedbacks
 

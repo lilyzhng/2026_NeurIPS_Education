@@ -8,16 +8,18 @@
 |---|---|---|---|---|
 | Fig 1 | figures/figure1_chalk.html | 00 intro | vanilla vs speculative decoding 动画 | ✅ 模板（其余 figure 按它改：小 20%、dark forest 底、橡皮擦 replay 按钮） |
 | Fig 2 | figures/figure2_chalk.html | 1.1 EAGLE-3 | vanilla spec dec vs EAGLE-3 draft layer | 🔴 fuse 后 Veo 3 block 有 disjoint 部分 |
-| Fig 3 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入 | — |
-| Fig 4 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
-| Fig 5 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
-| Fig 6 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
-| Fig 7 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
-| Fig 8 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
-| Fig 9 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
-| Fig 10–13 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
-| Fig 14 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
-| Fig 15 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
+| Fig 3 | figures/dflash_diffusion_analogy_chalk-v5.html | 1.2 DFlash | 袋鼠两 lane：serial paint vs parallel denoise（Twemoji 🦘 alpha 描边 32×32），结尾 "What about drafting in parallel?" | ✅ 已嵌入（2026-09-04） |
+| Fig 4 | figures/dflash_flat_cost_chalk-v1.html | 1.2 DFlash | flat-cost 交互图：drafting cost vs γ，滑块 + break-even 标注 | ✅ 已嵌入（2026-09-04） |
+| Fig 5 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入 | — |
+| Fig 6 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
+| Fig 7 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
+| Fig 8 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
+| Fig 9 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
+| Fig 10 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
+| Fig 11 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
+| Fig 12–15 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
+| Fig 16 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
+| Fig 17 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
 | Fig A2 | figures/figureA2_chalk.html | 05 appendix | — | — |
 | 附录 | fig14_ownership_migration.svg | 05 appendix | acceleration 工作从 serving layer 迁移到 labs 的时间线 | — |
 
