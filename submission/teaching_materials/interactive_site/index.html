@@ -114,6 +114,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     .byline-col { display: flex; flex-direction: column; gap: 0.1rem; }
     .byline-col .byline-label { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
     .byline-col .byline-value { font-weight: 600; color: var(--ink); }
+    .byline-col .byline-value a { color: var(--ink); text-decoration-color: var(--line-strong); }
+    .byline-col .byline-value a:hover { color: #2437e7; }
     .byline-col .byline-value.light { font-weight: 400; }
     .byline-col .byline-value + .byline-value { margin-top: 0.45rem; }
 
@@ -387,8 +389,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     <div class="authors">
       <span class="byline-col">
         <span class="byline-label">Authors</span>
-        <span class="byline-value">Lily Zhang</span>
-        <span class="byline-value">Madison Kanna</span>
+        <span class="byline-value"><a href="https://lilyzh.ng" target="_blank" rel="noopener">Lily Zhang</a></span>
+        <span class="byline-value"><a href="https://madisonkanna.substack.com/" target="_blank" rel="noopener">Madison Kanna</a></span>
       </span>
       <span class="byline-col">
         <span class="byline-label">Affiliations</span>
