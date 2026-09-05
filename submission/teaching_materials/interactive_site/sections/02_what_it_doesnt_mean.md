@@ -1,6 +1,6 @@
 <div id="notmean" class="section">
 
-## 2. What it doesn't mean
+## 2. When it stays lossless
 
 Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
 

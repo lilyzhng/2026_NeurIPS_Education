@@ -9,7 +9,7 @@ Interactive website: https://neurips2026-speculative-decoding.vercel.app/
 
 ## Title
 
-Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next
+Speculative Decoding: How It Evolved, When It Stays Lossless, and What's Next
 
 ## Author
 
@@ -57,7 +57,7 @@ The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculat
 
 All materials, including LosslessBench, are original and created for this track:
 
-- **Interactive self-contained website** following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo.
+- **Interactive self-contained website** following the How It Evolved / When It Stays Lossless / What's Next arc, with an interactive walkthrough and an acceptance-rate demo.
 - **Hands-on lab** with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
 - All materials, including the interactive article and lab code, are publicly available through the interactive website.
 

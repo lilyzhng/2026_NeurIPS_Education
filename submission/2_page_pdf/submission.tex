@@ -18,7 +18,7 @@
 \setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{4pt}
 
-\title{Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next}
+\title{Speculative Decoding: How It Evolved, When It Stays Lossless, and What's Next}
 
 \author{%
   Lily Zhang \And Madison Kanna
@@ -29,7 +29,7 @@
 \maketitle
 
 \begin{abstract}
-Every LLM you use generates one token at a time. This is autoregressive decoding, a major bottleneck of inference: producing $n$ tokens takes $n$ passes through a model with tens of billions of parameters. Speculative decoding accelerates this with a draft-and-verify loop, and it now runs under nearly every hosted LLM: OpenAI, Anthropic, DeepSeek, and Kimi all ship it in production. This education material teaches the concept through three questions: \underline{What Lossless Means} (how does speculative decoding work, and why is it lossless in theory?), \underline{What It Doesn't} (does the guarantee hold beyond math and code?), and \underline{What's Next} (what are the exciting new directions?). Learners walk through three generations of draft models (EAGLE-3, DFlash, DSpark), then a hands-on lab on a single GPU: serve an accelerated model, measure acceptance and speed, and adjust the acceptance threshold in deployment. All materials, including the interactive article and lab code, are publicly available through our interactive website\footnote{Interactive Website: \url{https://neurips2026-speculative-decoding.vercel.app/}}.
+Every LLM you use generates one token at a time. This is autoregressive decoding, a major bottleneck of inference: producing $n$ tokens takes $n$ passes through a model with tens of billions of parameters. Speculative decoding accelerates this with a draft-and-verify loop, and it now runs under nearly every hosted LLM: OpenAI, Anthropic, DeepSeek, and Kimi all ship it in production. This education material teaches the concept through three questions: \underline{How It Evolved} (how does speculative decoding work, and how did four generations of draft models remove its bottlenecks?), \underline{When It Stays Lossless} (does the guarantee hold beyond math and code?), and \underline{What's Next} (what are the exciting new directions?). Learners walk through three generations of draft models (EAGLE-3, DFlash, DSpark), then a hands-on lab on a single GPU: serve an accelerated model, measure acceptance and speed, and adjust the acceptance threshold in deployment. All materials, including the interactive article and lab code, are publicly available through our interactive website\footnote{Interactive Website: \url{https://neurips2026-speculative-decoding.vercel.app/}}.
 \end{abstract}
 
 \section{Concept Summary}
@@ -69,7 +69,7 @@ The resource covers recent papers at NeurIPS and its sister venues:
 The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculative decoding (ICML 2023), EAGLE-3 (NeurIPS 2025), DFlash (ICML 2026); on the training side, FP8 in \href{https://arxiv.org/abs/2412.19437}{DeepSeek-V3}, MXFP4 QAT in \href{https://arxiv.org/abs/2508.10925}{gpt-oss}, and Kimi K3 shipping the speculator in post-training.
 
 \section{Teaching Materials Summary}
-All materials, including LosslessBench, are original and created for this track: (1) an \textbf{interactive self-contained website} following the What Lossless Means / What It Doesn't / What's Next arc, with an interactive walkthrough and an acceptance-rate demo; (2) a \textbf{hands-on lab} with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
+All materials, including LosslessBench, are original and created for this track: (1) an \textbf{interactive self-contained website} following the How It Evolved / When It Stays Lossless / What's Next arc, with an interactive walkthrough and an acceptance-rate demo; (2) a \textbf{hands-on lab} with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
 
 
 \vspace{-4pt}\section*{References}

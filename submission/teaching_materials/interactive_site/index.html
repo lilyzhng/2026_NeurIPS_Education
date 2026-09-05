@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next</title>
+<title>Speculative Decoding: How It Evolved, When It Stays Lossless, and What's Next</title>
 <link rel="icon" type="image/png" href="figures/favicon.png" />
 <link rel="shortcut icon" href="figures/favicon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -312,13 +312,13 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     <div class="toc-title">Table of Contents</div>
     <ul>
       <li><a href="#intro">Introduction</a></li>
-      <li><a href="#lossless">1. What lossless means</a></li>
+      <li><a href="#lossless">1. How speculative decoding evolved</a></li>
       <li class="sub"><a href="#eagle3">1.1 EAGLE-3 (2025)</a></li>
       <li class="sub"><a href="#dflash">1.2 DFlash (2026)</a></li>
       <li class="sub"><a href="#dspark">1.3 DeepSeek DSpark (2026)</a></li>
       <li class="sub"><a href="#dflash2">1.4 DFlash 2 (2026)</a></li>
       <li class="sub"><a href="#race">1.5 Case study</a></li>
-      <li><a href="#notmean">2. What it doesn't mean</a></li>
+      <li><a href="#notmean">2. When it stays lossless</a></li>
       <li class="sub"><a href="#papers">2.1 What it doesn't mean in papers</a></li>
       <li class="sub"><a href="#deployment">2.2 Lossless in deployment</a></li>
       <li class="sub"><a href="#losslessbench">2.3 Introducing Lossless Bench</a></li>
@@ -335,7 +335,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
   </aside>
 
   <article>
-    <h1>Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next</h1>
+    <h1>Speculative Decoding: How It Evolved, When It Stays Lossless, and What's Next</h1>
     <div class="authors">
       <span class="byline-col">
         <span class="byline-label">Authors</span>
@@ -370,15 +370,15 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <p><strong>Today, speculative decoding runs under nearly every hosted LLM</strong>, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model (<a href="https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484">OpenAI, 2026</a>), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate (<a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">Anthropic, 2026</a>), DeepSeek ships DSpark in its serving engine for a 51% throughput gain (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>), and Kimi K3 ships with its own draft model (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). It is a cornerstone topic to learn in the LLM stack. Grounded in research from NeurIPS and ICML, we will run through: blockwise parallel decoding at NeurIPS 2018 (<a href="https://arxiv.org/abs/1811.03115">Stern et al.</a>), lossless speculative decoding at ICML 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al.</a>), EAGLE-3 at NeurIPS 2025 (<a href="https://arxiv.org/abs/2503.01840">Li et al.</a>), DFlash at ICML 2026 (<a href="https://arxiv.org/abs/2602.06036">Chen et al.</a>), and its successor DFlash 2 (<a href="https://inco.ai/blog/dflash2/">Inco AI, 2026</a>).</p>
 <p><strong>The target audience:</strong> If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:</p>
 <ol type="1">
-<li><u>What lossless means.</u> How does speculative decoding work? Why is it lossless in theory?</li>
-<li><u>What it doesn't mean.</u> Introducing <a href="https://huggingface.co/datasets/lilyzhng/lossless_bench">Losslessbench</a>, and a hands-on lab to run the models yourself.</li>
+<li><u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of draft models remove its bottlenecks?</li>
+<li><u>When it stays lossless.</u> Introducing <a href="https://huggingface.co/datasets/lilyzhng/lossless_bench">Losslessbench</a>, and a hands-on lab to run the models yourself.</li>
 <li><u>What's next?</u> What are the exciting new directions in accelerated inference?</li>
 </ol>
 </div>
 
 <div id="lossless" class="section">
 
-<h2 id="1-what-lossless-means">1. What lossless means</h2>
+<h2 id="1-how-speculative-decoding-evolved">1. How speculative decoding evolved</h2>
 <p>What does lossless acceleration mean for an LLM? Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.</p>
 <figure class="wide">
 <iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
@@ -534,12 +534,12 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <figcaption><strong>Table 2.</strong> The four models at a glance.</figcaption>
 
 <p>All four models are in production today. Since March 2025, EAGLE-3 draft heads ship for Llama, Qwen, and DeepSeek V3. By spring 2026, DFlash was integrated into SGLang, vLLM, TensorRT-LLM, and llama.cpp, and NVIDIA reported up to 15x throughput with it on Blackwell GPUs (<a href="https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/">NVIDIA, 2026</a>). DFlash alone has been downloaded more than 3.5 million times in seven months. By mid-2026, model builders release official drafters alongside the models themselves: Meta, Poolside, and NVIDIA for DFlash (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>), Red Hat for DSpark (<a href="https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview">RedHatAI, 2026</a>), and in July 2026, Kimi K3 shipped with its own speculator, trained during post-training (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). See Table 2.</p>
-<p>So far we have covered what lossless means. In the next section, we will discuss what lossless does not mean.</p>
+<p>So far we have covered how speculative decoding works and evolved. In the next section, we will discuss when it stays lossless.</p>
 </div>
 
 <div id="notmean" class="section">
 
-<h2 id="2-what-it-doesnt-mean">2. What it doesn't mean</h2>
+<h2 id="2-when-it-stays-lossless">2. When it stays lossless</h2>
 <p>Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
 </div>
 
@@ -879,7 +879,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>You can cite this article here:</p>
 <div class="sptc-py" data-lang="bibtex"><pre>
 @article{zhang2026losslessspec,
-  title   = &quot;Speculative Decoding: What Lossless Means, What It Doesn't, and What's Next&quot;,
+  title   = &quot;Speculative Decoding: How It Evolved, When It Stays Lossless, and What's Next&quot;,
   author  = &quot;Zhang, Lily and Kanna, Madison&quot;,
   year    = &quot;2026&quot;,
   month   = &quot;August&quot;,
