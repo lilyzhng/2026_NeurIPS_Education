@@ -6,7 +6,7 @@ All feedback from Vibhu Sapra on the interactive site, one item per row, with st
 
 | # | Feedback | His words | Status |
 |---|---|---|---|
-| 1 | Root cause: Section 1's content was the evolution, but its title said "What lossless means", so the piece read as term-defining | why are we spending so much time defining lossless? ... > no, is lossless meaning __ > ok move on | ✅ Done 9/4: arc renamed (How It Evolved / When It Stays Lossless / What's Next), intro split into Why it matters + How it works with the theory moved there, Section 1 retitled and opens directly into the evolution |
+| 1 | Section 1's content was the architectural evolution, but the title said "What lossless means"; change the title | why are we spending so much time defining lossless? ... > no, is lossless meaning __ > ok move on | ✅ Done 9/4: retitled "How speculative decoding evolved"; arc renamed to How It Evolved / When It Stays Lossless / What's Next |
 | 2 | Intro is short on what the learner practically gets | I think this intro is a little short on practically what we're actually doing here / what I'm getting out of it. Like I'm actually getting a walkthru of spec decoding techniques over time | ✅ Roadmap item 1 rewritten: how the four generations build upon each other; Section 1 retitled "How speculative decoding evolved" |
 | 3 | Opener paragraph asks "What does lossless acceleration mean for an LLM?" and never answers it in that paragraph | > start a paragraph literally with "What does lossless acceleration mean for an LLM? " > doesn't even answer it in that paragraph? ... bruh | ⬜ Rework the How-it-works opener to answer or drop the question |
 
