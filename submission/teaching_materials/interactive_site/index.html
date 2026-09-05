@@ -507,6 +507,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 </figure>
 <figcaption><strong>Figure 3.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
 
+<p>How the target's context reaches the draft matters. Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache, so every layer sees the full context while the block is filled in.</p>
 <p>As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.</p>
 <p class="pullquote">The block positions are predicted independently, so draft tokens cannot see each other. How do we handle the acceptance decay toward the end of the block?</p>
 
@@ -533,13 +534,14 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <div id="dflash2" class="section">
 
 <h3 id="14-dflash-2-2026--longer-acceptance-length">1.4 DFlash 2 (2026) – longer acceptance length</h3>
-<p><strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) addresses this decay on the draft side, with two additions to the DFlash architecture. A lightweight path selector scores adjacent token pairs and picks a coherent sequence through the top candidates at each position, instead of taking independent top-1 predictions. Two-tap local convolutions in the backbone strengthen dependencies within the block, reducing the accuracy drop toward block ends.</p>
+<p>Independent predictions fail in a specific way. Take a verified prefix "swift brown fox" and five masked positions: the right tokens usually sit in each position's short candidate list, but taking the top candidate at every position independently can produce a sequence nobody would write, and two neighbors can even pick the same word. The recall numbers set the ceiling: the top candidate matches the target 85.4% of the time at the first block position and 72.9% by position six, and even the top-16 list falls from 99.5% to 87.8% (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>). No selector can pick a token that never made the list, but inside the list there is a lot to win.</p>
+<p><strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) wins it with two additions to the DFlash architecture. A lightweight path selector scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token yields a coherent sequence instead of independent guesses, at 2M added parameters and 0.6% latency. Two-tap convolutions before and after each attention and feed-forward sublayer mix every position with its predecessor, and the first position reads the last verified token, softening the decay toward the end of the block.</p>
 <figure class="wide">
 <iframe src="figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
 </figure>
 <figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
-<p>As we can tell, DFlash 2 raises acceptance length. The two additions produce 21% more output per verification pass than DFlash, at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>). Note that DFlash 2 argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.</p>
+<p>As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>). Note that DFlash 2 argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector.</p>
 <p class="pullquote">After four generations of draft architectures, do you have an idea that could be the next SOTA?</p>
 
 </div>
