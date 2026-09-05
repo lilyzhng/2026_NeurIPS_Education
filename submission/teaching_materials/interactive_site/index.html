@@ -772,7 +772,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="fig11task" class="section">
 
-<h4 id="the-figure-11-task-on-your-own-server">The Figure 11 task, on your own server</h4>
+<h4 id="run-losslessbench-on-your-own-server">Run LosslessBench on your own server</h4>
 <p>Section 2.3 found its frontend gap under a full vendor stack, where quantization was the culprit. Here you isolate one variable: speculative decoding alone, on the same brief Figure 11 used (OpenDesign id 673, "Stunning translucent calendar popup that smoothly blends into the interface").</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla   <span class="co"># rerun per lane</span></span></code></pre></div>
 <p>Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>

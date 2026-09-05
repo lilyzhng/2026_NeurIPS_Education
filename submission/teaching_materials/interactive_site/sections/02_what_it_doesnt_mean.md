@@ -243,7 +243,7 @@ These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
 
 <div id="fig11task" class="section">
 
-#### The Figure 11 task, on your own server
+#### Run LosslessBench on your own server
 
 Section 2.3 found its frontend gap under a full vendor stack, where quantization was the culprit. Here you isolate one variable: speculative decoding alone, on the same brief Figure 11 used (OpenDesign id 673, "Stunning translucent calendar popup that smoothly blends into the interface").
 
