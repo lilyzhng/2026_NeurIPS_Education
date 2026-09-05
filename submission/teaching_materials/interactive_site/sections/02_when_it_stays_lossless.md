@@ -216,7 +216,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 #### b. Adjust acceptance rate yourself
 
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 15, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 18). At temperature 0 the threshold has no effect: the same sweep returned byte-identical pages at every stop.
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 15, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 18). At temperature 0 the threshold does nothing: every stop returned byte-identical pages.
 
 <figure class="wide">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold demo"></iframe>
