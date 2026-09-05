@@ -96,7 +96,7 @@ body{
       <div class="lane p1">
         <div class="lanehead">
           <span class="lanename">Paint serially</span>
-          <span class="lanesub">corner by corner</span>
+          <span class="lanesub">pixel by pixel</span>
           <span class="donebadge" id="done1">still painting&#8230;</span>
         </div>
         <div class="pix" id="grid1"></div>
@@ -214,7 +214,7 @@ body{
     }
     if (t >= T_P){
       done1.style.opacity = '0';
-      status1.textContent = 'done at last \u00b7 ' + N + ' cells';
+      status1.textContent = 'done at last \u00b7 32\u00d732 grid';
     } else {
       done1.style.opacity = t >= T_D ? '1' : '0';
       status1.textContent = 'cell ' + Math.min(N, filled + 1) + ' of ' + N + '\u2026';
