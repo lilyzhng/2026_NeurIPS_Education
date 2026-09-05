@@ -310,9 +310,14 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 @media print {
   .layout { display: block !important; padding-inline: 0 !important; }
   .layout::before, .layout::after { display: none !important; }
-  .toc { display: block !important; position: static !important; page-break-after: always; }
-  .toc a { color: #333; }
-  .section, figure, .table-wrap, .pullquote { break-inside: avoid; }
+  .toc { display: block !important; position: static !important; page-break-after: always;
+         max-width: 30rem; margin: 4rem auto 0; }
+  .toc-title { font-size: 1.15rem; margin-bottom: 1.2rem; }
+  .toc a { color: #333; font-size: 1.02rem; }
+  .toc li.sub a { font-size: 0.9rem; }
+  .toc li { margin-bottom: 1rem; }
+  figure img { display: block; width: 74% !important; margin-inline: auto; }
+  figure, .table-wrap, .pullquote { break-inside: avoid; }
   iframe { break-inside: avoid; }
   body { background: #fff; }
 }
