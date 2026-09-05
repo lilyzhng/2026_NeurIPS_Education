@@ -387,7 +387,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <h3 id="why-it-matters">Why it matters</h3>
 <p><strong>Every LLM you use generates one token at a time.</strong> This is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-autoregressive-decoding">autoregressive decoding<span class="glossary-tooltip" id="glossary-autoregressive-decoding" role="tooltip">Generating text one token at a time, with each token depending on the one before it.</span></button>, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-speculative-decoding">Speculative decoding<span class="glossary-tooltip" id="glossary-speculative-decoding" role="tooltip">A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</span></button>, introduced in 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>), is an approach to accelerate this: a lightweight <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-draft-model">draft model<span class="glossary-tooltip" id="glossary-draft-model" role="tooltip">A cheaper model or draft layer that proposes several likely next tokens.</span></button> proposes the next few tokens, and the full <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-target-model">target model<span class="glossary-tooltip" id="glossary-target-model" role="tooltip">The larger model whose output distribution we want to preserve.</span></button> verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-lossless">lossless<span class="glossary-tooltip" id="glossary-lossless" role="tooltip">Produces the same distribution of outputs as the unaccelerated version.</span></button> in theory.</p>
 <figure class="wide">
-<iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
+<img src="figures/print/figure1_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model. The animation compares the resulting timelines.</figcaption>
 
@@ -481,7 +481,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <p>Earlier EAGLE models do not improve acceptance length with more training data. This is because the draft layer was trained to predict the target's next hidden feature as well as the next token. This training objective forced the model to reproduce the target's exact feature vectors; as a result, the draft spends its capacity copying features instead of guessing token betters.</p>
 <p><strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>) addresses this with a less-is-more training objective: it drops feature prediction and predicts the token directly, with features fused from low, middle, and high target layers instead of the top layer only. However, this introduces a new problem: at inference, the draft consumes its own outputs, which drift away from the training distribution, and acceptance collapses from the second step on. EAGLE-3 fixes this with training-time test: during training, the draft unrolls several steps and consumes its own outputs, so the distribution it trains on is the distribution it sees at inference.</p>
 <figure class="wide">
-<iframe src="figures/figure2_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla speculative decoding and EAGLE-3"></iframe>
+<img src="figures/print/figure2_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 2.</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's hidden features and LM head.</figcaption>
 
@@ -495,7 +495,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="12-dflash-2026--shorter-drafting-time">1.2 DFlash (2026) – shorter drafting time</h3>
 <p>The key design choice of <strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) is to make drafting parallel: the whole block at once, instead of token by token. The draft is a lightweight block diffusion model: it predicts an entire block of tokens in a single forward pass, conditioned on context features extracted from the target model.</p>
 <figure class="wide">
-<iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
+<img src="figures/print/dflash_draft_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 3.</strong> EAGLE-3 drafts tokens serially, one at a time. DFlash drafts a whole block in parallel, with the target model's context features injected once per block.</figcaption>
 
@@ -513,7 +513,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <li>A confidence head estimates how likely each draft prefix is to survive verification, and a load-aware scheduler sets the verification length per request, based on the estimated survival probability and the engine's throughput profile.</li>
 </ul>
 <figure class="wide">
-<iframe src="figures/figure4_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
+<img src="figures/print/figure4_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 4.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
 
@@ -527,7 +527,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="14-dflash-2-2026--longer-acceptance-length">1.4 DFlash 2 (2026) – longer acceptance length</h3>
 <p><strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) addresses this decay on the draft side, with two additions to the DFlash architecture. A lightweight path selector scores adjacent token pairs and picks a coherent sequence through the top candidates at each position, instead of taking independent top-1 predictions. Two-tap local convolutions in the backbone strengthen dependencies within the block, reducing the accuracy drop toward block ends.</p>
 <figure class="wide">
-<iframe src="figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
+<img src="figures/print/figure5_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 5.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
@@ -541,7 +541,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <h3 id="15-case-study-the-decoding-race">1.5 Case study: the decoding race</h3>
 <p>With all 4 models introduced, the race can now run in full comparison. See Figure 6. All 5 models decode the same sentence on the same target model.</p>
 <figure class="wide">
-<iframe src="figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
+<img src="figures/print/figure6_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 6.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
 
@@ -584,13 +584,13 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <li>A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See Figure 7.</li>
 </ul>
 <figure>
-<iframe src="figures/figure7_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
+<img src="figures/print/figure7_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 7.</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
 
 <p>Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)</p>
 <figure>
-<iframe src="figures/figure8_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of non-anticipating and peeking schedulers"></iframe>
+<img src="figures/print/figure8_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 8.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
 
@@ -636,7 +636,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
 <figure>
-<iframe src="figures/figure9_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated walkthrough of OpenRouter traffic by task type and speculative-decoding benchmark coverage"></iframe>
+<img src="figures/print/figure9_chalk.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 9.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
 
@@ -768,7 +768,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <h4 id="b-adjust-acceptance-rate-yourself">b. Adjust acceptance rate yourself</h4>
 <p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.</p>
 <figure class="wide">
-<iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
+<img src="figures/print/knob_demo.png" style="width:100%;" alt="figure (static render)">
 </figure>
 <figcaption><strong>Figure 14.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
