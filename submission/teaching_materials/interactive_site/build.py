@@ -63,7 +63,7 @@ open(os.path.join(HERE, 'index.html'), 'w').write(out)
 # --- figures next to the html so the site is self-contained ---
 source_figures = os.path.join(HERE, '..', '..', 'figures')
 output_figures = os.path.join(HERE, 'figures')
-for filename in ('teaser_figure.png', 'figure1_chalk.html', 'figure2_chalk.html', 'dflash_draft_chalk.html', 'figure4_chalk.html', 'figure5_chalk.html', 'figure6_chalk.html', 'figure7_chalk.html', 'figure8_chalk.html', 'figure9_chalk.html', 'figureA2_chalk.html'):
+for filename in ('teaser_figure.png', 'figure1_chalk.html', 'figure2_chalk.html', 'dflash_draft_chalk.html', 'figure4_chalk.html', 'figure5_chalk.html', 'figure6_chalk.html', 'figure7_chalk.html', 'figure8_chalk.html', 'figure9_chalk.html', 'figureA2_chalk.html', 'PencilPete.ttf', 'ChalkBoard.ttf'):
     fig = os.path.join(source_figures, filename)
     if os.path.exists(fig):
         os.makedirs(output_figures, exist_ok=True)

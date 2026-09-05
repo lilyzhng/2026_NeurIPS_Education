@@ -4,15 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure 2 — Vanilla speculative decoding vs EAGLE-3</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.slate{filter:url(#chalkgrain)}
+</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
-  --chalk:#DFDBCE;
-  --chalk-dim:rgba(223,219,206,.55);
-  --chalk-faint:rgba(223,219,206,.32);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
+  --chalk-faint:rgba(245,244,239,.32);
   --board:#12291d;
   --frame:#7A5230;
 }
@@ -22,7 +21,7 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .wrap{max-width:940px;margin:0 auto}
 .board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
 .slate{
-  position:relative;font-family:'Amatic SC',cursive;
+  position:relative;font-family:'PencilPete',cursive;
   border-radius:10px;padding:24px 30px 46px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
@@ -37,7 +36,7 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .cols{display:grid;grid-template-columns:1fr 1.35fr;gap:20px;align-items:start}
 @media(max-width:760px){.cols{grid-template-columns:1fr}}
 .pane{
-  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;padding:15px 17px;
+  border:1.5px dashed rgba(245,244,239,.45);border-radius:12px;padding:15px 17px;
 }
 .pane.a{transform:rotate(-0.3deg)}
 .pane.b{transform:rotate(0.25deg)}
@@ -45,9 +44,9 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .el{opacity:0;transition:opacity .45s}
 .el.show{opacity:1}
 .box{
-  border:1.7px solid rgba(223,219,206,.75);border-radius:11px 9px 12px 8px;
+  border:1.7px solid rgba(245,244,239,.75);border-radius:11px 9px 12px 8px;
   padding:9px 14px;font-size:1.2rem;font-weight:700;display:inline-block;
-  background:rgba(223,219,206,.05);
+  background:rgba(245,244,239,.05);
 }
 .box.sm{font-size:1.1rem;padding:6px 12px;font-weight:400}
 .note{font-size:1.05rem;color:var(--chalk-dim)}
@@ -58,16 +57,16 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .stack{display:flex;flex-direction:column;gap:7px}
 .feats{display:flex;flex-direction:column;gap:6px}
 .outer{
-  border:1.7px solid rgba(223,219,206,.6);border-radius:12px;padding:13px 15px;
+  border:1.7px solid rgba(245,244,239,.6);border-radius:12px;padding:13px 15px;
   margin-bottom:8px;
 }
 .outerttl{font-size:1.1rem;color:var(--chalk-dim);letter-spacing:.08em;margin-bottom:10px}
 .center{text-align:center}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .chip{
-  border:1.7px solid rgba(223,219,206,.75);border-radius:10px 8px 11px 7px;
+  border:1.7px solid rgba(245,244,239,.75);border-radius:10px 8px 11px 7px;
   padding:4px 13px;font-size:1.2rem;font-weight:700;color:var(--chalk);
-  background:rgba(223,219,206,.05);opacity:0;transition:opacity .35s,border-color .35s,color .35s;
+  background:rgba(245,244,239,.05);opacity:0;transition:opacity .35s,border-color .35s,color .35s;
 }
 .chip:nth-child(odd){transform:rotate(-1deg)}
 .chip:nth-child(even){transform:rotate(.8deg)}
@@ -76,11 +75,11 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
   border-style:dashed;border-color:var(--chalk-faint);color:var(--chalk-faint);
   text-decoration:line-through;
 }
-.rule{border:0;border-top:1.5px dashed rgba(223,219,206,.3);margin:16px 0 12px}
+.rule{border:0;border-top:1.5px dashed rgba(245,244,239,.3);margin:16px 0 12px}
 .trows{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
 @media(max-width:760px){.trows{grid-template-columns:1fr}}
 .trow{
-  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;padding:12px 14px;
+  border:1.5px dashed rgba(245,244,239,.45);border-radius:12px;padding:12px 14px;
 }
 .trow.w1{transform:rotate(-0.2deg)}
 .trow.w2{transform:rotate(0.2deg)}
@@ -99,7 +98,7 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
   box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
 }
 .replay:hover .eraser{filter:brightness(1.08)}
-.replay:focus-visible{outline:2px solid rgba(223,219,206,.6);outline-offset:3px}
+.replay:focus-visible{outline:2px solid rgba(245,244,239,.6);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){
   *{transition-duration:.01ms!important}
   .pane,.trow,.chip{transform:none!important}
@@ -107,6 +106,12 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="chalkgrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
     <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M17.2 5.6 C13.5 3.4, 8.0 5.1, 5.7 9.2 C3.5 13.2, 5.8 18.4, 10.1 19.9 C14.3 21.3, 18.7 18.8, 19.7 14.7" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round"/><path d="M16.7 13.7 L19.7 14.7 L19.9 11.5" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="eraser"></span></button>

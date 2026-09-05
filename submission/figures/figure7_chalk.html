@@ -4,15 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure 7 — The best pet: strict vs relaxed verification</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
-  --chalk:#DFDBCE;
-  --chalk-dim:rgba(223,219,206,.55);
-  --chalk-faint:rgba(223,219,206,.3);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.6);
+  --chalk-faint:rgba(245,244,239,.35);
   --board:#12291d;
   --frame:#7A5230;
 }
@@ -22,7 +20,7 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .wrap{max-width:940px;margin:0 auto}
 .board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
 .slate{
-  position:relative;font-family:'Amatic SC',cursive;
+  position:relative;font-family:'PencilPete',cursive;
   border-radius:10px;padding:26px 34px 30px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
@@ -35,11 +33,11 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .given{font-size:1.05rem;color:var(--chalk-dim);text-align:center;margin-bottom:14px}
 .modes{display:flex;justify-content:center;gap:12px;margin-bottom:18px}
 .mode{
-  font-family:'Amatic SC',cursive;font-size:1.15rem;font-weight:700;letter-spacing:.08em;
+  font-family:'PencilPete',cursive;font-size:1.15rem;font-weight:700;letter-spacing:.08em;
   color:var(--chalk-dim);background:none;cursor:pointer;
-  border:1.7px dashed rgba(223,219,206,.45);border-radius:10px 8px 11px 7px;padding:7px 18px;
+  border:1.7px dashed rgba(245,244,239,.45);border-radius:10px 8px 11px 7px;padding:7px 18px;
 }
-.mode.on{color:var(--chalk);border-style:solid;border-color:rgba(223,219,206,.85);background:rgba(223,219,206,.07)}
+.mode.on{color:var(--chalk);border-style:solid;border-color:rgba(245,244,239,.85);background:rgba(245,244,239,.07)}
 .stage{display:flex;justify-content:center;align-items:flex-end;gap:70px;height:230px;margin-bottom:6px}
 .pet{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
 .pet .pic{line-height:1;transition:font-size .6s cubic-bezier(.22,1,.36,1);}
@@ -47,9 +45,16 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
 .pet .name{font-size:1.15rem;color:var(--chalk-dim);letter-spacing:.1em}
 .verdict{font-size:1.2rem;text-align:center;color:var(--chalk);min-height:28px}
 .verdict .dim{color:var(--chalk-dim)}
+.slate .setup,.slate .given,.slate .modes,.slate .stage .share,.slate .stage .name,.slate .verdict{filter:url(#chalkgrain)}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="chalkgrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
     <div class="setup">"The best pet is a <span class="q">___</span>"</div>

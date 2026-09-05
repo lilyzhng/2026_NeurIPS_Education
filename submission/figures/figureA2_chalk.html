@@ -4,15 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure A2 — The model layer absorbs acceleration</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.slate{filter:url(#chalkgrain)}
+</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
-  --chalk:#DFDBCE;
-  --chalk-dim:rgba(223,219,206,.55);
-  --chalk-faint:rgba(223,219,206,.3);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
+  --chalk-faint:rgba(245,244,239,.3);
   --board:#12291d;
   --frame:#7A5230;
 }
@@ -24,7 +23,7 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
   background:var(--frame);border-radius:16px;padding:12px;position:relative;
 }
 .slate{
-  position:relative;font-family:'Amatic SC',cursive;
+  position:relative;font-family:'PencilPete',cursive;
   border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
@@ -33,29 +32,35 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
     var(--board);
 }
 svg{display:block;width:100%;height:auto;overflow:visible}
-.layerttl{font-family:'Amatic SC',cursive;font-size:30px;font-weight:700;letter-spacing:.16em;fill:var(--chalk)}
-.layersub{font-family:'Amatic SC',cursive;font-size:18px;fill:var(--chalk-dim)}
-.serving{font-family:'Amatic SC',cursive;font-size:19px;fill:var(--chalk-dim);letter-spacing:.05em}
-.mname{font-family:'Amatic SC',cursive;font-size:25px;font-weight:700;fill:var(--chalk)}
-.mdate{font-family:'Amatic SC',cursive;font-size:18px;fill:var(--chalk-dim)}
-.mdet{font-family:'Amatic SC',cursive;font-size:18px;fill:var(--chalk-dim)}
-.yr{font-family:'Amatic SC',cursive;font-size:20px;fill:var(--chalk-dim)}
-.axis{stroke:rgba(223,219,206,.4);stroke-width:1.6}
+.layerttl{font-family:'PencilPete',cursive;font-size:30px;font-weight:700;letter-spacing:.16em;fill:var(--chalk)}
+.layersub{font-family:'PencilPete',cursive;font-size:18px;fill:var(--chalk-dim)}
+.serving{font-family:'PencilPete',cursive;font-size:19px;fill:var(--chalk-dim);letter-spacing:.05em}
+.mname{font-family:'PencilPete',cursive;font-size:25px;font-weight:700;fill:var(--chalk)}
+.mdate{font-family:'PencilPete',cursive;font-size:18px;fill:var(--chalk-dim)}
+.mdet{font-family:'PencilPete',cursive;font-size:18px;fill:var(--chalk-dim)}
+.yr{font-family:'PencilPete',cursive;font-size:20px;fill:var(--chalk-dim)}
+.axis{stroke:rgba(245,244,239,.4);stroke-width:1.6}
 .stair{
-  fill:none;stroke:rgba(223,219,206,.85);stroke-width:2.4;
+  fill:none;stroke:rgba(245,244,239,.85);stroke-width:2.4;
   stroke-linecap:round;stroke-linejoin:round;
   stroke-dasharray:6 7;
 }
 .stairclip{
-  fill:none;stroke:rgba(223,219,206,.85);stroke-width:2.4;
+  fill:none;stroke:rgba(245,244,239,.85);stroke-width:2.4;
 }
-.dot{fill:rgba(223,219,206,.95);stroke:var(--board);stroke-width:2}
+.dot{fill:rgba(245,244,239,.95);stroke:var(--board);stroke-width:2}
 .region{fill:url(#hatch)}
-.hatchline{stroke:rgba(223,219,206,.3);stroke-width:1.1}
+.hatchline{stroke:rgba(245,244,239,.3);stroke-width:1.1}
 }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="chalkgrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
 

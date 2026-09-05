@@ -4,16 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Figure 4 — DFlash draft vs DSpark draft</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.slate{filter:url(#chalkgrain)}
+</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
   --_ink: var(--ink, #2A2A26);
-  --chalk:#DFDBCE;
-  --chalk-dim:rgba(223,219,206,.55);
-  --chalk-faint:rgba(223,219,206,.32);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
+  --chalk-faint:rgba(245,244,239,.32);
   --board:#12291d;
   --frame:#7A5230;
 }
@@ -26,7 +25,7 @@ body{
 .wrap{max-width:940px;margin:0 auto}
 .board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
 .slate{
-  position:relative;font-family:'Amatic SC',cursive;
+  position:relative;font-family:'PencilPete',cursive;
   border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
@@ -37,7 +36,7 @@ body{
 .cols{display:grid;grid-template-columns:1fr 1.25fr;gap:18px}
 @media(max-width:720px){.cols{grid-template-columns:1fr}}
 .lane{
-  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;
+  border:1.5px dashed rgba(245,244,239,.45);border-radius:12px;
   padding:16px 18px;display:flex;flex-direction:column;
 }
 .lane.f{transform:rotate(-0.3deg)}
@@ -56,11 +55,11 @@ body{
 .stacks{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;min-height:84px}
 .stack{display:flex;flex-direction:column;align-items:center;gap:5px}
 .chip{
-  border:1.7px solid rgba(223,219,206,.75);
+  border:1.7px solid rgba(245,244,239,.75);
   border-radius:10px 8px 11px 7px;
   padding:5px 13px;font-size:1.3rem;font-weight:700;
   color:var(--chalk);
-  background:rgba(223,219,206,.05);
+  background:rgba(245,244,239,.05);
   opacity:0;transition:opacity .3s,border-color .3s,color .3s;
 }
 .chip.show{opacity:1}
@@ -82,9 +81,9 @@ body{
 .droplbl.show{opacity:1}
 .bracket{
   margin-top:6px;height:14px;position:relative;transition:width .5s;
-  border-left:2px solid rgba(223,219,206,.55);
-  border-right:2px solid rgba(223,219,206,.55);
-  border-bottom:2px solid rgba(223,219,206,.55);
+  border-left:2px solid rgba(245,244,239,.55);
+  border-right:2px solid rgba(245,244,239,.55);
+  border-bottom:2px solid rgba(245,244,239,.55);
   border-radius:0 0 8px 8px;
   opacity:0;
 }
@@ -106,7 +105,7 @@ body{
   box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
 }
 .replay:hover .eraser{filter:brightness(1.08)}
-.replay:focus-visible{outline:2px solid rgba(223,219,206,.6);outline-offset:3px}
+.replay:focus-visible{outline:2px solid rgba(245,244,239,.6);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){
   *{transition-duration:.01ms!important}
   .chip,.lane{transform:none!important}
@@ -114,6 +113,12 @@ body{
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="chalkgrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
     <div class="cols">

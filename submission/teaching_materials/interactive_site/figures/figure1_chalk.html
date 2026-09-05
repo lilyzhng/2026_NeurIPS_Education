@@ -4,16 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Speculative decoding timeline</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.slate{filter:url(#chalkgrain)}
+</style>
 <style>
 :root{
   /* falls back gracefully when standalone; inherits your site's tokens when embedded */
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
   --_ink: var(--ink, #2A2A26);
-  --chalk:#DFDBCE;
-  --chalk-dim:rgba(223,219,206,.55);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
   --board:#12291d;
   --frame:#7A5230;
 }
@@ -47,7 +46,7 @@ h2{
 .replay:hover .eraser{filter:brightness(1.08)}
 .slate{
   position:relative;
-  font-family:'Amatic SC',cursive;
+  font-family:'PencilPete',cursive;
   border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
   background:
     radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
@@ -63,10 +62,10 @@ h2{
 }
 .axistrack{
   position:relative;flex:1;height:34px;
-  border-bottom:2px dotted rgba(223,219,206,.3);
+  border-bottom:2px dotted rgba(245,244,239,.3);
 }
 .axistick{
-  position:absolute;bottom:0;height:7px;border-left:1.5px solid rgba(223,219,206,.4);
+  position:absolute;bottom:0;height:7px;border-left:1.5px solid rgba(245,244,239,.4);
 }
 .axisnum{
   position:absolute;top:0;transform:translateX(-50%);
@@ -74,10 +73,10 @@ h2{
 }
 .playhead{
   position:absolute;top:0;bottom:-4px;width:0;
-  border-left:2px solid rgba(223,219,206,.7);
+  border-left:2px solid rgba(245,244,239,.7);
 }
 .lane{
-  border:1.5px dashed rgba(223,219,206,.45);border-radius:12px;
+  border:1.5px dashed rgba(245,244,239,.45);border-radius:12px;
   padding:16px 18px;margin-bottom:18px;
 }
 .lane:last-child{margin-bottom:0}
@@ -101,11 +100,11 @@ h2{
 }
 .chips{display:flex;gap:8px;flex-wrap:wrap;min-height:42px}
 .chip{
-  border:1.7px solid rgba(223,219,206,.75);
+  border:1.7px solid rgba(245,244,239,.75);
   border-radius:10px 8px 11px 7px;
   padding:5px 14px;font-size:1.35rem;font-weight:700;
   color:var(--chalk);
-  background:rgba(223,219,206,.05);
+  background:rgba(245,244,239,.05);
   opacity:0;transition:opacity .3s;
 }
 .chip:nth-child(odd){transform:rotate(-1.1deg)}
@@ -115,15 +114,15 @@ h2{
   display:inline-flex;gap:8px;flex-wrap:wrap;padding:6px;border-radius:12px;
   border:1.7px dashed transparent;transition:border-color .3s;
 }
-.chunk.show{border-color:rgba(223,219,206,.6)}
+.chunk.show{border-color:rgba(245,244,239,.6)}
 .chunk .chip{transform:none}
 .trackwrap{position:relative;height:9px;margin-top:12px}
-.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(223,219,206,.28)}
+.trackbase{position:absolute;inset:3px 0;border-bottom:2px dotted rgba(245,244,239,.28)}
 .fill{
   position:absolute;left:0;top:0;bottom:0;width:0;border-radius:4px;
 }
 .fill{
-  background:repeating-linear-gradient(90deg,rgba(223,219,206,.85) 0 6px,rgba(223,219,206,.45) 6px 9px);
+  background:repeating-linear-gradient(90deg,rgba(245,244,239,.85) 0 6px,rgba(245,244,239,.45) 6px 9px);
 }
 .status{font-size:1.15rem;color:var(--chalk-dim);margin-top:9px;min-height:22px}
 @media(max-width:640px){.slate{padding:20px 16px 46px}}
@@ -134,6 +133,12 @@ h2{
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="chalkgrain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 <div class="wrap">
   <div class="board"><div class="slate">
     <button class="replay" id="replay" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M17.2 5.6 C13.5 3.4, 8.0 5.1, 5.7 9.2 C3.5 13.2, 5.8 18.4, 10.1 19.9 C14.3 21.3, 18.7 18.8, 19.7 14.7" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round"/><path d="M16.7 13.7 L19.7 14.7 L19.9 11.5" stroke="#DFDBCE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="eraser"></span></button>
