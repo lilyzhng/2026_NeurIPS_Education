@@ -58,7 +58,7 @@ The venue lineage: blockwise parallel decoding (NeurIPS 2018), lossless speculat
 All materials, including LosslessBench, are original and created for this track:
 
 - **Interactive self-contained website** following the How It Evolved / When It Stays Lossless / What's Next arc, with an interactive walkthrough and an acceptance-rate demo.
-- **Hands-on lab** with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the lanes across domains, and measure per-domain performance on LosslessBench.
+- **Hands-on lab** with a Jupyter notebook walkthrough, every measured result embedded: serve Qwen3-8B with the three released draft checkpoints (EAGLE-3 vs DFlash vs DSpark), reproduce published acceptance lengths, race the decoding methods across domains, and measure per-domain performance on LosslessBench.
 - All materials, including the interactive article and lab code, are publicly available through the interactive website.
 
 ---

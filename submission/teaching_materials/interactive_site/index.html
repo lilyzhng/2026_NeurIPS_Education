@@ -764,7 +764,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>In this section you watch four deployments race on the same prompt: the vanilla model against EAGLE-3, DFlash, and DSpark, all on H100. The point is to let the reader get a sense of what inference acceleration does on real-world tasks.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>eagle3 <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>dspark <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">modal</span> run modal_dflash_offline.py            <span class="co"># DFlash lane, see note below</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">modal</span> run modal_dflash_offline.py            <span class="co"># DFlash, see note below</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> build_race_demo.py                   <span class="co"># assembles the demo from your outputs</span></span></code></pre></div>
 <p>These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).</p>
 <p><sub>Note: <code>vllm serve</code> crashes on DFlash in stable 0.28.0, and only the offline <code>LLM()</code> path is CI-tested, so <code>modal_dflash_offline.py</code> runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub></p>
@@ -795,7 +795,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="perdomainspeed" class="section">
 
 <h4 id="measure-per-domain-speed">Measure per-domain speed</h4>
-<p>The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
+<p>The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
 <tr>

@@ -231,7 +231,7 @@ In this section you watch four deployments race on the same prompt: the vanilla 
 ```bash
 SPEC_MODE=eagle3 modal deploy modal_vllm_serve.py
 SPEC_MODE=dspark modal deploy modal_vllm_serve.py
-modal run modal_dflash_offline.py            # DFlash lane, see note below
+modal run modal_dflash_offline.py            # DFlash, see note below
 python3 build_race_demo.py                   # assembles the demo from your outputs
 ```
 
@@ -275,7 +275,7 @@ The rejection-sampling guarantee still holds at the algorithm level: it assumes 
 
 #### Measure per-domain speed
 
-The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with `race_domains.py`:
+The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with `race_domains.py`:
 
 | domain | vanilla | DSpark | EAGLE-3 | DFlash |
 |---|---|---|---|---|
