@@ -2,13 +2,13 @@
 
 ## 2. When it stays lossless
 
-Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
+Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
 
 </div>
 
-<div id="papers" class="section" data-toc="2.1 What it doesn't mean in papers">
+<div id="papers" class="section" data-toc="2.1 Lossless in papers">
 
-### 2.1 What lossless doesn't mean in papers
+### 2.1 Lossless in papers
 
 Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:
 
