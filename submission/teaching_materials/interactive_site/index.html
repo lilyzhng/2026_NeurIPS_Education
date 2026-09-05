@@ -307,6 +307,15 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 
     .refs { font-size: 0.9375rem; color: var(--text); }
     .refs li { margin-bottom: 0.75rem; }
+@media print {
+  .layout { display: block !important; padding-inline: 0 !important; }
+  .layout::before, .layout::after { display: none !important; }
+  .toc { display: block !important; position: static !important; page-break-after: always; }
+  .toc a { color: #333; }
+  .section, figure, .table-wrap, .pullquote { break-inside: avoid; }
+  iframe { break-inside: avoid; }
+  body { background: #fff; }
+}
 </style>
 </head>
 <body>

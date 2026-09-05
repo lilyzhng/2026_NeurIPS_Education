@@ -252,6 +252,10 @@ h2{
     if (!running){ running = true; tick(); }
   });
 
+  window.addEventListener('beforeprint', function(){
+    try { if (typeof raf !== 'undefined' && raf) cancelAnimationFrame(raf); } catch(e){}
+    try { paint(1e9); } catch(e){}
+  });
   function postHeight(){
     parent.postMessage({
       chalkHeight: Math.ceil(document.body.getBoundingClientRect().height),
