@@ -1067,7 +1067,8 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <figcaption id="fig-A3"><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> <a class="figref" href="#fig-6">Figure 6</a>, boundary redrawn as steps.</figcaption>
 
 <p>See <a class="figref" href="#fig-A3">Figure A3</a>. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, <a class="figref" href="#fig-6">Figure 6</a>).</p>
-<p><u>This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</u></p>
+<p class="pullquote">This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</p>
+
 </div>
 
   </article>
