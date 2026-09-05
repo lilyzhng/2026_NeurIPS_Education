@@ -16,11 +16,11 @@
 
 **The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
 
-By the end, you will have walked through how speculative decoding evolved, grounded in research from NeurIPS and ICML: blockwise parallel decoding at NeurIPS 2018 ([Stern et al.](https://arxiv.org/abs/1811.03115)), lossless speculative decoding at ICML 2023 ([Leviathan et al.](https://arxiv.org/abs/2211.17192)), EAGLE-3 at NeurIPS 2025 ([Li et al.](https://arxiv.org/abs/2503.01840)), DFlash at ICML 2026 ([Chen et al.](https://arxiv.org/abs/2602.06036)), and its successor DFlash 2 ([Inco AI, 2026](https://inco.ai/blog/dflash2/)).
-
 1. <u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of draft models build upon each other?
 2. <u>When it stays lossless.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.
 3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
+
+By the end, you will have walked through how speculative decoding evolved, grounded in research from NeurIPS and ICML: blockwise parallel decoding at NeurIPS 2018 ([Stern et al.](https://arxiv.org/abs/1811.03115)), lossless speculative decoding at ICML 2023 ([Leviathan et al.](https://arxiv.org/abs/2211.17192)), EAGLE-3 at NeurIPS 2025 ([Li et al.](https://arxiv.org/abs/2503.01840)), DFlash at ICML 2026 ([Chen et al.](https://arxiv.org/abs/2602.06036)), and its successor DFlash 2 ([Inco AI, 2026](https://inco.ai/blog/dflash2/)).
 
 </div>
 
