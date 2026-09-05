@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 210" role="img" aria-label="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup">
+  <defs>
+    <marker id="f14-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#8cc07a"/>
+    </marker>
+  </defs>
+  <style>
+    .eyebrow { font: 700 10px "Fragment Mono", ui-monospace, Menlo, monospace; fill: #FFFFFF; letter-spacing: 0.12em; }
+    .tick    { font: 500 10px "Fragment Mono", ui-monospace, Menlo, monospace; fill: rgba(255,255,255,0.5); }
+    .lbl     { font: 500 11px "Fragment Mono", ui-monospace, Menlo, monospace; fill: rgba(255,255,255,0.75); }
+    .val     { font: 600 12px "Fragment Mono", ui-monospace, Menlo, monospace; fill: #FFFFFF; }
+    .spd     { font: 700 12px "Fragment Mono", ui-monospace, Menlo, monospace; fill: #8cc07a; }
+    .grid    { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+    .axis    { stroke: rgba(255,255,255,0.35); stroke-width: 1; }
+    .err     { stroke: rgba(255,255,255,0.9); stroke-width: 1.5; }
+  </style>
+
+  <rect x="0" y="0" width="640" height="210" fill="#1e2a1c"/>
+
+  <!-- y-axis 0..250 tok/s: baseline y=184, 0.56 px per tok/s -->
+  <g class="grid">
+    <line x1="70" y1="156" x2="620" y2="156"/>
+    <line x1="70" y1="128" x2="620" y2="128"/>
+    <line x1="70" y1="100" x2="620" y2="100"/>
+    <line x1="70" y1="72"  x2="620" y2="72"/>
+    <line x1="70" y1="44"  x2="620" y2="44"/>
+  </g>
+  <line class="axis" x1="70" y1="44" x2="70" y2="184"/>
+  <line class="axis" x1="70" y1="184" x2="620" y2="184"/>
+
+  <g class="tick" text-anchor="end">
+    <text x="62" y="188">0</text>
+    <text x="62" y="160">50</text>
+    <text x="62" y="132">100</text>
+    <text x="62" y="104">150</text>
+    <text x="62" y="76">200</text>
+    <text x="62" y="48">250</text>
+  </g>
+  <text class="tick" x="18" y="114" transform="rotate(-90 18 114)" text-anchor="middle">tok/s</text>
+
+  <!-- vanilla: mean 136.3, std 1.3 -->
+  <rect x="176" y="107.7" width="78" height="76.3" fill="#93a888"/>
+  <g class="err">
+    <line x1="215" y1="107" x2="215" y2="108.4"/>
+    <line x1="204" y1="107" x2="226" y2="107"/>
+    <line x1="204" y1="108.4" x2="226" y2="108.4"/>
+  </g>
+  <text class="val" x="215" y="96" text-anchor="middle">136.3 &#177; 1.3</text>
+  <text class="lbl" x="215" y="201" text-anchor="middle">vanilla</text>
+
+  <!-- DSpark: mean 231.4, std 4.5 -->
+  <rect x="386" y="54.4" width="78" height="129.6" fill="#8cc07a"/>
+  <g class="err">
+    <line x1="425" y1="51.9" x2="425" y2="56.9"/>
+    <line x1="414" y1="51.9" x2="436" y2="51.9"/>
+    <line x1="414" y1="56.9" x2="436" y2="56.9"/>
+  </g>
+  <text class="val" x="425" y="43" text-anchor="middle">231.4 &#177; 4.5</text>
+  <text class="lbl" x="425" y="201" text-anchor="middle">+ DSpark draft</text>
+
+  <!-- speedup -->
+  <path d="M 268 122 Q 320 100 372 82" fill="none" stroke="#8cc07a" stroke-width="1.4" marker-end="url(#f14-arr)"/>
+  <text class="spd" x="322" y="94" text-anchor="middle">1.70&#215;</text>
+</svg>

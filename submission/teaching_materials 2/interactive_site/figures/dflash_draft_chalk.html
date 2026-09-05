@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EAGLE-3 serial draft vs DFlash block draft</title>
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.analogy{border:1.5px dashed rgba(245,244,239,.35);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.analogy .arow{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:1.05rem;color:var(--chalk-dim)}
+.analogy .alabel{min-width:150px;font-weight:700;letter-spacing:.06em;color:var(--chalk)}
+.analogy .achip{border:1.5px solid rgba(245,244,239,.6);border-radius:9px 7px 10px 6px;padding:2px 9px;font-size:1rem;color:var(--chalk)}
+.analogy .achip.noise{border-style:dotted;color:var(--chalk-dim)}
+.analogy .aarr{color:var(--chalk-dim)}
+</style>
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --_ink: var(--ink, #2A2A26);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
+  --board:#12291d;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+html{zoom:0.8}
+body{
+  margin:0;padding:0 0 4px;background:transparent;
+  font-family:var(--_serif);
+}
+.wrap{max-width:940px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
+.slate{
+  position:relative;font-family:'PencilPete',cursive;
+  border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.cols{grid-template-columns:1fr}}
+.lane{
+  border:1.5px dashed rgba(245,244,239,.45);border-radius:12px;
+  padding:16px 18px;display:flex;flex-direction:column;
+}
+.lane.e{transform:rotate(-0.3deg)}
+.lane.d{transform:rotate(0.25deg)}
+.lanehead{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.lanename{
+  color:var(--chalk);font-size:1.45rem;font-weight:700;letter-spacing:.1em;
+}
+.donebadge{
+  color:var(--chalk);font-size:1.1rem;
+  border:1.5px solid currentColor;border-radius:50px;
+  padding:2px 11px;opacity:0;transition:opacity .3s;
+}
+.lane.e .donebadge{transform:rotate(1.2deg)}
+.lane.d .donebadge{transform:rotate(-1.4deg)}
+.clock{
+  margin-left:auto;font-size:1.2rem;color:var(--chalk-dim);
+  font-variant-numeric:tabular-nums;
+}
+.rowchips{display:flex;gap:7px;flex-wrap:wrap;align-items:center;min-height:42px}
+.chip{
+  border:1.7px solid rgba(245,244,239,.75);
+  border-radius:10px 8px 11px 7px;
+  padding:5px 13px;font-size:1.3rem;font-weight:700;
+  color:var(--chalk);
+  background:rgba(245,244,239,.05);
+  opacity:0;transition:opacity .3s,border-style .3s,color .3s;
+}
+.chip.show{opacity:1}
+.chip:nth-child(4n+1){transform:rotate(-1.1deg)}
+.chip:nth-child(4n+3){transform:rotate(0.9deg)}
+.chip.mask{border-style:dashed;color:var(--chalk-dim)}
+.chip.anchor{border-style:solid}
+.arr{
+  font-size:1.3rem;color:var(--chalk-dim);opacity:0;transition:opacity .3s;
+}
+.arr.show{opacity:1}
+.passbar{
+  position:relative;margin:12px 0 4px;height:30px;border:1.5px dashed rgba(245,244,239,.45);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;color:var(--chalk-dim);overflow:hidden;
+  opacity:0;transition:opacity .3s;
+}
+.passbar.show{opacity:1}
+.sweep{
+  position:absolute;left:0;top:0;bottom:0;width:0;
+  background:rgba(245,244,239,.1);border-right:2px solid rgba(245,244,239,.6);
+}
+.status{font-size:1.1rem;color:var(--chalk-dim);margin-top:auto;padding-top:8px;min-height:26px}
+.replay{
+  position:absolute;bottom:18px;right:28px;z-index:2;
+  display:flex;align-items:center;gap:9px;
+  background:none;border:none;cursor:pointer;padding:0;
+}
+.replay svg{display:block;filter:url(#slip2)}
+.replay .eraser{
+  width:34px;height:17px;border-radius:3px;flex:none;
+  background:linear-gradient(#e9e7e2 0%, #cfccc5 58%, #57544d 59%, #45423c 100%);
+  box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.replay:hover .eraser{filter:brightness(1.08)}
+.replay:focus-visible{outline:2px solid rgba(245,244,239,.6);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .chip,.lane{transform:none!important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="slip1" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip2" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip3" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+<div class="wrap">
+  <div class="board"><div class="slate">
+    <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M20.49 15 a9 9 0 1 1 -2.12 -9.36 L23 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" fill="none"/><polyline points="23 4 23 10 17 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="eraser"></span></button>
+    <div class="analogy">
+      <div class="arow"><span class="alabel">IMAGE DIFFUSION</span>
+        <span class="achip noise">noise</span><span class="aarr">&rarr;</span>
+        <span class="achip">full image</span>
+        <span>all pixels denoised in parallel</span></div>
+      <div class="arow"><span class="alabel">BLOCK DIFFUSION</span>
+        <span class="achip noise">MASK</span><span class="achip noise">MASK</span><span class="achip noise">MASK</span><span class="aarr">&rarr;</span>
+        <span class="achip">t1</span><span class="achip">t2</span><span class="achip">t3</span>
+        <span>all tokens predicted in parallel</span></div>
+    </div>
+    <div class="cols">
+
+      <div class="lane e">
+        <div class="lanehead">
+          <span class="lanename">EAGLE-3 draft (serial)</span>
+          <span class="donebadge" id="doneE">4 rounds</span>
+          <span class="clock" id="clockE">0.0s</span>
+        </div>
+        <div class="rowchips" id="chipsE"></div>
+        <div class="status" id="statusE"></div>
+      </div>
+
+      <div class="lane d">
+        <div class="lanehead">
+          <span class="lanename">DFlash draft (parallel)</span>
+          <span class="donebadge" id="doneD">1 forward pass &#10003;</span>
+          <span class="clock" id="clockD">0.0s</span>
+        </div>
+        <div class="rowchips" id="chipsD"></div>
+        <div class="passbar" id="passbar"><span id="passlbl">1 forward pass</span><div class="sweep" id="sweep"></div></div>
+        <div class="status" id="statusD"></div>
+      </div>
+
+    </div>
+  </div></div>
+</div>
+
+<script>
+(function(){
+  var STEP = 1.6;            // seconds per EAGLE serial draft step (slower)
+  var E_DONE = 4 * STEP;     // 6.4s
+  var D_SWEEP_START = 0.7, D_SWEEP_END = 2.1;  // DFlash: one pass
+  var END = E_DONE + 0.4;    // hold here when finished
+
+  // EAGLE lane: t1 -> t2 -> t3 -> t4
+  var chipsE = [], arrsE = [];
+  var ce = document.getElementById('chipsE');
+  for (var i = 1; i <= 4; i++){
+    var c = document.createElement('span');
+    c.className = 'chip'; c.textContent = 't' + i;
+    ce.appendChild(c); chipsE.push(c);
+    if (i < 4){
+      var a = document.createElement('span');
+      a.className = 'arr'; a.innerHTML = '&rarr;';
+      ce.appendChild(a); arrsE.push(a);
+    }
+  }
+
+  // DFlash lane: [anchor | MASK | MASK | MASK] flipping to [t1..t4]
+  var chipsD = [];
+  var cd = document.getElementById('chipsD');
+  var dLabels = ['anchor','MASK','MASK','MASK'];
+  dLabels.forEach(function(w, i){
+    var c = document.createElement('span');
+    c.className = 'chip ' + (i === 0 ? 'anchor' : 'mask');
+    c.textContent = w;
+    cd.appendChild(c); chipsD.push(c);
+  });
+
+  var clockE = document.getElementById('clockE'), clockD = document.getElementById('clockD');
+  var doneE = document.getElementById('doneE'), doneD = document.getElementById('doneD');
+  var statusE = document.getElementById('statusE'), statusD = document.getElementById('statusD');
+  var passbar = document.getElementById('passbar'), sweep = document.getElementById('sweep');
+
+  function paint(t){
+    // ---- EAGLE (serial) ----
+    var te = Math.min(t, E_DONE);
+    clockE.textContent = te.toFixed(1) + 's';
+    chipsE.forEach(function(c, i){ c.classList.toggle('show', t >= (i + 1) * STEP); });
+    arrsE.forEach(function(a, i){ a.classList.toggle('show', t >= (i + 1) * STEP + 0.3); });
+    if (t >= E_DONE){
+      statusE.textContent = 'one at a time \u00b7 target features: wait each step';
+    } else {
+      statusE.textContent = 'step ' + Math.min(4, Math.floor(t / STEP) + 1) + ' of 4 \u00b7 waiting for target features\u2026';
+    }
+    doneE.style.opacity = t >= E_DONE ? '1' : '0';
+
+    // ---- DFlash (parallel) ----
+    var td = Math.min(t, D_SWEEP_END);
+    clockD.textContent = td.toFixed(1) + 's';
+    // masked block is on the board from the start
+    chipsD.forEach(function(c){ c.classList.add('show'); });
+    passbar.classList.toggle('show', t >= D_SWEEP_START);
+    var p = Math.max(0, Math.min(1, (t - D_SWEEP_START) / (D_SWEEP_END - D_SWEEP_START)));
+    sweep.style.width = (p * 100) + '%';
+    if (t >= D_SWEEP_END){ sweep.style.width = '0%'; }
+
+    var flipped = t >= D_SWEEP_END;
+    chipsD.forEach(function(c, i){
+      if (i === 0) return; // anchor stays anchor
+      if (flipped){
+        c.classList.remove('mask');
+        c.textContent = 't' + i;
+      } else {
+        c.classList.add('mask');
+        c.textContent = 'MASK';
+      }
+    });
+    statusD.textContent = flipped
+      ? 'whole block at once \u00b7 target features: injected once per block'
+      : 'masked block queued for one pass\u2026';
+    doneD.style.opacity = flipped ? '1' : '0';
+  }
+
+  var replay = document.getElementById('replay');
+  var t0 = performance.now(), raf = null;
+
+  function tick(){
+    var t = (performance.now() - t0) / 1000;
+    if (t >= END){ paint(END); raf = null; return; }
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if (raf) cancelAnimationFrame(raf);
+    t0 = performance.now();
+    paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
+  replay.addEventListener('click', play);
+  play();
+
+  window.addEventListener('beforeprint', function(){
+    try { if (typeof raf !== 'undefined' && raf) cancelAnimationFrame(raf); } catch(e){}
+    try { paint(1e9); } catch(e){}
+  });
+  function postHeight(){
+    parent.postMessage({
+      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height) + 20,
+      chalkSrc: location.pathname.split('/').pop()
+    }, '*');
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight);
+  setTimeout(postHeight, 1500);
+})();
+</script>
+<script>
+(function(){
+  // hand-drawn slips: long strokes are harder to draw straight, so the longer
+  // the element, the more likely (and eventually certain) a waver somewhere.
+  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given, .slate .bar, .slate .seg, .slate .card, .slate .pill, .slate .pane, .slate .panel, .slate .trow, .slate .outer, .slate .chunk');
+  var slips = ['url(#slip1)', 'url(#slip2)', 'url(#slip3)'];
+  els.forEach(function(el, i){
+    var w = el.offsetWidth || 0;
+    var r = ((i * 61 + 17) % 100) / 100;
+    var pClean = w < 60 ? 0.85 : w < 160 ? 0.5 : w < 280 ? 0.15 : 0;
+    if (r < pClean) return;
+    el.style.filter = slips[i % 3];
+  });
+})();
+</script>
+</body>
+</html>

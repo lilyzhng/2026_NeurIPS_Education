@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure 8 — Peeking at the token at k+1</title>
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
+<style>
+:root{
+  --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
+  --chalk:#F5F4EF;
+  --chalk-dim:rgba(245,244,239,.55);
+  --chalk-faint:rgba(245,244,239,.3);
+  --board:#12291d;
+  --frame:#7A5230;
+}
+*{box-sizing:border-box}
+html{zoom:0.8}
+body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
+.wrap{max-width:940px;margin:0 auto}
+.board{background:var(--frame);border-radius:16px;padding:12px;position:relative}
+.slate{
+  position:relative;font-family:'PencilPete',cursive;
+  border-radius:10px;padding:30px 34px 52px;color:var(--chalk);
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255,255,255,0.045), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 75% 70%, rgba(255,255,255,0.035), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 55% 15%, rgba(255,255,255,0.03), transparent 60%),
+    var(--board);
+}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+.pane{border:1.5px dashed rgba(245,244,239,.42);border-radius:12px;padding:15px 17px;display:flex;flex-direction:column}
+.pane.a{transform:rotate(-0.25deg)}
+.pane.b{transform:rotate(0.2deg)}
+.ptitle{font-size:1.28rem;font-weight:700;letter-spacing:.08em;margin-bottom:2px}
+.psub{font-size:1.05rem;color:var(--chalk-dim);margin-bottom:10px}
+.pane svg{display:block;width:100%;height:auto;overflow:visible}
+.el{opacity:0;transition:opacity .4s}
+.el.show{opacity:1}
+.chipbox{fill:rgba(245,244,239,.06);stroke:rgba(245,244,239,.75);stroke-width:1.7}
+.chiptxt{font-family:'PencilPete',cursive;font-size:17px;font-weight:700;fill:var(--chalk)}
+.lbl{font-family:'PencilPete',cursive;font-size:16px;fill:var(--chalk-dim)}
+.qmark{font-family:'PencilPete',cursive;font-size:18px;font-weight:700;fill:var(--chalk-dim)}
+.conn{stroke:rgba(245,244,239,.7);stroke-width:1.7;fill:none}
+.peek{stroke:rgba(245,244,239,.75);stroke-width:1.7;fill:none}
+.cyc{
+  stroke:rgba(245,244,239,.6);stroke-width:1.7;fill:none;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset .9s linear,stroke .4s;
+}
+.cyc.draw{stroke-dashoffset:0}
+.loop.hot .cyc,.loop.hot .peek{stroke:rgba(245,244,239,.98)}
+.loop.hot .chipbox.inloop{stroke:rgba(245,244,239,.98);fill:rgba(245,244,239,.14)}
+.chipbox,.peek{transition:stroke .4s,fill .4s}
+.line{font-size:1.12rem;color:var(--chalk-dim);line-height:1.45;margin-top:4px}
+.concl{font-size:1.18rem;font-weight:700;color:var(--chalk);margin-top:auto;padding-top:12px}
+.replay{
+  position:absolute;bottom:18px;right:28px;z-index:2;
+  display:flex;align-items:center;gap:9px;
+  background:none;border:none;cursor:pointer;padding:0;
+}
+.replay svg{display:block;filter:url(#slip2)}
+.replay .eraser{
+  width:34px;height:17px;border-radius:3px;flex:none;
+  background:linear-gradient(#e9e7e2 0%, #cfccc5 58%, #57544d 59%, #45423c 100%);
+  box-shadow:0 1.5px 2.5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.7);
+}
+.replay:hover .eraser{filter:brightness(1.08)}
+.replay:focus-visible{outline:2px solid rgba(245,244,239,.6);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important}
+  .pane{transform:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="slip1" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip2" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  <filter id="slip3" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+<div class="wrap">
+  <div class="board"><div class="slate">
+    <div class="cols">
+
+      <!-- LEFT: non-anticipating -->
+      <div class="pane a">
+        <div class="ptitle">NON-ANTICIPATING</div>
+        <div class="psub">(lossless)</div>
+        <svg viewBox="0 0 400 150" role="img" aria-label="Verification of tk uses only the prefix before it">
+          <text class="lbl el" data-t="0.4" x="4" y="52">draft:</text>
+          <g class="el" data-t="0.7"><rect class="chipbox" x="56" y="30" width="126" height="30" rx="8"/><text class="chiptxt" x="119" y="50" text-anchor="middle">[t1]..[tk-1]</text></g>
+          <g class="el" data-t="1.0"><rect class="chipbox" x="194" y="30" width="54" height="30" rx="8"/><text class="chiptxt" x="221" y="50" text-anchor="middle">[tk]</text></g>
+          <g class="el" data-t="1.3"><rect class="chipbox" x="260" y="30" width="76" height="30" rx="8"/><text class="chiptxt" x="298" y="50" text-anchor="middle">[tk+1]</text></g>
+
+          <line class="conn el" data-t="1.9" x1="119" y1="60" x2="119" y2="100"/>
+          <text class="qmark el" data-t="2.2" x="221" y="82" text-anchor="middle">?</text>
+
+          <text class="lbl el" data-t="2.6" x="4" y="106">verify tk?</text>
+          <line class="conn el" data-t="2.6" x1="74" y1="100" x2="119" y2="100"/>
+          <text class="lbl el" data-t="3.1" x="4" y="134">uses prefix 1..k-1 only</text>
+        </svg>
+        <div class="line el" data-t="3.9">decision independent of tk</div>
+        <div class="concl el" data-t="4.5">&rArr; output distribution preserved</div>
+      </div>
+
+      <!-- RIGHT: peeking scheduler -->
+      <div class="pane b">
+        <div class="ptitle">PEEKING SCHEDULER</div>
+        <div class="psub">(selection bias)</div>
+        <svg viewBox="0 0 400 150" role="img" aria-label="Admission of tk depends on a score computed from tk itself">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M1,1 L9,5 L1,9" fill="none" stroke="rgba(245,244,239,.8)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <g class="loop" id="loop">
+            <text class="lbl el" data-t="5.4" x="4" y="52">draft:</text>
+            <g class="el" data-t="5.7"><rect class="chipbox" x="56" y="30" width="126" height="30" rx="8"/><text class="chiptxt" x="119" y="50" text-anchor="middle">[t1]..[tk-1]</text></g>
+            <g class="el" data-t="6.0"><rect class="chipbox inloop" x="194" y="30" width="54" height="30" rx="8"/><text class="chiptxt" x="221" y="50" text-anchor="middle">[tk]</text></g>
+            <g class="el" data-t="6.3"><rect class="chipbox inloop" x="260" y="30" width="76" height="30" rx="8"/><text class="chiptxt" x="298" y="50" text-anchor="middle">[tk+1]</text></g>
+
+            <line class="conn el" data-t="6.7" x1="119" y1="60" x2="119" y2="100"/>
+            <text class="qmark el" data-t="6.9" x="221" y="82" text-anchor="middle">?</text>
+            <text class="lbl el" data-t="7.1" x="4" y="106">verify tk?</text>
+            <line class="conn el" data-t="7.1" x1="74" y1="100" x2="119" y2="100"/>
+
+            <!-- the peek: tk+1's score feeds the same admission decision -->
+            <g class="el peekgrp" data-t="7.6">
+              <line class="peek" x1="298" y1="60" x2="298" y2="100"/>
+              <line class="peek" x1="298" y1="100" x2="119" y2="100"/>
+            </g>
+
+            <!-- tk+1 was computed FROM tk -->
+            <path class="cyc" id="cycA" data-t="8.6" d="M221,26 C238,2 282,2 298,26" marker-end="url(#ah)"/>
+            <text class="lbl el" data-t="8.6" x="259" y="12" text-anchor="middle">computed from tk</text>
+
+            <!-- and the admission decision loops back onto tk -->
+            <path class="cyc" id="cycB" data-t="9.5" d="M119,104 C142,140 206,132 219,66" marker-end="url(#ah)"/>
+            <text class="lbl el" data-t="9.5" x="176" y="140" text-anchor="middle">admits tk</text>
+          </g>
+        </svg>
+        <div class="line el" data-t="10.4">the score of tk+1 was computed <b>from tk</b>, so admission of tk depends on tk itself</div>
+        <div class="concl el" data-t="11.1">&rArr; output distribution shifts</div>
+      </div>
+
+    </div>
+    <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M20.49 15 a9 9 0 1 1 -2.12 -9.36 L23 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" fill="none"/><polyline points="23 4 23 10 17 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="eraser"></span></button>
+  </div></div>
+</div>
+
+<script>
+(function(){
+  var END = 12.2, HOT = 10.0;
+
+  var timed = Array.prototype.slice.call(document.querySelectorAll('.el[data-t]'))
+    .map(function(el){ return { el: el, t: parseFloat(el.dataset.t) }; });
+
+  var paths = ['cycA','cycB'].map(function(id){
+    var p = document.getElementById(id);
+    var len = p.getTotalLength ? p.getTotalLength() : 200;
+    p.style.setProperty('--len', len);
+    return { el: p, t: parseFloat(p.dataset.t) };
+  });
+
+  var loop = document.getElementById('loop');
+
+  function paint(t){
+    timed.forEach(function(o){ o.el.classList.toggle('show', t >= o.t); });
+    paths.forEach(function(o){ o.el.classList.toggle('draw', t >= o.t); });
+    loop.classList.toggle('hot', t >= HOT);   // the cycle lights up once closed
+  }
+
+  var t0 = performance.now(), raf = null;
+
+  function tick(){
+    var t = (performance.now() - t0) / 1000;
+    if (t >= END){ paint(END); raf = null; return; }   // play once, then hold
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if (raf) cancelAnimationFrame(raf);
+    t0 = performance.now();
+    paths.forEach(function(o){ o.el.classList.remove('draw'); });
+    loop.classList.remove('hot');
+    paint(0);
+    raf = requestAnimationFrame(tick);
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  play();
+
+  window.addEventListener('beforeprint', function(){
+    try { if (typeof raf !== 'undefined' && raf) cancelAnimationFrame(raf); } catch(e){}
+    try { paint(1e9); } catch(e){}
+  });
+  function postHeight(){
+    parent.postMessage({
+      chalkHeight: Math.ceil(document.body.getBoundingClientRect().height),
+      chalkSrc: location.pathname.split('/').pop()
+    }, '*');
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight);
+  setTimeout(postHeight, 1500);
+})();
+</script>
+<script>
+(function(){
+  // hand-drawn slips: long strokes are harder to draw straight, so the longer
+  // the element, the more likely (and eventually certain) a waver somewhere.
+  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given, .slate .bar, .slate .seg, .slate .card, .slate .pill, .slate .pane, .slate .panel, .slate .trow, .slate .outer, .slate .chunk');
+  var slips = ['url(#slip1)', 'url(#slip2)', 'url(#slip3)'];
+  els.forEach(function(el, i){
+    var w = el.offsetWidth || 0;
+    var r = ((i * 61 + 17) % 100) / 100;
+    var pClean = w < 60 ? 0.85 : w < 160 ? 0.5 : w < 280 ? 0.15 : 0;
+    if (r < pClean) return;
+    el.style.filter = slips[i % 3];
+  });
+})();
+</script>
+</body>
+</html>
