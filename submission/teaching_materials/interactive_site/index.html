@@ -336,12 +336,14 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
   .layout { display: block !important; padding-inline: 0 !important; }
   .layout::before, .layout::after { display: none !important; }
   .toc { display: block !important; position: static !important; page-break-after: always;
-         max-width: 30rem; margin: 4rem auto 0; }
+         max-width: 22rem; margin: 4rem auto 0; transform: translateX(4rem); }
   .toc-title { font-size: 1.15rem; margin-bottom: 1.2rem; }
   .toc a { color: #333; font-size: 1.02rem; }
   .toc li.sub a { font-size: 0.9rem; }
   .toc li { margin-bottom: 1rem; }
   figure img { display: block; width: 96% !important; margin-inline: auto; }
+  figure img.pbig { width: 118% !important; max-width: none !important; margin-left: -9% !important; }
+  figure img.pfit { width: 78% !important; margin-inline: auto !important; }
   figure, .table-wrap, .pullquote { break-inside: avoid; }
   iframe { break-inside: avoid; }
   body { background: #fff; }
