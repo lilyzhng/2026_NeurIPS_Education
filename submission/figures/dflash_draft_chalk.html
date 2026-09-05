@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EAGLE-3 serial draft vs DFlash block draft</title>
-<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}</style>
+<style>@font-face{font-family:"PencilPete";src:url("PencilPete.ttf") format("truetype");}.analogy{border:1.5px dashed rgba(245,244,239,.35);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.analogy .arow{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:1.05rem;color:var(--chalk-dim)}
+.analogy .alabel{min-width:150px;font-weight:700;letter-spacing:.06em;color:var(--chalk)}
+.analogy .achip{border:1.5px solid rgba(245,244,239,.6);border-radius:9px 7px 10px 6px;padding:2px 9px;font-size:1rem;color:var(--chalk)}
+.analogy .achip.noise{border-style:dotted;color:var(--chalk-dim)}
+.analogy .aarr{color:var(--chalk-dim)}
+</style>
 <style>
 :root{
   --_serif: var(--serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif);
@@ -112,6 +118,16 @@ body{
 <div class="wrap">
   <div class="board"><div class="slate">
     <button class="replay" id="replay" type="button" aria-label="replay"><svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M20.49 15 a9 9 0 1 1 -2.12 -9.36 L23 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" fill="none"/><polyline points="23 4 23 10 17 10" stroke="#F5F4EF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span class="eraser"></span></button>
+    <div class="analogy">
+      <div class="arow"><span class="alabel">IMAGE DIFFUSION</span>
+        <span class="achip noise">noise</span><span class="aarr">&rarr;</span>
+        <span class="achip">full image</span>
+        <span>all pixels denoised in parallel</span></div>
+      <div class="arow"><span class="alabel">BLOCK DIFFUSION</span>
+        <span class="achip noise">MASK</span><span class="achip noise">MASK</span><span class="achip noise">MASK</span><span class="aarr">&rarr;</span>
+        <span class="achip">t1</span><span class="achip">t2</span><span class="achip">t3</span>
+        <span>all tokens predicted in parallel</span></div>
+    </div>
     <div class="cols">
 
       <div class="lane e">
