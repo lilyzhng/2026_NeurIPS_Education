@@ -10,7 +10,7 @@ Speculative decoding speed comes down to three factors: **drafting time, verific
 
 ### 1.1 EAGLE-3 (NeurIPS 2025) – longer acceptance length
 
-The 2023 papers use a separate small LLM as the draft. It guesses from scratch, and hosting a second model costs memory. Medusa ([Cai et al., 2024](https://arxiv.org/abs/2401.10774)) replaced it with extra prediction heads on the target; EAGLE ([Li et al., 2024](https://arxiv.org/abs/2401.15077)) replaced the heads with a single decoder layer that reads the target's hidden features and drafts autoregressively. We highlight EAGLE-3 because it is what ships in production.
+The 2023 papers use a separate small LLM as the draft. It guesses from scratch, and hosting a second model costs memory. Medusa ([Cai et al., 2024](https://arxiv.org/abs/2401.10774)) replaced it with extra prediction heads on the target; EAGLE ([Li et al., 2024](https://arxiv.org/abs/2401.15077)) replaced the heads with a single decoder layer that reads the target's hidden features and drafts autoregressively (Figure 2). We highlight EAGLE-3 because it is what ships in production.
 
 Earlier EAGLE models do not improve acceptance length with more training data. This is because the draft layer was trained to predict the target's next hidden feature as well as the next token. This training objective forced the model to reproduce the target's exact feature vectors; as a result, the draft spends its capacity copying features instead of guessing token betters.
 
@@ -31,21 +31,20 @@ The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6
 
 ### 1.2 DFlash (ICML 2026) – shorter drafting time
 
-The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: generate whole block at once, instead of token by token.
+The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)) is to make drafting parallel: generate the whole block at once, instead of token by token (Figure 3).
 
-The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.
+The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens (see teaser figure).
 
 <figure class="wide">
-<iframe src="../figures/dflash_diffusion_analogy_chalk-v5.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting versus parallel image denoising, ending with the question of parallel drafting"></iframe>
+<iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
-<figcaption><strong>Figure 3.</strong> Two ways to fill a canvas. Painting serially fills one cell at a time; diffusion denoises every pixel in parallel. What about drafting tokens in parallel to make speculative decoding faster?</figcaption>
-
+<figcaption><strong>Figure 3.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
 
 
 Diffusion drafting brings two benefits.
 
-- **Generating the whole block in a single forward pass makes drafting fast.** An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows. The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length.
-- **Conditioning on the target model's context features makes the drafts accurate.** Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache, so every layer sees the full context while the block is filled in. The result is high-quality drafts with higher acceptance rates.
+- **Generating the whole block in a single forward pass makes drafting fast.** An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows (Figure 4). The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length.
+- **Conditioning on the target model's context features makes the drafts accurate.** Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache (Figure 5), so every layer sees the full context while the block is filled in. The result is high-quality drafts with higher acceptance rates.
 
 <figure class="wide">
 <iframe src="../figures/dflash_flat_cost_chalk-v1.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Interactive chart of drafting cost versus block size for EAGLE-3 and DFlash"></iframe>
@@ -53,9 +52,9 @@ Diffusion drafting brings two benefits.
 <figcaption><strong>Figure 4.</strong> Drafting cost versus block size. EAGLE-3 keeps one layer to stay fast, so drafting &gamma; tokens costs &gamma; passes; DFlash spends five layers in one pass, flat at any &gamma;.</figcaption>
 
 <figure class="wide">
-<iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
+<iframe src="../figures/dflash_kv_injection_chalk-v1.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Diagram of DFlash injecting target model context features as keys and values into every draft layer"></iframe>
 </figure>
-<figcaption><strong>Figure 5.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
+<figcaption><strong>Figure 5.</strong> DFlash converts the target's features at every verified prefix position into keys and values, injected into each draft layer's KV cache, so every layer sees the full prefix. EAGLE-3 conditions on the last token only, at the bottom layer only.</figcaption>
 
 As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.
 
@@ -67,7 +66,7 @@ As a result, DFlash cuts drafting time. This removes autoregressive drafting as 
 
 ### 1.3 DeepSeek DSpark (2026) – shorter verification time
 
-Unlike the previous models that optimize the draft mechanism, **DSpark** ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) optimizes the verification mechanism: verify only the draft tokens that are worth it. DSpark keeps the parallel draft backbone and adds two modules.
+Unlike the previous models that optimize the draft mechanism, **DSpark** ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) optimizes the verification mechanism: verify only the draft tokens that are worth it. DSpark keeps the parallel draft backbone and adds two modules (Figure 6).
 
 - A lightweight sequential head restores dependencies inside the block, so later positions can condition on earlier ones.
 - A confidence head estimates how likely each draft prefix is to survive verification, and a load-aware scheduler sets the verification length per request, based on the estimated survival probability and the engine's throughput profile.
@@ -100,7 +99,6 @@ DFlash 2 does it with two additions.
 
 - **A path selector picks a coherent sequence.** It scores each adjacent pair of candidates: the drafter's own logit for the candidate, plus a compatibility term that embeds the previous token and the candidate into compact 256-dimensional vectors and matches them under a context gate. Walking the best-scoring path from the last verified token replaces independent guesses, at 2M added parameters and 0.6% latency.
 - **Two-tap convolutions keep neighbors consistent.** Inserted before and after each attention and feed-forward sublayer, they mix every position with its predecessor, and the first position reads the last verified token. Attention reads the long-range context, and the convolution handles local consistency inside the block. Reaching one position back recovers most of what ten extra layers would buy: the decay at the block's tail is a local problem, and a local fix is enough.
-
 
 As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
 

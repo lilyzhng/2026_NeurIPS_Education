@@ -133,7 +133,7 @@ Section 1 showed that a reported acceptance length is an implicit token-level di
 </figure>
 <figcaption><strong>Figure 15.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
 
-Look closely at Figure 14: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
+Look closely at Figure 15: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
 
 Figure 15 is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:
 
@@ -216,7 +216,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 #### b. Adjust acceptance rate yourself
 
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 14, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 14, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 17). At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
 
 <figure class="wide">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>

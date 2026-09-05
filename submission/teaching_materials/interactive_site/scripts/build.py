@@ -57,6 +57,23 @@ for m in re.finditer(r'<div id="([^"]+)" class="section"(?: data-toc="([^"]*)")?
     toc_items.append(f'      <li{cls}><a href="#{sid}">{text}</a></li>')
 toc = '\n'.join(toc_items)
 
+
+# --- figure cross-links: anchor each figcaption, link every prose "Figure N" ---
+def link_figures(html):
+    # 1) give each numbered figcaption an anchor
+    html = re.sub(r'<figcaption><strong>Figure (\w+)\.</strong>',
+                  lambda m: f'<figcaption id="fig-{m.group(1)}"><strong>Figure {m.group(1)}.</strong>', html)
+    # teaser figure anchor
+    html = html.replace('<figcaption><strong>Teaser figure:</strong>', '<figcaption id="fig-teaser"><strong>Teaser figure:</strong>', 1)
+    # 2) link prose references (skip ones already inside an anchor or the caption labels)
+    html = re.sub(r'(?<!id="fig-)(?<!<strong>)Figure (\d+|A\d+)(?![^<]*</strong>)(?!")',
+                  lambda m: f'<a class="figref" href="#fig-{m.group(1)}">Figure {m.group(1)}</a>', html)
+    html = html.replace('see teaser figure', '<a class="figref" href="#fig-teaser">see teaser figure</a>')
+    html = html.replace('see the teaser figure above', '<a class="figref" href="#fig-teaser">see the teaser figure above</a>')
+    html = html.replace('the teaser figure above', '<a class="figref" href="#fig-teaser">the teaser figure above</a>')
+    return html
+content = link_figures(content)
+
 out = tpl.replace('<!--TOC-->', toc).replace('<!--CONTENT-->', content)
 open(os.path.join(HERE, 'index.html'), 'w').write(out)
 

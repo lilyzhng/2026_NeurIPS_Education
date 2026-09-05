@@ -8,18 +8,19 @@
 |---|---|---|---|---|
 | Fig 1 | figures/figure1_chalk.html | 00 intro | vanilla vs speculative decoding 动画 | ✅ 模板（其余 figure 按它改：小 20%、dark forest 底、橡皮擦 replay 按钮） |
 | Fig 2 | figures/figure2_chalk.html | 1.1 EAGLE-3 | vanilla spec dec vs EAGLE-3 draft layer | 🔴 fuse 后 Veo 3 block 有 disjoint 部分 |
-| Fig 3 | figures/dflash_diffusion_analogy_chalk-v5.html | 1.2 DFlash | 袋鼠两 lane：serial paint vs parallel denoise（Twemoji 🦘 alpha 描边 32×32），结尾 "What about drafting in parallel?" | ✅ 已嵌入（2026-09-04） |
-| Fig 4 | figures/dflash_flat_cost_chalk-v1.html | 1.2 DFlash | flat-cost 交互图：drafting cost vs γ，滑块 + break-even 标注 | ✅ 已嵌入（2026-09-04） |
-| Fig 5 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入 | — |
-| Fig 6 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
-| Fig 7 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
-| Fig 8 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
-| Fig 9 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
-| Fig 10 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
-| Fig 11 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
-| Fig 12–15 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
-| Fig 16 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
-| Fig 17 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
+| Fig 3 | figures/dflash_diffusion_analogy_chalk-v5.html | 1.2 DFlash（也作 intro teaser） | 袋鼠两 lane：serial paint vs parallel denoise（Twemoji 🦘 alpha 描边 32×32），结尾 "What about drafting tokens in parallel?" | ✅ 已嵌入（2026-09-04） |
+| Fig 4 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入（机制动画，回答 Fig 3 的问句） | — |
+| Fig 5 | figures/dflash_flat_cost_chalk-v1.html | 1.2 DFlash | flat-cost 交互图：drafting cost vs γ，滑块 + break-even 标注 | ✅ 已嵌入（2026-09-04） |
+| Fig 6 | figures/dflash_kv_injection_chalk-v1.html | 1.2 DFlash | KV 注入静态图：每层 draft layer 都注入 target context KV | ✅ 已嵌入（2026-09-04） |
+| Fig 7 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
+| Fig 8 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
+| Fig 9 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
+| Fig 10 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
+| Fig 11 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
+| Fig 12 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
+| Fig 13–16 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
+| Fig 17 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
+| Fig 18 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
 | Fig A2 | figures/figureA2_chalk.html | 05 appendix | — | — |
 | 附录 | fig14_ownership_migration.svg | 05 appendix | acceleration 工作从 serving layer 迁移到 labs 的时间线 | — |
 
@@ -41,10 +42,10 @@
 
 ## C. Section 1.2（DFlash）图形提案
 
-现状：Figure 3 动画（EAGLE-3 串行 vs DFlash 整块去噪）。正文还有两个论点只有文字没有图。
+现状（2026-09-04 更新）：1.2 最终顺序为 Fig 3 袋鼠类比 → Fig 4 机制动画（dflash_draft）→ bullets → Fig 5 flat-cost → Fig 6 KV 注入。提案 1–3 已全部落地。
 
-1. **Flat-cost vs linear-cost 小图（首选，借 B9）** — x = block size γ，y = drafting time：EAGLE-3 线性上升（γ passes），DFlash 水平线（1 pass）。γ 滑块交互。标注 "DFlash 5 层仍快于 EAGLE-3 单 层"。这是 1.2 的核心定量主张，目前完全没有图。和 Modal roofline 页不撞车：他们画端到端 speedup，我们画 drafting cost 随 block 的缩放。
-2. **图像去噪类比 panel（借 B6）** — 正文用了 diffusion 类比但 Figure 3 只有 token block。左栏放真实图片从噪声并行去噪 vs 逐角绘制，右栏对应 MASK 行 → token。让 "borrowed from diffusion" 一眼成立。
-3. **KV 注入小示意图** — benefit 2（target 每个 prefix 位置的 feature 转成 KV 注入每个 draft layer）目前纯文字。一张静态 chalk 小图即可。
-4. **Drafting-time mini race（借 B8，可选）** — 回放实测 drafting 延迟：EAGLE-3 打 8 拍 vs DFlash 1 拍。可做进 Figure 3 的计时条，注意别和 1.5 的 Figure 6 race 重复。
+1. **Flat-cost vs linear-cost 小图（借 B9，已落地为 Fig 5）** — x = block size γ，y = drafting time：EAGLE-3 线性上升（γ passes），DFlash 水平线（1 pass）。γ 滑块交互。标注 "DFlash 5 层仍快于 EAGLE-3 单 层"。和 Modal roofline 页不撞车：他们画端到端 speedup，我们画 drafting cost 随 block 的缩放。
+2. **图像去噪类比 panel（借 B6，已落地为 Fig 3 袋鼠）** — 左栏真实轮廓逐格绘制，右栏从噪声并行去噪，结尾问句 "What about drafting tokens in parallel?" 接 Fig 4。
+3. **KV 注入小示意图（已落地为 Fig 6）** — benefit 2（target 每个 prefix 位置的 feature 转成 KV 注入每个 draft layer）。静态 chalk 图。
+4. **Drafting-time mini race（借 B8，可选）** — 回放实测 drafting 延迟：EAGLE-3 打 8 拍 vs DFlash 1 拍。可做进 Fig 4 的计时条，注意别和 1.5 的 Fig 9 race 重复。
 5. **MASK 位置 explorer（借 B7，建议留给 1.4）** — 点击 MASK 位置看 top-k candidate list。候选 list / recall 数字本来就在 1.4，放那边更贴。
