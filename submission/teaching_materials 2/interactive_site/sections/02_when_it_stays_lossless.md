@@ -2,7 +2,7 @@
 
 ## 2. When it stays lossless
 
-Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
+Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when that holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.
 
 </div>
 
@@ -10,7 +10,7 @@ Section 1 covered how speculative decoding ensures lossless acceleration. In thi
 
 ### 2.1 Lossless in papers
 
-Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:
+Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant is no longer lossless. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:
 
 - At temperature 0, decoding is deterministic: the target model selects its highest-probability next token, a draft token is accepted only when it matches, and it's lossless.
 - At temperature 1, decoding is random: one position can have multiple valid answers. A method like Medusa accepts any draft tokens that clear a target probability threshold, so the mix of answers follows the draft's preference instead of the target's. The output distribution shifts and is no longer lossless ([Cai et al., 2024](https://arxiv.org/abs/2401.10774)).
@@ -38,7 +38,7 @@ DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this
 2. **What's wrong in DSpark's scheduler.** DSpark's scheduler ranks candidate draft tokens by their estimated probability of passing verification, then admits them one at a time while updating expected throughput. Scoring token k+1 from the preceding token k is ordinary. The problem arises because DSpark schedules the whole draft block jointly: its decision to admit token k can depend on the score of token k+1, and that score was computed from the proposed token k. The admission decision for k thus indirectly depends on k itself, violating non-anticipating admission, which the paper calls selection bias (Section 3.2.2, counterexample in Appendix A).
 3. **DSpark's fix.** DSpark stops the search as soon as expected throughput declines. This makes the truncation decision depend only on the prefix processed so far, eliminating the selection bias.
 
-<p class="pullquote">A relaxed acceptance rule or a peeking scheduler shifts the output distribution. In deployment, what else does the lossless guarantee depend on?</p>
+<p class="pullquote">A relaxed acceptance rule or a peeking scheduler shifts the output distribution. In deployment, what else does losslessness depend on?</p>
 
 </div>
 
@@ -46,12 +46,12 @@ DSpark ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)) almost violated this
 
 ### 2.2 Lossless in deployment
 
-In production, there are many configurations a user or company can adjust, and some of them affect the lossless guarantee. vLLM and SGLang, the two major engines, put it this way:
+In production, there are many configurations a user or company can adjust, and some of them decide whether decoding stays lossless. vLLM and SGLang, the two major engines, put it this way:
 
-- **SGLang** keeps strict verification as the default: its acceptance thresholds ship at 1.0 ([SGLang docs](https://docs.sglang.ai/advanced_features/speculative_decoding.html)). A user can lower them to accept more tokens aggressively, and once they trade quality for speed this way, lossless is no longer guaranteed.
-- **vLLM** splits losslessness into three layers ([vLLM docs](https://docs.vllm.ai/en/latest/features/speculative_decoding/)): (1) theoretical losslessness holds up to the precision limits of hardware numerics; (2) algorithmic losslessness is validated by convergence tests on the rejection sampler; (3) output stability is not guaranteed. Layers 1 and 2 are covered by the paper's proof and the engine's tests, but layer 3 is not: a simple change in batch size can change logprobs, shifting the output distribution.
+- **SGLang** keeps strict verification as the default: its acceptance thresholds ship at 1.0 ([SGLang docs](https://docs.sglang.ai/advanced_features/speculative_decoding.html)). A user can lower them to accept more tokens aggressively, and once they trade quality for speed this way, decoding is no longer lossless.
+- **vLLM** splits losslessness into three layers ([vLLM docs](https://docs.vllm.ai/en/latest/features/speculative_decoding/)): (1) theoretical losslessness holds up to the precision limits of hardware numerics; (2) algorithmic losslessness is validated by convergence tests on the rejection sampler; (3) output stability is not promised. Layers 1 and 2 are covered by the paper's proof and the engine's tests, but layer 3 is not: a simple change in batch size can change logprobs, shifting the output distribution.
 
-DSpark is a concrete example. When DeepSeek deployed it in production, the scheduler exposed two conflicts with real-world infrastructure ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147), Section 5.2), and they had to redesign around both to keep the lossless guarantee:
+DSpark is a concrete example. When DeepSeek deployed it in production, the scheduler exposed two conflicts with real-world infrastructure ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147), Section 5.2), and they had to redesign around both to keep decoding lossless:
 
 1. The algorithm assumes a smooth hardware capacity curve, but real GPU throughput is jagged. The fix is removing the early stop and searching over the whole jagged curve.
 2. The algorithm decides how many draft tokens to verify at each step, but the serving engine needs the batch size to be fixed. The fix is scheduling asynchronously, using confidence predictions from two steps earlier to set the batch size. This also keeps the decision from seeing the current tokens, so the wider search in the first fix stays lossless.
@@ -216,14 +216,14 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 #### b. Adjust acceptance rate yourself
 
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 15, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 18). At temperature 0 the threshold does nothing: every stop returned byte-identical pages.
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading losslessness for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 15, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (Figure 18). At temperature 0 the threshold does nothing: every stop returned byte-identical pages.
 
 <figure class="wide">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold demo"></iframe>
 </figure>
 <figcaption><strong>Figure 18.</strong> The SGLang acceptance threshold on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
-At 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the guarantee is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
+At threshold 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the lossless free lunch is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
 
 </div>
 
@@ -256,7 +256,7 @@ Let's use LosslessBench task L101: "Stunning translucent calendar popup that smo
 python3 generate_frontend_task.py --url <your-url> --label vanilla
 ```
 
-Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:
+Greedy decoding, so losslessness makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:
 
 Run it twice, once on the vanilla server and once on the DSpark server, and compare the two HTML files:
 
@@ -272,7 +272,7 @@ Run it twice, once on the vanilla server and once on the DSpark server, and comp
 </div>
 <figcaption><strong>Table 5.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
 
-The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).
+The rejection-sampling proof still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine promises (Section 2.2).
 
 </div>
 

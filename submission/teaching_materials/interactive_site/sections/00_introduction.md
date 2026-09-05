@@ -130,7 +130,7 @@ where p and q are the target and draft next-token distributions, and D_LK is the
 
 where γ is the number of draft tokens per verification cycle.
 
-Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the guarantee holds however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.
+Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the output stays lossless however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.
 
 To summarize, speculative decoding speed comes down to three factors: **(1) drafting time, (2) verification time, and (3) acceptance length.** Section 1 walks through the state-of-the-art architectures and how each generation improves these deciding factors.
 
