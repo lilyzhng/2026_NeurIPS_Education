@@ -339,7 +339,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li class="sub"><a href="#dflash2">1.4 DFlash 2 (2026)</a></li>
       <li class="sub"><a href="#race">1.5 Case study</a></li>
       <li><a href="#notmean">2. When it stays lossless</a></li>
-      <li class="sub"><a href="#papers">2.1 What it doesn't mean in papers</a></li>
+      <li class="sub"><a href="#papers">2.1 Lossless in papers</a></li>
       <li class="sub"><a href="#deployment">2.2 Lossless in deployment</a></li>
       <li class="sub"><a href="#losslessbench">2.3 Introducing Lossless Bench</a></li>
       <li class="sub"><a href="#train">2.4 Hands-On Lab</a></li>
@@ -579,12 +579,12 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <div id="notmean" class="section">
 
 <h2 id="2-when-it-stays-lossless">2. When it stays lossless</h2>
-<p>Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) what lossless doesn't mean in papers, (2.2) speculative decoding in production, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
+<p>Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
 </div>
 
-<div id="papers" class="section" data-toc="2.1 What it doesn't mean in papers">
+<div id="papers" class="section" data-toc="2.1 Lossless in papers">
 
-<h3 id="21-what-lossless-doesnt-mean-in-papers">2.1 What lossless doesn't mean in papers</h3>
+<h3 id="21-lossless-in-papers">2.1 Lossless in papers</h3>
 <p>Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:</p>
 <ul>
 <li>At temperature 0, decoding is deterministic: the target model selects its highest-probability next token, a draft token is accepted only when it matches, and it's lossless.</li>
