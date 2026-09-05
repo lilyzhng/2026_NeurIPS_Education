@@ -27,6 +27,8 @@
 
 By the end, you will have walked through how speculative decoding evolved and how to serve and evaluate spec models, grounded in research from NeurIPS and ICML: blockwise parallel decoding at NeurIPS 2018 ([Stern et al.](https://arxiv.org/abs/1811.03115)), lossless speculative decoding at ICML 2023 ([Leviathan et al.](https://arxiv.org/abs/2211.17192)), EAGLE-3 at NeurIPS 2025 ([Li et al.](https://arxiv.org/abs/2503.01840)), DFlash at ICML 2026 ([Chen et al.](https://arxiv.org/abs/2602.06036)), and its successor DFlash 2 ([Inco AI, 2026](https://inco.ai/blog/dflash2/)).
 
+You can find the full glossary for reference in [A.1](#glossary).
+
 </div>
 
 <div id="howworks" class="section">
