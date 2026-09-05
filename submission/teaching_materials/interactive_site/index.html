@@ -591,7 +591,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <figure>
 <iframe src="figures/figure7_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
 </figure>
-<figcaption><strong>Figure 7.</strong> Rejection sampling keeps the target's mix; a relaxed rule follows the draft's.</figcaption>
+<figcaption><strong>Figure 7.</strong> Rejection sampling keeps the draft aligned with the target distribution. A relaxed rule follows the draft's preference.</figcaption>
 
 <p>Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the Figure 8 example.)</p>
 <figure>
