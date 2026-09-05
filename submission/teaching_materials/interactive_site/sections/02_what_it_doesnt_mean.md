@@ -163,7 +163,7 @@ This section is a hands-on tutorial: adjust the acceptance threshold and watch w
 
 <div id="servefirst" class="section">
 
-#### Serve your first accelerated model
+#### a. Serve your first accelerated model
 
 In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.
 
@@ -214,7 +214,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="knobdemo" class="section">
 
-#### Adjust acceptance rate yourself
+#### b. Adjust acceptance rate yourself
 
 SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
 
@@ -229,7 +229,7 @@ At 1.0 the verifier runs exact rejection sampling: the page follows the target m
 
 <div id="race42" class="section">
 
-#### The decoding race
+#### c. The decoding race
 
 In this section you watch four deployments race on the same prompt: the vanilla model against EAGLE-3, DFlash, and DSpark, all on H100. The point is to let the reader get a sense of what inference acceleration does on real-world tasks.
 
@@ -248,7 +248,7 @@ These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
 
 <div id="fig11task" class="section">
 
-#### Run LosslessBench on your own server
+#### d. Run LosslessBench on your own server
 
 Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."
 
@@ -278,7 +278,7 @@ The rejection-sampling guarantee still holds at the algorithm level: it assumes 
 
 <div id="perdomainspeed" class="section">
 
-#### Measure per-domain speed
+#### e. Measure per-domain speed
 
 The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with `race_domains.py`:
 

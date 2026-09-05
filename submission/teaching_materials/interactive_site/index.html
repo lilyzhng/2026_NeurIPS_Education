@@ -719,7 +719,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 
 <div id="servefirst" class="section">
 
-<h4 id="serve-your-first-accelerated-model">Serve your first accelerated model</h4>
+<h4 id="a-serve-your-first-accelerated-model">a. Serve your first accelerated model</h4>
 <p>In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.</p>
 <p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
 <p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a <a href="https://modal.com">Modal</a> account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).</p>
@@ -752,7 +752,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="knobdemo" class="section">
 
-<h4 id="adjust-acceptance-rate-yourself">Adjust acceptance rate yourself</h4>
+<h4 id="b-adjust-acceptance-rate-yourself">b. Adjust acceptance rate yourself</h4>
 <p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.</p>
 <figure class="wide">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
@@ -764,7 +764,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="race42" class="section">
 
-<h4 id="the-decoding-race">The decoding race</h4>
+<h4 id="c-the-decoding-race">c. The decoding race</h4>
 <p>In this section you watch four deployments race on the same prompt: the vanilla model against EAGLE-3, DFlash, and DSpark, all on H100. The point is to let the reader get a sense of what inference acceleration does on real-world tasks.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>eagle3 <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>dspark <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
@@ -776,7 +776,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="fig11task" class="section">
 
-<h4 id="run-losslessbench-on-your-own-server">Run LosslessBench on your own server</h4>
+<h4 id="d-run-losslessbench-on-your-own-server">d. Run LosslessBench on your own server</h4>
 <p>Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla</span></code></pre></div>
 <p>Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>
@@ -798,7 +798,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <div id="perdomainspeed" class="section">
 
-<h4 id="measure-per-domain-speed">Measure per-domain speed</h4>
+<h4 id="e-measure-per-domain-speed">e. Measure per-domain speed</h4>
 <p>The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
