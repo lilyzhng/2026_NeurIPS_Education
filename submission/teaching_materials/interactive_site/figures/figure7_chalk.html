@@ -115,6 +115,8 @@ body{margin:0;padding:0 0 4px;background:transparent;font-family:var(--_serif)}
   }
   window.addEventListener('load', postHeight);
   window.addEventListener('resize', postHeight);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight);
+  setTimeout(postHeight, 1500);
 })();
 </script>
 <script>

@@ -260,6 +260,8 @@ h2{
   }
   window.addEventListener('load', postHeight);
   window.addEventListener('resize', postHeight);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(postHeight);
+  setTimeout(postHeight, 1500);
 })();
 </script>
 <script>
