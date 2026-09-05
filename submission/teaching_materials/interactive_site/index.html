@@ -774,12 +774,20 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <h4 id="run-losslessbench-on-your-own-server">Run LosslessBench on your own server</h4>
 <p>Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla   <span class="co"># rerun per lane</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla</span></code></pre></div>
 <p>Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>
-<pre class="text"><code>vanilla vs dspark:  identical for 8,299 chars (76% of the page),
-                    then diverges at one CSS value:
-                    transition: color 0.2s   -&gt;   transition: color 0.3s
-                    and the trajectories separate from there (10,924 vs 10,535 chars)</code></pre>
+<p>Run it twice, once on the vanilla server and once on the DSpark server, and compare the two HTML files:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Comparison</th><th>Identical prefix</th><th>First divergence</th><th>Final length</th></tr>
+</thead>
+<tbody>
+<tr><td>vanilla vs DSpark</td><td>8,299 chars (76% of the page)</td><td><code>transition: color 0.2s</code> → <code>0.3s</code></td><td>10,924 vs 10,535 chars</td></tr>
+</tbody>
+</table>
+</div>
+
 <p>The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).</p>
 <p>Speed has the same domain dependence as the outputs. The per-domain rates (<code>race_domains.py</code>, one prompt per domain, 512 tokens, greedy, median of 5 repeat runs):</p>
 <table>

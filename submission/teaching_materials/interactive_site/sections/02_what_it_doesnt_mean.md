@@ -248,17 +248,23 @@ These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).
 Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."
 
 ```bash
-python3 generate_frontend_task.py --url <your-url> --label vanilla   # rerun per lane
+python3 generate_frontend_task.py --url <your-url> --label vanilla
 ```
 
 Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:
 
-```text
-vanilla vs dspark:  identical for 8,299 chars (76% of the page),
-                    then diverges at one CSS value:
-                    transition: color 0.2s   ->   transition: color 0.3s
-                    and the trajectories separate from there (10,924 vs 10,535 chars)
-```
+Run it twice, once on the vanilla server and once on the DSpark server, and compare the two HTML files:
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr><th>Comparison</th><th>Identical prefix</th><th>First divergence</th><th>Final length</th></tr>
+</thead>
+<tbody>
+<tr><td>vanilla vs DSpark</td><td>8,299 chars (76% of the page)</td><td><code>transition: color 0.2s</code> → <code>0.3s</code></td><td>10,924 vs 10,535 chars</td></tr>
+</tbody>
+</table>
+</div>
 
 The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).
 
