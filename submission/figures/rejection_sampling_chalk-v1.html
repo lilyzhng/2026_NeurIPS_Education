@@ -104,14 +104,15 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
 
 <script>
 (function(){
-  var PREFIX = ['NeurIPS', '2026', 'is', 'in'];
+  var PREFIX = ['NeurIPS', '2026', 'is'];
   var TOKS = [
-    {w:'Sydney',     p:'0.85', q:'0.80', a:'1.00', kind:'ok'},
-    {w:',',          p:'0.90', q:'0.92', a:'0.98', kind:'ok'},
-    {w:'California', p:'0.05', q:'0.70', a:'0.07', kind:'no', repl:'Australia'},
-    {w:'.',          p:'0.60', q:'0.85', a:'0.71', kind:'dim'}
+    {w:'in',         p:'0.95', q:'0.90', a:'1.00', kind:'ok'},
+    {w:'San Diego',  p:'0.04', q:'0.75', a:'0.05', kind:'no', repl:'Sydney'},
+    {w:',',          p:'0.90', q:'0.92', a:'0.98', kind:'dim'},
+    {w:'California', p:'0.03', q:'0.80', a:'0.04', kind:'dim'}
   ];
-  var OUT0 = 'NeurIPS 2026 is in';
+  var OUT0 = 'NeurIPS 2026 is';
+  var OUTNEXT = '<span style="opacity:.45">, Australia &middot; next cycle</span>';
 
   var sentence = document.getElementById('sentence');
   var output = document.getElementById('output');
@@ -153,24 +154,21 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
 
   var steps = [
     [0.4, function(){ chips.forEach(function(c,i){ setTimeout(function(){ c.classList.add('show'); }, i*140); }); }],
-    // Sydney: accepted
+    // in: accepted
     [1.5, function(){ chips[0].classList.add('checking'); }],
     [2.2, function(){ chips[0].classList.remove('checking');
                       gradeEls[0].classList.add('show','okc');
-                      output.textContent = OUT0 + ' Sydney'; }],
-    // ,: accepted
+                      output.textContent = OUT0 + ' in'; }],
+    // San Diego: rejected, Sydney resampled
     [3.0, function(){ chips[1].classList.add('checking'); }],
-    [3.7, function(){ chips[1].classList.remove('checking');
-                      gradeEls[1].classList.add('show','okc');
-                      output.textContent = OUT0 + ' Sydney,'; }],
-    // California: rejected, Australia resampled
-    [4.5, function(){ chips[2].classList.add('checking'); }],
-    [5.3, function(){ chips[2].classList.remove('checking'); chips[2].classList.add('dead');
-                      gradeEls[2].classList.add('show','no'); }],
-    [6.1, function(){ corr.classList.add('show'); output.textContent = OUT0 + ' Sydney, Australia'; }],
-    // suffix discarded
-    [7.0, function(){ gradeEls[3].classList.add('show','dim'); }],
-    [7.6, function(){ chips[3].classList.add('gone'); }],
+    [3.8, function(){ chips[1].classList.remove('checking'); chips[1].classList.add('dead');
+                      gradeEls[1].classList.add('show','no'); }],
+    [4.6, function(){ corr.classList.add('show'); output.textContent = OUT0 + ' in Sydney'; }],
+    // rest of the draft discarded, unchecked
+    [5.5, function(){ gradeEls[2].classList.add('show','dim'); gradeEls[3].classList.add('show','dim'); }],
+    [6.1, function(){ chips[2].classList.add('gone'); chips[3].classList.add('gone'); }],
+    // the target finishes the sentence in later cycles
+    [7.0, function(){ output.innerHTML = OUT0 + ' in Sydney' + OUTNEXT; }],
   ];
   var timers = [];
   function stopAll(){ timers.forEach(clearTimeout); timers = []; }
@@ -182,11 +180,11 @@ body{margin:0;padding:0;background:transparent;font-family:Georgia,serif}
   function finalState(){
     stopAll(); build();
     chips.forEach(function(c){ c.classList.add('show'); });
-    chips[2].classList.add('dead'); chips[3].classList.add('gone');
-    gradeEls[0].classList.add('show','okc'); gradeEls[1].classList.add('show','okc');
-    gradeEls[2].classList.add('show','no'); gradeEls[3].classList.add('show','dim');
+    chips[1].classList.add('dead'); chips[2].classList.add('gone'); chips[3].classList.add('gone');
+    gradeEls[0].classList.add('show','okc'); gradeEls[1].classList.add('show','no');
+    gradeEls[2].classList.add('show','dim'); gradeEls[3].classList.add('show','dim');
     corr.classList.add('show');
-    output.textContent = OUT0 + ' Sydney, Australia';
+    output.innerHTML = OUT0 + ' in Sydney' + OUTNEXT;
   }
 
   document.getElementById('replay').addEventListener('click', play);
