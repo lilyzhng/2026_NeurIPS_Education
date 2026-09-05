@@ -269,7 +269,13 @@ Run it twice, once on the vanilla server and once on the DSpark server, and comp
 
 The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).
 
-**Measure per-domain speed.** The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with `race_domains.py`:
+</div>
+
+<div id="perdomainspeed" class="section">
+
+#### Measure per-domain speed
+
+The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with `race_domains.py`:
 
 | domain | vanilla | DSpark | EAGLE-3 | DFlash |
 |---|---|---|---|---|

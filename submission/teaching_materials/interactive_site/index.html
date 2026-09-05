@@ -790,7 +790,12 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <figcaption><strong>Table 5.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
 
 <p>The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).</p>
-<p><strong>Measure per-domain speed.</strong> The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
+</div>
+
+<div id="perdomainspeed" class="section">
+
+<h4 id="measure-per-domain-speed">Measure per-domain speed</h4>
+<p>The outputs vary by domain, and so does the speed. Measure each lane across the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
 <tr>
