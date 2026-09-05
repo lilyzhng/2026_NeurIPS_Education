@@ -169,7 +169,7 @@ In this section you serve the same model twice, once vanilla and once with a spe
 
 The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.
 
-**Where to get the GPU.** Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a [Modal](https://modal.com) account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).
+**Where to get the GPU.** Any H100/A100 works. If you don't have one, get \$30 free credits by signing up for a [Modal](https://modal.com) account. That covers this whole lab (an H100 is ~\$4/hour, a full afternoon uses \$8-12).
 
 ```bash
 pip install modal && modal setup                    # one-time account link

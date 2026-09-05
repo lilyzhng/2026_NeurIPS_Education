@@ -146,6 +146,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       padding: 0.25rem 0 0.25rem 1.25rem;
       margin: 1.5rem 0;
     }
+    .pullquote.small { font-size: inherit; }
 
     blockquote, .callout {
       border-left: 2px solid var(--line-strong);
@@ -810,7 +811,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <h4 id="a-serve-your-first-accelerated-model">a. Serve your first accelerated model</h4>
 <p>In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.</p>
 <p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
-<p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get <span class="math inline">30<em>f</em><em>r</em><em>e</em><em>e</em><em>c</em><em>r</em><em>e</em><em>d</em><em>i</em><em>t</em><em>s</em><em>b</em><em>y</em><em>s</em><em>i</em><em>g</em><em>n</em><em>i</em><em>n</em><em>g</em><em>u</em><em>p</em><em>f</em><em>o</em><em>r</em><em>a</em>[<em>M</em><em>o</em><em>d</em><em>a</em><em>l</em>](<em>h</em><em>t</em><em>t</em><em>p</em><em>s</em>://<em>m</em><em>o</em><em>d</em><em>a</em><em>l</em>.<em>c</em><em>o</em><em>m</em>)<em>a</em><em>c</em><em>c</em><em>o</em><em>u</em><em>n</em><em>t</em>.<em>T</em><em>h</em><em>a</em><em>t</em><em>c</em><em>o</em><em>v</em><em>e</em><em>r</em><em>s</em><em>t</em><em>h</em><em>i</em><em>s</em><em>w</em><em>h</em><em>o</em><em>l</em><em>e</em><em>l</em><em>a</em><em>b</em>(<em>a</em><em>n</em><em>H</em>100<em>i</em><em>s</em> </span>4/hour, a full afternoon uses $8-12).</p>
+<p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a <a href="https://modal.com">Modal</a> account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install modal <span class="kw">&amp;&amp;</span> <span class="ex">modal</span> setup                    <span class="co"># one-time account link</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/lilyzhng/2026_NeurIPS_Education <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> 2026_NeurIPS_Education/submission/teaching_materials/lab</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>vanilla <span class="ex">modal</span> deploy modal_vllm_serve.py   <span class="co"># prints your server URL</span></span></code></pre></div>
@@ -953,7 +954,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>Speculative decoding so far operates on tokens. The same predict-then-verify idea extends one level up, to tool calls in agents. For an agent, the expensive unit is the tool call: a sub-LLM query or an API request takes seconds, while the code that issues it is still being generated.</p>
 <p>Early work has started to formalize this. Speculative Interaction Agents define speculative tool calling as a way to cut time-to-first-token (<a href="https://arxiv.org/abs/2605.13360">Hooper et al., 2026</a>), and Act While Thinking pre-executes tool calls predicted from patterns in the reasoning trace (<a href="https://arxiv.org/abs/2603.18897">Ji et al., 2026</a>). A shared benchmark is still missing: each paper evaluates on its own setup, either borrowing OOLONG (<a href="https://arxiv.org/abs/2511.02817">2025</a>) or building a private task corpus.</p>
 <p>Speculative programmatic tool calling is a concrete instantiation (<a href="https://alexzhang13.github.io/blog/2026/spec-ptc/">Zhang, 2026</a>). While the model is still writing code, a second interpreter runs the partial program and launches any tool call whose inputs are already determined. When the code executes for real, a matching pre-launched call returns its stored result, and a mismatched one is discarded and re-executed. A wrong guess costs only the wasted early launch. On OOLONG with Qwen3-30B, this yields 1 to 1.2x end-to-end speedup.</p>
-<p class="pullquote">If agent workloads keep growing, this direction will likely follow the trajectory of token-level speculative decoding: better speculation policies, acceptance rate as a first-class metric, and a shared benchmark to standardize the speedup claims.</p>
+<p class="pullquote small">If agent workloads keep growing, this direction will likely follow the trajectory of token-level speculative decoding: better speculation policies, acceptance rate as a first-class metric, and a shared benchmark to standardize the speedup claims.</p>
 
 </div>
 
@@ -1067,7 +1068,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <figcaption id="fig-A3"><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> <a class="figref" href="#fig-6">Figure 6</a>, boundary redrawn as steps.</figcaption>
 
 <p>See <a class="figref" href="#fig-A3">Figure A3</a>. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, <a class="figref" href="#fig-6">Figure 6</a>).</p>
-<p class="pullquote">This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</p>
+<p class="pullquote small">This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</p>
 
 </div>
 
