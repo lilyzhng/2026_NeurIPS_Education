@@ -35,7 +35,7 @@ You can find the full glossary for reference in [A.1](#glossary).
 
 ### How it works
 
-#### a. The draft-and-verify loop in action
+#### a. Fast decoding in action
 
 To give you a quick example: serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.
 
