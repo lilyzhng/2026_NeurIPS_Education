@@ -223,7 +223,7 @@ SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejectio
 </figure>
 <figcaption><strong>Figure 18.</strong> The SGLang acceptance threshold on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
-At threshold 1.0 the verifier runs rejection sampling as written: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the lossless free lunch is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
+At threshold 1.0 the verifier runs rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the lossless free lunch is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
 
 </div>
 
