@@ -8,19 +8,19 @@
 |---|---|---|---|---|
 | Fig 1 | figures/figure1_chalk.html | 00 intro | vanilla vs speculative decoding 动画 | ✅ 模板（其余 figure 按它改：小 20%、dark forest 底、橡皮擦 replay 按钮） |
 | Fig 2 | figures/figure2_chalk.html | 1.1 EAGLE-3 | vanilla spec dec vs EAGLE-3 draft layer | 🔴 fuse 后 Veo 3 block 有 disjoint 部分 |
-| Fig 3 | figures/dflash_diffusion_analogy_chalk-v5.html | 1.2 DFlash（也作 intro teaser） | 袋鼠两 lane：serial paint vs parallel denoise（Twemoji 🦘 alpha 描边 32×32），结尾 "What about drafting tokens in parallel?" | ✅ 已嵌入（2026-09-04） |
-| Fig 4 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入（机制动画，回答 Fig 3 的问句） | — |
-| Fig 5 | figures/dflash_flat_cost_chalk-v1.html | 1.2 DFlash | flat-cost 交互图：drafting cost vs γ，滑块 + break-even 标注 | ✅ 已嵌入（2026-09-04） |
-| Fig 6 | figures/dflash_kv_injection_chalk-v1.html | 1.2 DFlash | KV 注入静态图：每层 draft layer 都注入 target context KV | ✅ 已嵌入（2026-09-04） |
-| Fig 7 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
-| Fig 8 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
-| Fig 9 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
-| Fig 10 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
-| Fig 11 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
-| Fig 12 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
-| Fig 13–16 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
-| Fig 17 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
-| Fig 18 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
+| Teaser | figures/dflash_diffusion_analogy_chalk-v5.html | 00 intro | 袋鼠两 lane：serial paint vs parallel denoise（Twemoji 🦘 alpha 描边 32×32），结尾 "What about drafting tokens in parallel?" | ✅ 已嵌入（2026-09-04） |
+| Fig 3 | figures/dflash_draft_chalk.html | 1.2 DFlash | EAGLE-3 串行 drafting vs DFlash 整块去噪 + context KV 注入（机制动画） | — |
+| Fig 4 | figures/dflash_flat_cost_chalk-v1.html | 1.2 DFlash | flat-cost 动画：γ 从 1 逐步扫到 16，线逐段画出，break-even 停顿；之后滑块可交互 | ✅ 已嵌入（2026-09-04） |
+| Fig 5 | figures/dflash_kv_injection_chalk-v1.html | 1.2 DFlash | KV 注入分步动画：prefix (The fastest way to) 逐词 → h₁–h₄ → 每层注入 KV；input 顶进、layer 1 在上、output (get to school quickly) 底出 | ✅ 已嵌入（2026-09-04） |
+| Fig 6 | figures/figure4_chalk.html | 1.3 DSpark | sequential head + confidence head + load-aware scheduler | — |
+| Fig 7 | figures/figure5_chalk.html | 1.4 DFlash 2 | 独立 top-1 vs path selector | 🔴 需要修 |
+| Fig 8 | figures/figure6_chalk.html | 1.5 race | 五模型 decoding race（H100 实测 + Inco 报告值） | — |
+| Fig 9 | figures/figure7_chalk.html | 02 lossless | rejection sampling vs relaxed acceptance（猫狗例子） | 🔴 手机视图拉伸 |
+| Fig 10 | figures/figure8_chalk.html | 02 lossless | peeking scheduler 的 selection bias | — |
+| Fig 11 | figures/figure9_chalk.html | 02 lossless | OpenRouter traffic 按任务类型，83% 未被测过 | — |
+| Fig 12–15 | fig10/11 png + demo/*.html | 02 lossless | LosslessBench 结果、threshold sweep、race demo | — |
+| Fig 16 | fig13_runs_h100.svg | 02 lossless | Qwen3-8B H100 decode throughput bar chart | — |
+| Fig 17 | demo/knob_pages/ | 02 lossless | SGLang acceptance threshold knob | — |
 | Fig A2 | figures/figureA2_chalk.html | 05 appendix | — | — |
 | 附录 | fig14_ownership_migration.svg | 05 appendix | acceleration 工作从 serving layer 迁移到 labs 的时间线 | — |
 

@@ -134,6 +134,15 @@ With all 4 models introduced, the race can now run in full comparison. See Figur
 
 All four models are in production today. Since March 2025, EAGLE-3 draft heads ship for Llama, Qwen, and DeepSeek V3. By spring 2026, DFlash was integrated into SGLang, vLLM, TensorRT-LLM, and llama.cpp, and NVIDIA reported up to 15x throughput with it on Blackwell GPUs ([NVIDIA, 2026](https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/)). DFlash alone has been downloaded more than 3.5 million times in seven months. By mid-2026, model builders release official drafters alongside the models themselves: Meta, Poolside, and NVIDIA for DFlash ([Inco, 2026](https://inco.ai/blog/dflash2/)), Red Hat for DSpark ([RedHatAI, 2026](https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview)), and in July 2026, Kimi K3 shipped with its own speculator, trained during post-training ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). See Table 2.
 
+<div class="callout">
+<p><strong>When it doesn't help.</strong> Speculative decoding is not free:</p>
+<ul>
+<li>The draft model takes extra memory. On a machine with little RAM or VRAM, hosting a second model next to the target can cost more than it saves.</li>
+<li>Every cycle pays the drafting cost up front. If the draft guesses poorly and acceptance stays low, the speedup can drop below 1x.</li>
+<li>Under heavy serving load, the GPU is already saturated by batching, so there is no spare compute for speculation. Engines can disable it at high concurrency.</li>
+</ul>
+</div>
+
 So far we have covered how speculative decoding works and evolved. In the next section, we will discuss when it stays lossless.
 
 </div>

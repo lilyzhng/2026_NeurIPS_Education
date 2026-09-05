@@ -114,7 +114,7 @@ body{
       </div>
 
     </div>
-    <div class="venuenote">the canvas: a Sydney local &middot; see you at NeurIPS 2026</div>
+    <div class="venuenote">a diffusion canvas for a Sydney local &middot; see you at NeurIPS 2026</div>
     <div class="question" id="question">What about <span class="u">drafting tokens</span> in parallel?</div>
   </div></div>
 </div>
@@ -214,7 +214,7 @@ body{
     }
     if (t >= T_P){
       done1.style.opacity = '0';
-      status1.textContent = 'done at last \u00b7 ' + N + ' cells, one at a time';
+      status1.textContent = 'done at last \u00b7 ' + N + ' cells';
     } else {
       done1.style.opacity = t >= T_D ? '1' : '0';
       status1.textContent = 'cell ' + Math.min(N, filled + 1) + ' of ' + N + '\u2026';
@@ -234,7 +234,7 @@ body{
     var dDone = t >= T_D;
     done2.style.opacity = dDone ? '1' : '0';
     status2.textContent = dDone
-      ? 'noise to image in ' + T_D.toFixed(1) + 's \u00b7 every pixel together'
+      ? 'noise to image in ' + T_D.toFixed(1) + 's'
       : 'pure noise, denoising every pixel at once\u2026';
 
     // the hook appears once the parallel canvas is done

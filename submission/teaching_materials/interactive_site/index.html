@@ -408,9 +408,9 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <h2 id="introduction">Introduction</h2>
 </div>
 
-<div id="whymatters" class="section">
+<div id="whymatters" class="section" data-toc="Why it matters">
 
-<h3 id="why-it-matters">Why it matters</h3>
+<h3 id="what-it-is-and-why-it-matters">What it is and why it matters</h3>
 <p><strong>Every LLM you use generates one token at a time.</strong> This is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-autoregressive-decoding">autoregressive decoding<span class="glossary-tooltip" id="glossary-autoregressive-decoding" role="tooltip">Generating text one token at a time, with each token depending on the one before it.</span></button>, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-speculative-decoding">Speculative decoding<span class="glossary-tooltip" id="glossary-speculative-decoding" role="tooltip">A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</span></button>, introduced in 2023 (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al., 2023</a>), is an approach to accelerate this: a lightweight <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-draft-model">draft model<span class="glossary-tooltip" id="glossary-draft-model" role="tooltip">A cheaper model or draft layer that proposes several likely next tokens.</span></button> proposes the next few tokens, and the full <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-target-model">target model<span class="glossary-tooltip" id="glossary-target-model" role="tooltip">The larger model whose output distribution we want to preserve.</span></button> verifies these drafts, accepting or rejecting each one. The verified output has the same <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-probability-distribution">probability distribution<span class="glossary-tooltip" id="glossary-probability-distribution" role="tooltip">The model’s probabilities over all possible next tokens.</span></button> as the target model (<a href="https://arxiv.org/abs/2302.01318">Chen et al., 2023</a>), which is why speculative decoding is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-lossless">lossless<span class="glossary-tooltip" id="glossary-lossless" role="tooltip">Produces the same distribution of outputs as the unaccelerated version.</span></button> in theory.</p>
 <figure class="wide">
 <iframe src="figures/dflash_diffusion_analogy_chalk-v5.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting versus parallel image denoising, ending with the question of parallel drafting"></iframe>
@@ -466,7 +466,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
 </pre></div>
 
-<p>So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. The beauty of rejection sampling is that losslessness does not depend on the draft: even with a weak draft model, the output still follows the target model's own distribution (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al. 2023</a>, Appendix A.1). Here is how it works in pseudocode:</p>
+<p>So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al. 2023</a>, Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Here is how it works in pseudocode:</p>
 <div class="sptc-py" data-lang="python"><pre>
 # p(x): target model's probability for token x
 # q(x): draft model's probability for token x
@@ -496,7 +496,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <p>where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:</p>
 <pre class="text"><code>τ = (1 − α^(γ+1)) / (1 − α)</code></pre>
 <p>where γ is the number of draft tokens per verification cycle.</p>
-<p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the guarantee holds however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality, which is where Section 2 picks up.</p>
+<p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the guarantee holds however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.</p>
 <p>To summarize, speculative decoding speed comes down to three factors: <strong>(1) drafting time, (2) verification time, and (3) acceptance length.</strong> Section 1 walks through the state-of-the-art architectures and how each generation improves these deciding factors.</p>
 </div>
 
@@ -615,6 +615,15 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
 <figcaption><strong>Table 2.</strong> The four models at a glance.</figcaption>
 
 <p>All four models are in production today. Since March 2025, EAGLE-3 draft heads ship for Llama, Qwen, and DeepSeek V3. By spring 2026, DFlash was integrated into SGLang, vLLM, TensorRT-LLM, and llama.cpp, and NVIDIA reported up to 15x throughput with it on Blackwell GPUs (<a href="https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/">NVIDIA, 2026</a>). DFlash alone has been downloaded more than 3.5 million times in seven months. By mid-2026, model builders release official drafters alongside the models themselves: Meta, Poolside, and NVIDIA for DFlash (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>), Red Hat for DSpark (<a href="https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview">RedHatAI, 2026</a>), and in July 2026, Kimi K3 shipped with its own speculator, trained during post-training (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>). See Table 2.</p>
+<div class="callout">
+<p><strong>When it doesn't help.</strong> Speculative decoding is not free:</p>
+<ul>
+<li>The draft model takes extra memory. On a machine with little RAM or VRAM, hosting a second model next to the target can cost more than it saves.</li>
+<li>Every cycle pays the drafting cost up front. If the draft guesses poorly and acceptance stays low, the speedup can drop below 1x.</li>
+<li>Under heavy serving load, the GPU is already saturated by batching, so there is no spare compute for speculation. Engines can disable it at high concurrency.</li>
+</ul>
+</div>
+
 <p>So far we have covered how speculative decoding works and evolved. In the next section, we will discuss when it stays lossless.</p>
 </div>
 
