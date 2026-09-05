@@ -22,7 +22,7 @@ All feedback from Vibhu Sapra on the interactive site, one item per row, with st
 | # | Feedback | His words | Status |
 |---|---|---|---|
 | 6 | 3.1/3.2 are deep for an intro workshop, but acceptable | If this is an intro workshop as u listed it section 3.1 and 3.2 are kinda out there too ... I think it's okay, similar to 3.1 and 3.2 | ✅ No action needed: he judged it acceptable himself |
-| 7 | Rename "What's next" to something about how things work today (labs shipping quants etc.) | Maybe rename it form what's next to something around how things actually work today and flowing in labs shipping quants and stuff ties in | ✅ Considered, keeping What's Next: Section 3 content is forward-looking (multimodal, tool-call speculation); the how-things-work-today material lives in Appendix A.2, and the title is already submitted |
+| 7 | Rename "What's next" to something about how things work today (labs shipping quants etc.) | Maybe rename it form what's next to something around how things actually work today and flowing in labs shipping quants and stuff ties in | ✅ Considered, keeping What's Next: Section 3 content is forward-looking (multimodal, tool-call speculation) |
 
 ## Theory
 
