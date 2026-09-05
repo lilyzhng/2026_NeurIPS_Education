@@ -157,16 +157,6 @@ Interestingly, DFlash wrote the worst calendar page but the best story. Why do E
 
 This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens. A [Jupyter notebook walkthrough](https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb) covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.
 
-#### Adjust acceptance rate yourself
-
-SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
-
-<figure class="wide">
-<iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
-</figure>
-<figcaption><strong>Figure 14.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
-
-At 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the guarantee is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2, a 48% jump of draft-preferred tokens flooding in. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
 
 
 </div>
@@ -219,6 +209,21 @@ L_dspark = 1 / 231.4 tok/s ≈ 4.3 ms         # latency with the DSpark draft, p
 T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 η = L_target / L_dspark ≈ 1.70x             # speedup
 </pre></div>
+
+</div>
+
+<div id="knobdemo" class="section">
+
+#### Adjust acceptance rate yourself
+
+SGLang ships with `--speculative-accept-threshold-single` at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as Figure 12, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed. At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.
+
+<figure class="wide">
+<iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
+</figure>
+<figcaption><strong>Figure 14.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
+
+At 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the guarantee is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2, a 48% jump of draft-preferred tokens flooding in. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.
 
 </div>
 
