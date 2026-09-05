@@ -981,6 +981,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="glossary" class="section" data-toc="A.1 Glossary">
 
 <h3 class="glossary-heading">Glossary</h3>
+
 <dl class="glossary-list">
 <dt>Autoregressive decoding</dt><dd>Generating text one token at a time, with each token depending on the one before it.</dd>
 <dt>Draft model</dt><dd>A cheaper model or draft layer that proposes several likely next tokens.</dd>
@@ -993,6 +994,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <dt>Speculative decoding</dt><dd>A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</dd>
 <dt>Target model</dt><dd>The larger model whose output distribution we want to preserve.</dd>
 </dl>
+
 </div>
 
 <div id="frontend-gap" class="section" data-toc="A.2 Frontend gap under a vendor stack">
