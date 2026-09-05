@@ -14,6 +14,12 @@
 
 **Today, speculative decoding runs under nearly every hosted LLM**, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model ([OpenAI, 2026](https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484)), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate ([Anthropic, 2026](https://platform.claude.com/docs/en/build-with-claude/fast-mode)), DeepSeek ships DSpark in its serving engine for a 51% throughput gain ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)), and Kimi K3 ships with its own draft model ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). It is a cornerstone topic to learn in the LLM stack. Grounded in research from NeurIPS and ICML, we will run through: blockwise parallel decoding at NeurIPS 2018 ([Stern et al.](https://arxiv.org/abs/1811.03115)), lossless speculative decoding at ICML 2023 ([Leviathan et al.](https://arxiv.org/abs/2211.17192)), EAGLE-3 at NeurIPS 2025 ([Li et al.](https://arxiv.org/abs/2503.01840)), DFlash at ICML 2026 ([Chen et al.](https://arxiv.org/abs/2602.06036)), and its successor DFlash 2 ([Inco AI, 2026](https://inco.ai/blog/dflash2/)).
 
+**The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
+
+1. <u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of draft models remove its bottlenecks?
+2. <u>When it stays lossless.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.
+3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
+
 </div>
 
 <div id="howworks" class="section">
@@ -101,11 +107,5 @@ where γ is the number of draft tokens per verification cycle.
 Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the guarantee holds however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality, which is where Section 2 picks up.
 
 To summarize, speculative decoding speed comes down to three factors: **(1) drafting time, (2) verification time, and (3) acceptance length.** Section 1 walks through the state-of-the-art architectures and how each generation improves these deciding factors.
-
-**The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
-
-1. <u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of draft models remove its bottlenecks?
-2. <u>When it stays lossless.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.
-3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
 
 </div>
