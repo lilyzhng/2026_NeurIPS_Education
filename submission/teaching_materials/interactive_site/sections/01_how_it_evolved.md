@@ -35,16 +35,15 @@ The key design choice of **DFlash** ([Chen et al., 2026](https://arxiv.org/abs/2
 
 The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it corner by corner. Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.
 
-Speculative decoding is a natural setting for block diffusion. A standalone diffusion LLM underperforms autoregressive models, and it needs many denoising steps to recover quality. As a drafter, neither weakness matters: the target model verifies every token, so the diffusion model only has to guess well, and one denoising step is enough.
+Diffusion drafting brings two benefits.
 
-Parallel drafting also lifts the size constraint on the draft. An autoregressive draft pays one forward pass per token, so it must stay shallow to stay fast: EAGLE-3 is a single layer. A parallel draft pays one pass per block no matter the block size, so DFlash can afford five layers. The deeper draft guesses better and still runs faster: five layers generating 16 tokens beat EAGLE-3's single layer generating 8 on both drafting cost and acceptance length ([Chen et al., 2026](https://arxiv.org/abs/2602.06036), Section 3.2).
+- **Generating the whole block in a single forward pass makes drafting fast.** An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows. The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length ([Chen et al., 2026](https://arxiv.org/abs/2602.06036), Section 3.2).
+- **Conditioning on the target model's context features makes the drafts accurate.** Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache, so every layer sees the full context while the block is filled in. The result is high-quality drafts with higher acceptance rates.
 
 <figure class="wide">
 <iframe src="../figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
 <figcaption><strong>Figure 3.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
-
-How the target's context reaches the draft matters. Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache, so every layer sees the full context while the block is filled in.
 
 As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.
 
