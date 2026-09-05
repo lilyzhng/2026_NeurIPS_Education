@@ -80,4 +80,23 @@ subprocess.run([CHROME, '--headless=new', '--disable-gpu',
                 f'--print-to-pdf={pdf}',
                 'file://' + os.path.join(HERE, 'print.html')],
                check=True, capture_output=True)
-print('pdf:', pdf, round(os.path.getsize(pdf) / 1e6, 1), 'MB')
+# 4. stamp page numbers bottom-right
+import io
+from pypdf import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+reader = PdfReader(pdf)
+writer = PdfWriter()
+for i, page in enumerate(reader.pages, 1):
+    w = float(page.mediabox.width); h = float(page.mediabox.height)
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=(w, h))
+    c.setFont('Times-Roman', 9)
+    c.setFillColorRGB(0.45, 0.45, 0.45)
+    c.drawRightString(w - 36, 24, str(i))
+    c.save()
+    buf.seek(0)
+    page.merge_page(PdfReader(buf).pages[0])
+    writer.add_page(page)
+with open(pdf, 'wb') as fh:
+    writer.write(fh)
+print('pdf:', pdf, round(os.path.getsize(pdf) / 1e6, 1), 'MB, pages:', len(reader.pages))
