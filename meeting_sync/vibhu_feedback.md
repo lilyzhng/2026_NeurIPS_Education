@@ -1,8 +1,43 @@
-# Vibhu Sapra — feedback on the interactive site (2026-09-04, RCS thread with Madison)
+# Vibhu's Feedback — 2026-09-04 (RCS thread with Madison)
 
-Original wording preserved. He said he'd also leave comments on Google Docs; this captures the text thread. `>` lines are his own formatting.
+All feedback from Vibhu Sapra on the interactive site, one item per row, with status. Verbatim quotes preserved; raw transcript at the bottom. He also plans to leave comments on Google Docs.
 
-## Intro: too much time defining "lossless", angle over-focused on the term
+## Intro & framing
+
+| # | Feedback | His words | Status |
+|---|---|---|---|
+| 1 | Too much time defining "lossless"; the angle over-focuses on the term. Raise the catch-question, answer it, move on | why are we spending so much time defining lossless? ... > no, is lossless meaning __ > ok move on | ✅ Partly: arc renamed (How It Evolved / When It Stays Lossless / What's Next), intro split into Why it matters + How it works, Section 1 now opens directly into the evolution. ⬜ "What does lossless acceleration mean for an LLM?" opener paragraph still to rework |
+| 2 | Intro is short on what the learner practically gets | I think this intro is a little short on practically what we're actually doing here / what I'm getting out of it. Like I'm actually getting a walkthru of spec decoding techniques over time | ✅ Roadmap item 1 rewritten: how the four generations build upon each other; Section 1 retitled "How speculative decoding evolved" |
+| 3 | Opener paragraph asks "What does lossless acceleration mean for an LLM?" and never answers it in that paragraph | > start a paragraph literally with "What does lossless acceleration mean for an LLM? " > doesn't even answer it in that paragraph? ... bruh | ⬜ Rework the How-it-works opener to answer or drop the question |
+
+## Hands-on lab
+
+| # | Feedback | His words | Status |
+|---|---|---|---|
+| 4 | Show vanilla baseline speed for readers who don't run the lab | For those that don't run I think u can output speed of vanilla for context of those following along | ✅ lab_walkthrough.ipynb embeds every measured result (vanilla 136.3 tok/s etc.) |
+| 5 | Lab needs a guided write-up / coding-agent walkthrough, not blind script-running | it could have more written up / guided / full walkthru with your fav coding agent (paste __ into cc / codex / etc) ... w/o the write up it may get lost where people are just blindly running some scripts and seeing number outputs w/o really getting whats happening | ✅ lab_walkthrough.ipynb added (staged walkthrough, embedded outputs, teaching questions). ⬜ Optional: restore the coding-agent SKILL.md variant he describes |
+
+## Section 3
+
+| # | Feedback | His words | Status |
+|---|---|---|---|
+| 6 | 3.1/3.2 are deep for an intro workshop, but acceptable | If this is an intro workshop as u listed it section 3.1 and 3.2 are kinda out there too ... I think it's okay, similar to 3.1 and 3.2 | ⬜ Monitor; no change planned |
+| 7 | Rename "What's next" to something about how things work today (labs shipping quants etc.) | Maybe rename it form what's next to something around how things actually work today and flowing in labs shipping quants and stuff ties in | ⬜ Considered; kept What's Next in the renamed arc for now |
+
+## Theory
+
+| # | Feedback | His words | Status |
+|---|---|---|---|
+| 8 | Lossless is defined as a proxy of acceptance rate too much; acceptance rate is an efficiency metric | I think you define lossless as a proxy of acceptance rate a bit too much whereas I'd expect acceptance rate to be used for an efficiency metric | ✅ Fixed 9/4 (same issue Andrew raised): Theorem 3.5 passage rewritten — losslessness follows from the algorithm; τ reads as a speed statement, affects quality only when the acceptance threshold is relaxed |
+
+---
+
+## Raw transcript (verbatim, in order)
+
+> Hihi sorry super busy day
+> Will look at it tonight
+> Will leave comments on Google Docs / notes here
+> ok I'm going thru interactive first
 
 > This is a lot of saying "what lossless means"
 >
@@ -20,23 +55,15 @@ Original wording preserved. He said he'd also leave comments on Google Docs; thi
 
 > Yes it's critical, etc and I think most of this content is fine but the angle seems to keep focus on this term a bit too much imo?
 
-## Intro: say what the learner practically gets
-
 > I think this intro is a little short on practically what we're actually doing here / what I'm getting out of it
 
 > Like I'm actually getting a walkthru of spec decoding techniques over time
 
-## Lab: give baseline numbers for readers who don't run it
-
 > For those that don't run I think u can output speed of vanilla for context of those following along
-
-## Lab: needs a guided write-up (coding-agent walkthrough), not just scripts
 
 > Hands on lab seems cool, I think it could have more written up / guided / full walkthru with your fav coding agent (paste __ into cc / codex / etc) and it walks u thru whats happening
 
 > I think w/o the write up it may get lost where people are just blindly running some scripts and seeing number outputs w/o really getting whats happening / why / seeing where something is implemented
-
-## Section 3 (What's Next): scope and naming
 
 > If this is an intro workshop as u listed it section 3.1 and 3.2 are kinda out there too
 
@@ -44,15 +71,4 @@ Original wording preserved. He said he'd also leave comments on Google Docs; thi
 
 > Maybe rename it form what's next to something around how things actually work today and flowing in labs shipping quants and stuff ties in
 
-## Theory: acceptance rate is an efficiency metric, not a lossless proxy
-
 > Hmm also I think you define lossless as a proxy of acceptance rate a bit too much whereas I'd expect acceptance rate to be used for an efficiency metric
-
-(Screenshot he quoted: the Theorem 3.5 passage in 1.0 — "A reported τ gives the acceptance rate α, and by Theorem 3.5, α is a distributional distance. Read τ, and you are reading how far the draft's distribution sits from the target's." Same issue Andrew flagged; the passage was rewritten on 9/4 to frame τ as a speed statement.)
-
-## Context
-
-> Hihi sorry super busy day
-> Will look at it tonight
-> Will leave comments on Google Docs / notes here
-> ok I'm going thru interactive first
