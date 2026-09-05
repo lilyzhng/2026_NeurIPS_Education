@@ -90,7 +90,7 @@ h2{
   border:1.5px solid currentColor;border-radius:50px;
   padding:2px 11px;opacity:0;transition:opacity .3s;
 }
-.donebadge{color:var(--chalk);font-size:1.15rem}
+.donebadge{color:var(--chalk);font-size:1.15rem;margin-left:auto}
 .lane.v .donebadge{transform:rotate(1.2deg)}
 .lane.s .donebadge{transform:rotate(-1.4deg)}
 .clock{
@@ -147,8 +147,7 @@ h2{
     <div class="lane v">
       <div class="lanehead">
         <span class="lanename">VANILLA</span>
-        <span class="donebadge" id="doneV">done &middot; 9.0s</span>
-        <span class="clock" id="clockV">0.0s</span>
+        <span class="donebadge" id="doneV">done &middot; 10.0s</span>
       </div>
       <div class="chips" id="chipsV"></div>
       <div class="trackwrap"><div class="trackbase"></div><div class="fill" id="fillV"></div></div>
@@ -159,7 +158,6 @@ h2{
       <div class="lanehead">
         <span class="lanename">SPECULATIVE</span>
         <span class="donebadge" id="doneS">done &middot; 3.3s &#10003;</span>
-        <span class="clock" id="clockS">0.0s</span>
       </div>
       <div class="chips" id="chipsS"></div>
       <div class="trackwrap"><div class="trackbase"></div><div class="fill" id="fillS"></div></div>
@@ -209,8 +207,7 @@ h2{
   });
 
   var fillV = document.getElementById('fillV'), fillS = document.getElementById('fillS');
-  var clockV = document.getElementById('clockV'), clockS = document.getElementById('clockS');
-  var doneV = document.getElementById('doneV'), doneS = document.getElementById('doneS');
+    var doneV = document.getElementById('doneV'), doneS = document.getElementById('doneS');
   var statusV = document.getElementById('statusV'), statusS = document.getElementById('statusS');
 
   function paint(t){
@@ -218,8 +215,6 @@ h2{
     playhead.style.left = (Math.min(t, AXIS) / AXIS * 100) + '%';
     fillV.style.width = (tv / AXIS * 100) + '%';
     fillS.style.width = (ts / AXIS * 100) + '%';
-    clockV.textContent = tv.toFixed(1) + 's';
-    clockS.textContent = ts.toFixed(1) + 's';
 
     chipsV.forEach(function(c, i){ c.classList.toggle('show', t >= (i + 1) * PASS); });
     statusV.textContent = t >= V_DONE ? '10 target passes' :
