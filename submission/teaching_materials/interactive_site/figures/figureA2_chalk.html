@@ -142,15 +142,14 @@ svg{display:block;width:100%;height:auto;overflow:visible}
 </script>
 <script>
 (function(){
-  // hand-drawn slips: long strokes are harder to draw straight, so bigger
-  // elements are more likely to waver somewhere along the edge; small ones
-  // mostly stay clean. Low-frequency noise = one local waver, not a shiver.
-  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given');
+  // hand-drawn slips: long strokes are harder to draw straight, so the longer
+  // the element, the more likely (and eventually certain) a waver somewhere.
+  var els = document.querySelectorAll('.slate span, .slate button, .slate td, .slate th, .slate .tlabel, .slate .tline, .slate .panettl, .slate .outerttl, .slate .note, .slate .pic, .slate .share, .slate .name, .slate .verdict, .slate .setup, .slate .given, .slate .bar, .slate .seg, .slate .card, .slate .pill, .slate .pane, .slate .panel, .slate .trow, .slate .outer, .slate .chunk');
   var slips = ['url(#slip1)', 'url(#slip2)', 'url(#slip3)'];
   els.forEach(function(el, i){
     var w = el.offsetWidth || 0;
-    var r = ((i * 2654435761) % 100) / 100;
-    var pClean = w < 60 ? 0.85 : w < 160 ? 0.55 : 0.25;
+    var r = ((i * 61 + 17) % 100) / 100;
+    var pClean = w < 60 ? 0.85 : w < 160 ? 0.5 : w < 280 ? 0.15 : 0;
     if (r < pClean) return;
     el.style.filter = slips[i % 3];
   });
