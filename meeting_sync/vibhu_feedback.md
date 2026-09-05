@@ -6,16 +6,16 @@ All feedback from Vibhu Sapra on the interactive site, one item per row, with st
 
 | # | Feedback | His words | Status |
 |---|---|---|---|
-| 1 | Section 1's content was the architectural evolution, but the title said "What lossless means"; change the title | why are we spending so much time defining lossless? ... > no, is lossless meaning __ > ok move on | ✅ Done 9/4: Section 1 retitled "How speculative decoding evolved"; arc renamed to How It Evolved / When It Stays Lossless / What's Next (site title + TOC) |
-| 2 | Intro is unclear about what the learner practically gets | I think this intro is a little short on practically what we're actually doing here / what I'm getting out of it. Like I'm actually getting a walkthru of spec decoding techniques over time | ✅ Made it very explicit about what the learner gets: Introduction → Why it matters, closing paragraph ("By the end, you will have walked through...") |
-| 3 | Opener paragraph asks "What does lossless acceleration mean for an LLM?" and never answers it in that paragraph | > start a paragraph literally with "What does lossless acceleration mean for an LLM? " > doesn't even answer it in that paragraph? ... bruh | ✅ Done 9/4: Introduction → How it works, first paragraph now opens "To give you a quick example: serving Qwen3-8B..." |
+| 1 | Section 1's content was the architectural evolution, but the title said "What lossless means"; change the title | why are we spending so much time defining lossless? ... > no, is lossless meaning __ > ok move on | ✅ Done 9/4<br>• Section 1 retitled "How speculative decoding evolved"<br>• arc renamed: How It Evolved / When It Stays Lossless / What's Next (site title + TOC) |
+| 2 | Intro is unclear about what the learner practically gets | I think this intro is a little short on practically what we're actually doing here / what I'm getting out of it. Like I'm actually getting a walkthru of spec decoding techniques over time | ✅ Done 9/4<br>• made the learner outcome explicit<br>• see Introduction → Why it matters, closing paragraph ("By the end, you will have walked through...") |
+| 3 | Opener paragraph asks "What does lossless acceleration mean for an LLM?" and never answers it in that paragraph | > start a paragraph literally with "What does lossless acceleration mean for an LLM? " > doesn't even answer it in that paragraph? ... bruh | ✅ Done 9/4<br>• question dropped<br>• see Introduction → How it works, first paragraph: "To give you a quick example: serving Qwen3-8B..." |
 
 ## Hands-on lab
 
 | # | Feedback | His words | Status |
 |---|---|---|---|
-| 4 | Show vanilla baseline speed for readers who don't run the lab | For those that don't run I think u can output speed of vanilla for context of those following along | ✅ lab/lab_walkthrough.ipynb Stage 1 embeds every measured result (vanilla 136.3 tok/s, DSpark 231.4, 1.70x) |
-| 5 | Lab needs a guided write-up / coding-agent walkthrough, not blind script-running | it could have more written up / guided / full walkthru with your fav coding agent (paste __ into cc / codex / etc) ... w/o the write up it may get lost where people are just blindly running some scripts and seeing number outputs w/o really getting whats happening | ✅ lab/lab_walkthrough.ipynb added: 4-stage guided walkthrough with embedded outputs and teaching questions. ⬜ Optional: coding-agent SKILL.md variant |
+| 4 | Show vanilla baseline speed for readers who don't run the lab | For those that don't run I think u can output speed of vanilla for context of those following along | ✅ Done 9/4<br>• every measured result embedded<br>• see lab/lab_walkthrough.ipynb Stage 1 (vanilla 136.3 tok/s, DSpark 231.4, 1.70x) |
+| 5 | Lab needs a guided write-up / coding-agent walkthrough, not blind script-running | it could have more written up / guided / full walkthru with your fav coding agent (paste __ into cc / codex / etc) ... w/o the write up it may get lost where people are just blindly running some scripts and seeing number outputs w/o really getting whats happening | ✅ Done 9/4<br>• added lab/lab_walkthrough.ipynb: 4-stage guided walkthrough, embedded outputs, teaching questions<br>⬜ Optional: coding-agent SKILL.md variant |
 
 ## Section 3
 
@@ -28,7 +28,7 @@ All feedback from Vibhu Sapra on the interactive site, one item per row, with st
 
 | # | Feedback | His words | Status |
 |---|---|---|---|
-| 8 | Lossless is defined as a proxy of acceptance rate too much; acceptance rate is an efficiency metric | I think you define lossless as a proxy of acceptance rate a bit too much whereas I'd expect acceptance rate to be used for an efficiency metric | ✅ Fixed 9/4 (same issue Andrew raised): Theorem 3.5 passage rewritten (Introduction → How it works, last paragraph before the summary) — losslessness follows from the algorithm; τ reads as a speed statement, affects quality only when the acceptance threshold is relaxed. Also created an interactive demo of the acceptance threshold affecting speed and quality: Section 2.4, Figure 14 |
+| 8 | Lossless is defined as a proxy of acceptance rate too much; acceptance rate is an efficiency metric | I think you define lossless as a proxy of acceptance rate a bit too much whereas I'd expect acceptance rate to be used for an efficiency metric | ✅ Fixed 9/4 (same issue Andrew raised)<br>• Theorem 3.5 passage rewritten: losslessness follows from the algorithm; τ reads as speed, affects quality only when the threshold is relaxed<br>• see Introduction → How it works, last paragraph before the summary<br>• also built an interactive demo of the acceptance threshold affecting speed and quality: Section 2.4, Figure 14 |
 
 ---
 
