@@ -114,6 +114,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     .byline-col { display: flex; flex-direction: column; gap: 0.1rem; }
     .byline-col .byline-label { font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
     .byline-col .byline-value { font-weight: 600; color: var(--ink); }
+    .byline-col .byline-value a { color: var(--ink); text-decoration: underline; text-decoration-color: #2437e7; text-underline-offset: 3px; }
+    .byline-col .byline-value a:hover { color: #2437e7; }
     .byline-col .byline-value.light { font-weight: 400; }
     .byline-col .byline-value + .byline-value { margin-top: 0.45rem; }
 
@@ -387,8 +389,8 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     <div class="authors">
       <span class="byline-col">
         <span class="byline-label">Authors</span>
-        <span class="byline-value">Lily Zhang</span>
-        <span class="byline-value">Madison Kanna</span>
+        <span class="byline-value"><a href="https://lilyzh.ng" target="_blank" rel="noopener">Lily Zhang</a></span>
+        <span class="byline-value"><a href="https://madisonkanna.substack.com/" target="_blank" rel="noopener">Madison Kanna</a></span>
       </span>
       <span class="byline-col">
         <span class="byline-label">Affiliations</span>
@@ -505,7 +507,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <p>where p and q are the target and draft next-token distributions, and D_LK is the total variation distance between them. The same analysis also derives the acceptance length τ defined in Table 1 from the acceptance rate:</p>
 <pre class="text"><code>τ = (1 − α^(γ+1)) / (1 − α)</code></pre>
 <p>where γ is the number of draft tokens per verification cycle.</p>
-<p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the guarantee holds however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.</p>
+<p>Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the output stays lossless however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.</p>
 <p>To summarize, speculative decoding speed comes down to three factors: <strong>(1) drafting time, (2) verification time, and (3) acceptance length.</strong> Section 1 walks through the state-of-the-art architectures and how each generation improves these deciding factors.</p>
 </div>
 
@@ -519,7 +521,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 
 <h3 id="11-eagle-3-neurips-2025--longer-acceptance-length">1.1 EAGLE-3 (NeurIPS 2025) – longer acceptance length</h3>
 <p>The 2023 papers use a separate small LLM as the draft. It guesses from scratch, and hosting a second model costs memory. Medusa (<a href="https://arxiv.org/abs/2401.10774">Cai et al., 2024</a>) replaced it with extra prediction heads on the target; EAGLE (<a href="https://arxiv.org/abs/2401.15077">Li et al., 2024</a>) replaced the heads with a single decoder layer that reads the target's hidden features and drafts autoregressively (<a class="figref" href="#fig-3">Figure 3</a>). We highlight EAGLE-3 because it is what ships in production.</p>
-<p>Earlier EAGLE models do not improve acceptance length with more training data. This is because the draft layer was trained to predict the target's next hidden feature as well as the next token. This training objective forced the model to reproduce the target's exact feature vectors; as a result, the draft spends its capacity copying features instead of guessing token betters.</p>
+<p>Earlier EAGLE models do not improve acceptance length with more training data. This is because the draft layer was trained to predict the target's next hidden feature as well as the next token. This training objective forced the model to reproduce the target's exact feature vectors; as a result, the draft spends its capacity copying features instead of guessing tokens better.</p>
 <p><strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>) addresses this with a less-is-more training objective: it drops feature prediction and predicts the token directly, with features fused from low, middle, and high target layers instead of the top layer only. However, this introduces a new problem: at inference, the draft consumes its own outputs, which drift away from the training distribution, and acceptance collapses from the second step on. EAGLE-3 fixes this with training-time test: during training, the draft unrolls several steps and consumes its own outputs, so the distribution it trains on is the distribution it sees at inference.</p>
 <figure class="wide">
 <iframe src="figures/figure2_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla speculative decoding and EAGLE-3"></iframe>
@@ -606,7 +608,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <figure class="wide">
 <iframe src="figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption id="fig-9"><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
+<figcaption id="fig-9"><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark numbers are our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>
@@ -639,13 +641,13 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <div id="notmean" class="section">
 
 <h2 id="2-when-it-stays-lossless">2. When it stays lossless</h2>
-<p>Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when the guarantee holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
+<p>Section 1 covered how speculative decoding ensures lossless acceleration. In this section, we go through when that holds and when it does not: (2.1) lossless in papers, (2.2) lossless in deployment, and (2.3) a case study, LosslessBench, which measures losslessness on domains beyond math and coding.</p>
 </div>
 
 <div id="papers" class="section" data-toc="2.1 Lossless in papers">
 
 <h3 id="21-lossless-in-papers">2.1 Lossless in papers</h3>
-<p>Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant drops the lossless guarantee. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:</p>
+<p>Even in the original papers, lossless is not unconditional. EAGLE-3 compares against Medusa only at temperature 0 but the relaxed acceptance variant is no longer lossless. This is because a method like Medusa is lossless depending on the temperature and on how strict the acceptance rule is:</p>
 <ul>
 <li>At temperature 0, decoding is deterministic: the target model selects its highest-probability next token, a draft token is accepted only when it matches, and it's lossless.</li>
 <li>At temperature 1, decoding is random: one position can have multiple valid answers. A method like Medusa accepts any draft tokens that clear a target probability threshold, so the mix of answers follows the draft's preference instead of the target's. The output distribution shifts and is no longer lossless (<a href="https://arxiv.org/abs/2401.10774">Cai et al., 2024</a>).</li>
@@ -672,19 +674,19 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <li><strong>What's wrong in DSpark's scheduler.</strong> DSpark's scheduler ranks candidate draft tokens by their estimated probability of passing verification, then admits them one at a time while updating expected throughput. Scoring token k+1 from the preceding token k is ordinary. The problem arises because DSpark schedules the whole draft block jointly: its decision to admit token k can depend on the score of token k+1, and that score was computed from the proposed token k. The admission decision for k thus indirectly depends on k itself, violating non-anticipating admission, which the paper calls selection bias (Section 3.2.2, counterexample in Appendix A).</li>
 <li><strong>DSpark's fix.</strong> DSpark stops the search as soon as expected throughput declines. This makes the truncation decision depend only on the prefix processed so far, eliminating the selection bias.</li>
 </ol>
-<p class="pullquote">A relaxed acceptance rule or a peeking scheduler shifts the output distribution. In deployment, what else does the lossless guarantee depend on?</p>
+<p class="pullquote">A relaxed acceptance rule or a peeking scheduler shifts the output distribution. In deployment, what else does losslessness depend on?</p>
 
 </div>
 
 <div id="deployment" class="section" data-toc="2.2 Lossless in deployment">
 
 <h3 id="22-lossless-in-deployment">2.2 Lossless in deployment</h3>
-<p>In production, there are many configurations a user or company can adjust, and some of them affect the lossless guarantee. vLLM and SGLang, the two major engines, put it this way:</p>
+<p>In production, there are many configurations a user or company can adjust, and some of them decide whether decoding stays lossless. vLLM and SGLang, the two major engines, put it this way:</p>
 <ul>
-<li><strong>SGLang</strong> keeps strict verification as the default: its acceptance thresholds ship at 1.0 (<a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html">SGLang docs</a>). A user can lower them to accept more tokens aggressively, and once they trade quality for speed this way, lossless is no longer guaranteed.</li>
-<li><strong>vLLM</strong> splits losslessness into three layers (<a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM docs</a>): (1) theoretical losslessness holds up to the precision limits of hardware numerics; (2) algorithmic losslessness is validated by convergence tests on the rejection sampler; (3) output stability is not guaranteed. Layers 1 and 2 are covered by the paper's proof and the engine's tests, but layer 3 is not: a simple change in batch size can change logprobs, shifting the output distribution.</li>
+<li><strong>SGLang</strong> keeps strict verification as the default: its acceptance thresholds ship at 1.0 (<a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html">SGLang docs</a>). A user can lower them to accept more tokens aggressively, and once they trade quality for speed this way, decoding is no longer lossless.</li>
+<li><strong>vLLM</strong> splits losslessness into three layers (<a href="https://docs.vllm.ai/en/latest/features/speculative_decoding/">vLLM docs</a>): (1) theoretical losslessness holds up to the precision limits of hardware numerics; (2) algorithmic losslessness is validated by convergence tests on the rejection sampler; (3) output stability is not promised. Layers 1 and 2 are covered by the paper's proof and the engine's tests, but layer 3 is not: a simple change in batch size can change logprobs, shifting the output distribution.</li>
 </ul>
-<p>DSpark is a concrete example. When DeepSeek deployed it in production, the scheduler exposed two conflicts with real-world infrastructure (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>, Section 5.2), and they had to redesign around both to keep the lossless guarantee:</p>
+<p>DSpark is a concrete example. When DeepSeek deployed it in production, the scheduler exposed two conflicts with real-world infrastructure (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>, Section 5.2), and they had to redesign around both to keep decoding lossless:</p>
 <ol type="1">
 <li>The algorithm assumes a smooth hardware capacity curve, but real GPU throughput is jagged. The fix is removing the early stop and searching over the whole jagged curve.</li>
 <li>The algorithm decides how many draft tokens to verify at each step, but the serving engine needs the batch size to be fixed. The fix is scheduling asynchronously, using confidence predictions from two steps earlier to set the batch size. This also keeps the decision from seeing the current tokens, so the wider search in the first fix stays lossless.</li>
@@ -759,11 +761,11 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </figure>
 <figcaption id="fig-16"><strong>Figure 16.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
 
-<p>Look closely at <a class="figref" href="#fig-16">Figure 16</a>: the four lanes did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated lanes between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.</p>
+<p>Look closely at <a class="figref" href="#fig-15">Figure 15</a>: the four models did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated models between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.</p>
 <p><a class="figref" href="#fig-16">Figure 16</a> is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>story</th>
 <th>instruction following</th>
 <th>Latin vocabulary</th>
@@ -771,19 +773,19 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>vanilla · 7/10</td>
 <td>979 words. Ends entering the fight, close to violating the no-combat rule.</td>
 <td>Correct, restrained.</td>
 <td>Strongest sensory detail. Named cast. Ending falls back on a generic freedom monologue.</td>
 </tr>
-<tr>
+<tr class="even">
 <td>EAGLE-3 / DSpark · 6/10</td>
 <td>Best. 998 words, all constraints met.</td>
 <td>Correct, sparse.</td>
 <td>Weakest as fiction. Restates one thesis three times. No named characters. Explains politics rather than dramatizing it.</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>DFlash · 7.5/10</td>
 <td>Worst. 1,092 words, 9% over. Invents a sacrae bell.</td>
 <td>Inaccurate, decorative.</td>
@@ -807,9 +809,9 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <h4 id="a-serve-your-first-accelerated-model">a. Serve your first accelerated model</h4>
 <p>In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.</p>
 <p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
-<p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a <a href="https://modal.com">Modal</a> account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).</p>
+<p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get <span class="math inline">30<em>f</em><em>r</em><em>e</em><em>e</em><em>c</em><em>r</em><em>e</em><em>d</em><em>i</em><em>t</em><em>s</em><em>b</em><em>y</em><em>s</em><em>i</em><em>g</em><em>n</em><em>i</em><em>n</em><em>g</em><em>u</em><em>p</em><em>f</em><em>o</em><em>r</em><em>a</em>[<em>M</em><em>o</em><em>d</em><em>a</em><em>l</em>](<em>h</em><em>t</em><em>t</em><em>p</em><em>s</em>://<em>m</em><em>o</em><em>d</em><em>a</em><em>l</em>.<em>c</em><em>o</em><em>m</em>)<em>a</em><em>c</em><em>c</em><em>o</em><em>u</em><em>n</em><em>t</em>.<em>T</em><em>h</em><em>a</em><em>t</em><em>c</em><em>o</em><em>v</em><em>e</em><em>r</em><em>s</em><em>t</em><em>h</em><em>i</em><em>s</em><em>w</em><em>h</em><em>o</em><em>l</em><em>e</em><em>l</em><em>a</em><em>b</em>(<em>a</em><em>n</em><em>H</em>100<em>i</em><em>s</em> </span>4/hour, a full afternoon uses $8-12).</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install modal <span class="kw">&amp;&amp;</span> <span class="ex">modal</span> setup                    <span class="co"># one-time account link</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/lilyzhng/2026_NeurIPS_Education <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> <span class="pp">*</span>/teaching_materials/lab</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/lilyzhng/2026_NeurIPS_Education <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> 2026_NeurIPS_Education/submission/teaching_materials/lab</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>vanilla <span class="ex">modal</span> deploy modal_vllm_serve.py   <span class="co"># prints your server URL</span></span></code></pre></div>
 <p>The script pins the image, caches model weights in a volume so they download once, and exposes the server at a public URL. When done, <code>modal app stop neurips-spec-lab</code> releases the GPU.</p>
 <p>Serve the vanilla model:</p>
@@ -838,13 +840,13 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <div id="knobdemo" class="section">
 
 <h4 id="b-adjust-acceptance-rate-yourself">b. Adjust acceptance rate yourself</h4>
-<p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading the lossless guarantee for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as <a class="figref" href="#fig-15">Figure 15</a>, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (<a class="figref" href="#fig-18">Figure 18</a>). At temperature 0 the knob is inert: a draft token is accepted only when it already matches the argmax, and our greedy sweep of the same range returned byte-identical pages at every stop.</p>
+<p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading losslessness for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as <a class="figref" href="#fig-15">Figure 15</a>, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (<a class="figref" href="#fig-18">Figure 18</a>). At temperature 0 the threshold does nothing: every stop returned byte-identical pages.</p>
 <figure class="wide">
-<iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold knob demo"></iframe>
+<iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold demo"></iframe>
 </figure>
-<figcaption id="fig-18"><strong>Figure 18.</strong> The SGLang acceptance-threshold knob on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
+<figcaption id="fig-18"><strong>Figure 18.</strong> The SGLang acceptance threshold on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
-<p>At 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the guarantee is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2, a 48% jump of draft-preferred tokens flooding in. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.</p>
+<p>At threshold 1.0 the verifier runs exact rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the lossless free lunch is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.</p>
 </div>
 
 <div id="race42" class="section">
@@ -855,7 +857,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>dspark <span class="ex">modal</span> deploy modal_vllm_serve.py</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">modal</span> run modal_dflash_offline.py            <span class="co"># DFlash, see note below</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> build_race_demo.py                   <span class="co"># assembles the demo from your outputs</span></span></code></pre></div>
-<p>These commands reproduce the two live demos in Section 2.3 (Figures 11 and 12).</p>
+<p>These commands reproduce the two live demos in Section 2.3 (Figures 15 and 16).</p>
 <p><sub>Note: <code>vllm serve</code> crashes on DFlash in stable 0.28.0, and only the offline <code>LLM()</code> path is CI-tested, so <code>modal_dflash_offline.py</code> runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub></p>
 </div>
 
@@ -864,7 +866,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <h4 id="d-run-losslessbench-on-your-own-server">d. Run LosslessBench on your own server</h4>
 <p>Let's use LosslessBench task L101: "Stunning translucent calendar popup that smoothly blends into the interface."</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> generate_frontend_task.py <span class="at">--url</span> <span class="op">&lt;</span>your-url<span class="op">&gt;</span> --label vanilla</span></code></pre></div>
-<p>Greedy decoding, so the lossless guarantee makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>
+<p>Greedy decoding, so losslessness makes a concrete prediction: a speculator should reproduce the vanilla HTML exactly. Here is what we measured instead:</p>
 <p>Run it twice, once on the vanilla server and once on the DSpark server, and compare the two HTML files:</p>
 <div class="table-wrap">
 <table>
@@ -878,7 +880,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </div>
 <figcaption><strong>Table 5.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
 
-<p>The rejection-sampling guarantee still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine guarantees (Section 2.2).</p>
+<p>The rejection-sampling proof still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine promises (Section 2.2).</p>
 </div>
 
 <div id="perdomainspeed" class="section">
@@ -887,7 +889,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>domain</th>
 <th>vanilla</th>
 <th>DSpark</th>
@@ -896,21 +898,21 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>coding</td>
 <td>138.1</td>
 <td>311.9 (2.3x)</td>
 <td>158.8 (1.15x)</td>
 <td>311.3 (2.25x)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>creative</td>
 <td>138.2</td>
 <td>416.7 (3.0x)</td>
 <td>229.5 (1.66x)</td>
 <td>265.6 (1.92x)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>frontend</td>
 <td>137.6</td>
 <td>333.1 (2.4x)</td>
