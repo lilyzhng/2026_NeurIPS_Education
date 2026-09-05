@@ -2,11 +2,19 @@
 
 ## Introduction
 
+</div>
+
+<div id="whymatters" class="section">
+
 ### Why it matters
 
 **Every LLM you use generates one token at a time.** This is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-autoregressive-decoding">autoregressive decoding<span class="glossary-tooltip" id="glossary-autoregressive-decoding" role="tooltip">Generating text one token at a time, with each token depending on the one before it.</span></button>, which is a major bottleneck of inference: producing n tokens takes n passes through a model with tens of billions of parameters. <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-speculative-decoding">Speculative decoding<span class="glossary-tooltip" id="glossary-speculative-decoding" role="tooltip">A generation method that uses a fast smaller draft model to propose several tokens, which are then verified by a larger slower target model.</span></button>, introduced in 2023 ([Leviathan et al., 2023](https://arxiv.org/abs/2211.17192)), is an approach to accelerate this: a lightweight <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-draft-model">draft model<span class="glossary-tooltip" id="glossary-draft-model" role="tooltip">A cheaper model or draft layer that proposes several likely next tokens.</span></button> proposes the next few tokens, and the full <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-target-model">target model<span class="glossary-tooltip" id="glossary-target-model" role="tooltip">The larger model whose output distribution we want to preserve.</span></button> verifies these drafts, accepting or rejecting each one. The verified output has the same distribution as the target model ([Chen et al., 2023](https://arxiv.org/abs/2302.01318)), which is why speculative decoding is <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-lossless">lossless<span class="glossary-tooltip" id="glossary-lossless" role="tooltip">Produces the same distribution of outputs as the unaccelerated version.</span></button> in theory.
 
 **Today, speculative decoding runs under nearly every hosted LLM**, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model ([OpenAI, 2026](https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484)), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate ([Anthropic, 2026](https://platform.claude.com/docs/en/build-with-claude/fast-mode)), DeepSeek ships DSpark in its serving engine for a 51% throughput gain ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)), and Kimi K3 ships with its own draft model ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). It is a cornerstone topic to learn in the LLM stack. Grounded in research from NeurIPS and ICML, we will run through: blockwise parallel decoding at NeurIPS 2018 ([Stern et al.](https://arxiv.org/abs/1811.03115)), lossless speculative decoding at ICML 2023 ([Leviathan et al.](https://arxiv.org/abs/2211.17192)), EAGLE-3 at NeurIPS 2025 ([Li et al.](https://arxiv.org/abs/2503.01840)), DFlash at ICML 2026 ([Chen et al.](https://arxiv.org/abs/2602.06036)), and its successor DFlash 2 ([Inco AI, 2026](https://inco.ai/blog/dflash2/)).
+
+</div>
+
+<div id="howworks" class="section">
 
 ### How it works
 
