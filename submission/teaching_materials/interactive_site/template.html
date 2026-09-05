@@ -181,6 +181,30 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
     .fig2 img { width: 50%; min-width: 0; }
     @media (max-width: 640px) { .fig2 { flex-direction: column; } .fig2 img { width: 100%; } }
 
+    .glossary-heading {
+      margin: 2.25rem 0 1.35rem;
+      font-family: var(--serif);
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: 0.045em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .glossary-list {
+      display: grid;
+      grid-template-columns: minmax(10rem, max-content) minmax(0, 1fr);
+      column-gap: 1.15rem;
+      row-gap: 0.55rem;
+      max-width: 44rem;
+      margin: 0 auto 2.5rem;
+    }
+    .glossary-list dt { font-weight: 700; }
+    .glossary-list dd { margin: 0; }
+    @media (max-width: 640px) {
+      .glossary-list { grid-template-columns: 1fr; row-gap: 0.15rem; }
+      .glossary-list dd { margin-bottom: 0.8rem; }
+    }
+
     pre {
       background: #1e2a1c; color: #e8e8e3;
       font-family: var(--mono); font-size: 0.8125rem; line-height: 1.6;
