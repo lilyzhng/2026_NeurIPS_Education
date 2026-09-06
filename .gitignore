@@ -24,3 +24,7 @@ local/
 submission/teaching_materials/interactive_site/references/
 submission/teaching_materials/interactive_site/related_work/
 meeting_sync/
+
+# Local-only submission artifacts (2026-09-06)
+submission/teaching_materials.zip
+submission/openreview_form.md
