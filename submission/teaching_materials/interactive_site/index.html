@@ -434,7 +434,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <div id="howworks" class="section">
 
 <h3 id="how-it-works">How it works</h3>
-<p>This section explains why speculative decoding is faster than vanilla decoding, why the output distribution is statistically lossless, how to evaluate the model, and what it looks like in practice.</p>
+<p>This section explains why speculative decoding is faster than vanilla decoding, why rejection sampling makes it statistically lossless, how to evaluate the model, and what it looks like in practice.</p>
 <h4 id="a-why-is-it-faster-than-the-vanilla-model-decoding">a. Why is it faster than the vanilla model decoding?</h4>
 <p>With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (<a class="figref" href="#fig-teaser">the teaser figure above</a>). <a class="figref" href="#fig-1">Figure 1</a> contrasts the two decoding modes:</p>
 <figure class="wide" id="fig-1">

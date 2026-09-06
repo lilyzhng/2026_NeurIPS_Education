@@ -33,7 +33,7 @@ You can find the full glossary for reference in [A.1](#glossary).
 
 ### How it works
 
-This section explains why speculative decoding is faster than vanilla decoding, why the output distribution is statistically lossless, how to evaluate the model, and what it looks like in practice.
+This section explains why speculative decoding is faster than vanilla decoding, why rejection sampling makes it statistically lossless, how to evaluate the model, and what it looks like in practice.
 
 #### a. Why is it faster than the vanilla model decoding?
 
