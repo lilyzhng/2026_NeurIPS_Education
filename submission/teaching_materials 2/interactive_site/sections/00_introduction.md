@@ -21,7 +21,7 @@
 
 **The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
 
-1. <u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of draft models build upon each other?
+1. <u>How it evolved.</u> How does speculative decoding work, why is it lossless in theory, and how did four generations of speculative decoding models build upon each other?
 2. <u>When it stays lossless.</u> Introducing [Losslessbench](https://huggingface.co/datasets/lilyzhng/lossless_bench), and a hands-on lab to run the models yourself.
 3. <u>What's next?</u> What are the exciting new directions in accelerated inference?
 
