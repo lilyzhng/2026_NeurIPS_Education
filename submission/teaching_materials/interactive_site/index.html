@@ -758,6 +758,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </figure>
 <figcaption><strong>Figure 14.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
+<p>With the DFlash draft, frontend design drops from 54.5 to 45.5 and creative writing from 70 to 30, while guardrail holds at 80 and agentic workflow rises from 20.0 to 27.5. The agentic gain is not a smarter model: the target is the same Qwen3-8B, and rejection sampling leaves its distribution unchanged. What changes is the trajectory. Across the ten tau3 retail tasks in the compare demo, the accelerated run reasons longer and acts more: 160 thinking turns against 98, 416 words per thinking turn against 261, and 76 tool calls against 54. It matches 51 of 62 gold actions where vanilla matches 45 of 75. Once a trajectory commits to a tool call, later turns build on the result, so an early divergence toward action compounds into a better score. As with the gladiator stories in Table 4, this is trajectory divergence, not a different model.</p>
 <p><strong>Explore the evaluation by yourself.</strong> Pick any domain and run the task:</p>
 <p style="display:flex;gap:10px;flex-wrap:wrap;">
 <a href="demo/compare_frontend.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Frontend Design</a>
@@ -781,7 +782,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <p><a class="figref" href="#fig-16">Figure 16</a> is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>story</th>
 <th>instruction following</th>
 <th>Latin vocabulary</th>
@@ -789,19 +790,19 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>vanilla · 7/10</td>
 <td>979 words. Ends entering the fight, close to violating the no-combat rule.</td>
 <td>Correct, restrained.</td>
 <td>Strongest sensory detail. Named cast. Ending falls back on a generic freedom monologue.</td>
 </tr>
-<tr class="even">
+<tr>
 <td>EAGLE-3 / DSpark · 6/10</td>
 <td>Best. 998 words, all constraints met.</td>
 <td>Correct, sparse.</td>
 <td>Weakest as fiction. Restates one thesis three times. No named characters. Explains politics rather than dramatizing it.</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>DFlash · 7.5/10</td>
 <td>Worst. 1,092 words, 9% over. Invents a sacrae bell.</td>
 <td>Inaccurate, decorative.</td>
@@ -905,7 +906,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>domain</th>
 <th>vanilla</th>
 <th>DSpark</th>
@@ -914,21 +915,21 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>coding</td>
 <td>138.1</td>
 <td>311.9 (2.3x)</td>
 <td>158.8 (1.15x)</td>
 <td>311.3 (2.25x)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>creative</td>
 <td>138.2</td>
 <td>416.7 (3.0x)</td>
 <td>229.5 (1.66x)</td>
 <td>265.6 (1.92x)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>frontend</td>
 <td>137.6</td>
 <td>333.1 (2.4x)</td>
@@ -998,7 +999,6 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <h2 id="appendix">Appendix</h2>
 </div>
-
 
 <div id="glossary" class="section" data-toc="A.1 Glossary">
 
