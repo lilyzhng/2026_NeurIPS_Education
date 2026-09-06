@@ -44,7 +44,7 @@ With speculative decoding, a small draft model guesses the next γ tokens (typic
 </figure>
 <figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
 
-#### b. Rejection sampling: why the output is lossless
+#### b. Rejection sampling: why it's statistically lossless
 
 So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Figure 2 walks through an example:
 
