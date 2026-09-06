@@ -13,7 +13,7 @@
 <figure class="wide">
 <iframe src="../figures/dflash_diffusion_analogy_chalk-v5.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated analogy of serial painting versus parallel image denoising, ending with the question of parallel drafting"></iframe>
 </figure>
-<figcaption><strong>Teaser figure:</strong> What about drafting tokens in parallel to make speculative decoding faster?</figcaption>
+<figcaption><strong>Teaser figure:</strong> Two ways to generate the same image: an autoregressive painter fills it in pixel by pixel, while a diffusion model denoises all pixels at once. In vision, parallel generation is already routine. Speculative decoding still drafts tokens one by one. Could a diffusion-style draft model propose all of its tokens in parallel, faster than an autoregressive draft? Section 1 builds up to exactly this idea (DFlash).</figcaption>
 
 **Why is it faster than the vanilla model decoding?** With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (the teaser figure above).
 
