@@ -818,15 +818,15 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <div id="train" class="section">
 
 <h3 id="24-hands-on-lab">2.4 Hands-On Lab</h3>
-<p>This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens. A <a href="https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb">Jupyter notebook walkthrough</a> covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.</p>
+<p>This section is a hands-on tutorial. A <a href="https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb">Jupyter notebook walkthrough</a> covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.</p>
 </div>
 
 <div id="servefirst" class="section">
 
 <h4 id="a-serve-your-first-accelerated-model">a. Serve your first accelerated model</h4>
 <p>In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.</p>
-<p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
 <p><strong>Where to get the GPU.</strong> Any H100/A100 works. If you don't have one, get $30 free credits by signing up for a <a href="https://modal.com">Modal</a> account. That covers this whole lab (an H100 is ~$4/hour, a full afternoon uses $8-12).</p>
+<p>The checkpoints come from <a href="https://github.com/deepseek-ai/DeepSpec">DeepSpec</a>, which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install modal <span class="kw">&amp;&amp;</span> <span class="ex">modal</span> setup                    <span class="co"># one-time account link</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/lilyzhng/2026_NeurIPS_Education <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> 2026_NeurIPS_Education/submission/teaching_materials/lab</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">SPEC_MODE</span><span class="op">=</span>vanilla <span class="ex">modal</span> deploy modal_vllm_serve.py   <span class="co"># prints your server URL</span></span></code></pre></div>

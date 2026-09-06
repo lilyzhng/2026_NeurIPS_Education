@@ -158,7 +158,7 @@ Interestingly, DFlash wrote the worst calendar page but the best story. Why do E
 
 ### 2.4 Hands-On Lab
 
-This section is a hands-on tutorial: adjust the acceptance threshold and watch what happens. A [Jupyter notebook walkthrough](https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb) covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.
+This section is a hands-on tutorial. A [Jupyter notebook walkthrough](https://github.com/lilyzhng/2026_NeurIPS_Education/blob/main/submission/teaching_materials/lab/lab_walkthrough.ipynb) covers every stage with the measured results embedded, so you can read the whole lab before spending GPU time.
 
 
 
@@ -170,9 +170,9 @@ This section is a hands-on tutorial: adjust the acceptance threshold and watch w
 
 In this section you serve the same model twice, once vanilla and once with a speculator, and measure inference acceleration on your own GPU.
 
-The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.
-
 **Where to get the GPU.** Any H100/A100 works. If you don't have one, get \$30 free credits by signing up for a [Modal](https://modal.com) account. That covers this whole lab (an H100 is ~\$4/hour, a full afternoon uses \$8-12).
+
+The checkpoints come from [DeepSpec](https://github.com/deepseek-ai/DeepSpec), which releases drafts for EAGLE-3, DFlash, and DSpark on the same target, Qwen3-8B. The serving engine is vLLM. The first deployment will have a cold start (image build plus a 16GB weight download, about 10 minutes), but it is cached afterwards, so later experiments are faster.
 
 ```bash
 pip install modal && modal setup                    # one-time account link
