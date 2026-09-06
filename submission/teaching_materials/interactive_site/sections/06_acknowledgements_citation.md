@@ -2,7 +2,7 @@
 
 ## Acknowledgements
 
-We thank Vibhu Sapra, Swyx, Andrew Hartnett, Philip Kiely, Cara, and Huaizheng Zhang for proofreading this article and providing helpful feedback.
+This article is better because of its early readers. We are grateful to Vibhu Sapra, Swyx, Vighnesh Birodkar, Andrew Hartnett, Philip Kiely, Huaizheng Zhang, and Cara, who generously gave their time to read early drafts, and whose feedback sharpened both the writing and the ideas.
 
 </div>
 
