@@ -280,9 +280,10 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
       <li><a href="#train">4. Hands-On Lab</a></li>
       <li class="sub"><a href="#servefirst">4.1 Serve an accelerated model</a></li>
       <li class="sub"><a href="#race42">4.2 The decoding race</a></li>
-      <li><a href="#references">References</a></li>
+      <li><a href="#acknowledgements">Acknowledgements</a></li>
       <li><a href="#citation">Citation</a></li>
       <li><a href="#appendix">Appendix</a></li>
+      <li><a href="#references">References</a></li>
     </ul>
   </aside>
 
@@ -779,6 +780,41 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p><sub>Note: <code>vllm serve</code> crashes on DFlash in stable 0.28.0, and only the offline <code>LLM()</code> path is CI-tested, so <code>modal_dflash_offline.py</code> runs this way. Its draft is also the z-lab release rather than DeepSpec's.</sub></p>
 </div>
 
+<div id="acknowledgements" class="section">
+
+<h2 id="acknowledgements-h">Acknowledgements</h2>
+<p>We thank Vibhu Sapra, Swyx, Andrew Hartnett, Philip Kiely, Cara, and Huaizheng Zhang for proofreading this article and providing helpful feedback.</p>
+</div>
+
+<div id="citation" class="section">
+
+<h2 id="citation">Citation</h2>
+<p>You can cite this article here:</p>
+<div class="sptc-py" data-lang="bibtex"><pre>
+@article{zhang2026losslessspec,
+  title   = &quot;Speculative Decoding: What Lossless Means, What It Doesn't, and How to Test It&quot;,
+  author  = &quot;Zhang, Lily and Kanna, Madison&quot;,
+  year    = &quot;2026&quot;,
+  month   = &quot;August&quot;,
+  url     = &quot;https://neurips2026-speculative-decoding.vercel.app/&quot;
+}
+</pre></div>
+
+</div>
+
+<div id="appendix" class="section">
+
+<h2 id="appendix">Appendix</h2>
+<p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.</p>
+<figure>
+<div class="fig2">
+<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
+</div>
+</figure>
+<figcaption><strong>Figure A1.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
+
+</div>
+
 <div id="references" class="section">
 
 <h2 id="references">References</h2>
@@ -816,34 +852,6 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 </div>
 
-<div id="citation" class="section">
-
-<h2 id="citation">Citation</h2>
-<p>You can cite this article here:</p>
-<div class="sptc-py" data-lang="bibtex"><pre>
-@article{zhang2026losslessspec,
-  title   = &quot;Speculative Decoding: What Lossless Means, What It Doesn't, and How to Test It&quot;,
-  author  = &quot;Zhang, Lily and Kanna, Madison&quot;,
-  year    = &quot;2026&quot;,
-  month   = &quot;August&quot;,
-  url     = &quot;https://neurips2026-speculative-decoding.vercel.app/&quot;
-}
-</pre></div>
-
-</div>
-
-<div id="appendix" class="section">
-
-<h2 id="appendix">Appendix</h2>
-<p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2. Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (Figure 9). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.</p>
-<figure>
-<div class="fig2">
-<img src="https://lilyzh.ng/writing/losslessbench/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="https://lilyzh.ng/writing/losslessbench/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
-</div>
-</figure>
-<figcaption><strong>Figure A1.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
-
-</div>
 
   </article>
 </div>
