@@ -63,8 +63,9 @@ def link_figures(html):
     # 1) give each numbered figcaption an anchor
     html = re.sub(r'<figcaption><strong>Figure (\w+)\.</strong>',
                   lambda m: f'<figcaption id="fig-{m.group(1)}"><strong>Figure {m.group(1)}.</strong>', html)
-    # teaser figure anchor
-    html = html.replace('<figcaption><strong>Teaser figure:</strong>', '<figcaption id="fig-teaser"><strong>Teaser figure:</strong>', 1)
+    # teaser figure anchor — on the figure itself, so the jump lands with the image in view
+    html = re.sub(r'<figure class="wide">(\s*<iframe src="figures/dflash_diffusion_analogy_chalk-v5\.html)',
+                  r'<figure class="wide" id="fig-teaser">\1', html, count=1)
     # 2) link prose references (skip ones already inside an anchor or the caption labels)
     html = re.sub(r'(?<!id="fig-)(?<!<strong>)Figure (\d+|A\d+)(?![^<]*</strong>)(?!")',
                   lambda m: f'<a class="figref" href="#fig-{m.group(1)}">Figure {m.group(1)}</a>', html)
