@@ -60,9 +60,21 @@ toc = '\n'.join(toc_items)
 
 # --- figure cross-links: anchor each figcaption, link every prose "Figure N" ---
 def link_figures(html):
-    # 1) give each numbered figcaption an anchor
-    html = re.sub(r'<figcaption><strong>Figure (\w+)\.</strong>',
-                  lambda m: f'<figcaption id="fig-{m.group(1)}"><strong>Figure {m.group(1)}.</strong>', html)
+    # 1) anchor each numbered figure on the <figure> element preceding its
+    #    caption, so the jump lands with the image in view
+    out, last = [], 0
+    for m in re.finditer(r'<figcaption><strong>Figure (\w+)\.</strong>', html):
+        seg = html[last:m.start()]
+        fi = seg.rfind('<figure')
+        if fi != -1:
+            close = seg.find('>', fi)
+            if 'id=' not in seg[fi:close]:
+                seg = seg[:close] + f' id="fig-{m.group(1)}"' + seg[close:]
+        out.append(seg)
+        out.append(m.group(0))
+        last = m.end()
+    out.append(html[last:])
+    html = ''.join(out)
     # teaser figure anchor — on the figure itself, so the jump lands with the image in view
     html = re.sub(r'<figure class="wide">(\s*<iframe src="figures/dflash_diffusion_analogy_chalk-v5\.html)',
                   r'<figure class="wide" id="fig-teaser">\1', html, count=1)

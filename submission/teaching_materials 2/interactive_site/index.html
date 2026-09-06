@@ -437,16 +437,16 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <h3 id="how-it-works">How it works</h3>
 <h4 id="a-fast-decoding-in-action">a. Fast decoding in action</h4>
 <p>To give you a quick example: serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>), ~630 tokens per second, cutting it under 3 minutes. See the <a class="figref" href="#fig-1">Figure 1</a> comparison.</p>
-<figure class="wide">
+<figure class="wide" id="fig-1">
 <iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
 </figure>
-<figcaption id="fig-1"><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
+<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
 
 <h4 id="b-how-rejection-sampling-works">b. How rejection sampling works</h4>
 <p>So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution (<a href="https://arxiv.org/abs/2211.17192">Leviathan et al. 2023</a>, Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. <a class="figref" href="#fig-2">Figure 2</a> walks through an example:</p>
-<figure>
+<figure id="fig-2">
 <iframe src="figures/rejection_sampling_chalk-v1.html" style="width:100%;height:520px;border:none;" loading="lazy" title="Animated rejection sampling example: draft tokens accepted or rejected against the target model's probabilities"></iframe>
-<figcaption id="fig-2"><strong>Figure 2.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
+<figcaption><strong>Figure 2.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
 </figure>
 
 <p>Here is the same rule in pseudocode:</p>
@@ -525,10 +525,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <p>The 2023 papers use a separate small LLM as the draft. It guesses from scratch, and hosting a second model costs memory. Medusa (<a href="https://arxiv.org/abs/2401.10774">Cai et al., 2024</a>) replaced it with extra prediction heads on the target; EAGLE (<a href="https://arxiv.org/abs/2401.15077">Li et al., 2024</a>) replaced the heads with a single decoder layer that reads the target's hidden features and drafts autoregressively (<a class="figref" href="#fig-3">Figure 3</a>). We highlight EAGLE-3 because it is what ships in production.</p>
 <p>Earlier EAGLE models do not improve acceptance length with more training data. This is because the draft layer was trained to predict the target's next hidden feature as well as the next token. This training objective forced the model to reproduce the target's feature vectors; as a result, the draft spends its capacity copying features instead of guessing tokens better.</p>
 <p><strong>EAGLE-3</strong> (<a href="https://arxiv.org/abs/2503.01840">Li et al., 2025</a>) addresses this with a less-is-more training objective: it drops feature prediction and predicts the token directly, with features fused from low, middle, and high target layers instead of the top layer only. However, this introduces a new problem: at inference, the draft consumes its own outputs, which drift away from the training distribution, and acceptance collapses from the second step on. EAGLE-3 fixes this with training-time test: during training, the draft unrolls several steps and consumes its own outputs, so the distribution it trains on is the distribution it sees at inference.</p>
-<figure class="wide">
+<figure class="wide" id="fig-3">
 <iframe src="figures/figure2_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla speculative decoding and EAGLE-3"></iframe>
 </figure>
-<figcaption id="fig-3"><strong>Figure 3.</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's hidden features and LM head.</figcaption>
+<figcaption><strong>Figure 3.</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's hidden features and LM head.</figcaption>
 
 <p>The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6.5x over vanilla decoding, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.</p>
 <p class="pullquote">One bottleneck remains. A small draft model runs fast, but it still proposes one token at a time. Can drafting be parallel instead?</p>
@@ -540,25 +540,25 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <h3 id="12-dflash-icml-2026--shorter-drafting-time">1.2 DFlash (ICML 2026) – shorter drafting time</h3>
 <p>The key design choice of <strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) is to make drafting parallel: generate the whole block at once, instead of token by token (<a class="figref" href="#fig-4">Figure 4</a>).</p>
 <p>The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it pixel by pixel (<a class="figref" href="#fig-teaser">see the teaser figure</a>). Text diffusion models carry the same idea over (<a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025</a>): replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.</p>
-<figure class="wide">
+<figure class="wide" id="fig-4">
 <iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
-<figcaption id="fig-4"><strong>Figure 4.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
+<figcaption><strong>Figure 4.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens serially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
 
 <p>Diffusion drafting brings two benefits.</p>
 <ul>
 <li><strong>Generating the whole block in a single forward pass makes drafting fast.</strong> An autoregressive draft spends one forward pass per token, so drafting γ tokens costs γ passes. DFlash drafts all γ positions in one pass, and the cost stays flat as the block grows (<a class="figref" href="#fig-5">Figure 5</a>). The flat cost also buys capacity: EAGLE-3 keeps a single layer to stay fast, while DFlash can afford five layers and still drafts faster. Five layers generating 16 tokens beat EAGLE-3's single layer generating 8, on both drafting cost and acceptance length.</li>
 <li><strong>Conditioning on the target model's context features makes the drafts accurate.</strong> Feeding the draft only the last token's fused feature has two problems: it carries a single position, and a signal added only at the bottom of the stack fades in deeper layers. DFlash instead converts the target's features for every verified prefix position into keys and values and injects them into each draft layer's KV cache (<a class="figref" href="#fig-6">Figure 6</a>), so every layer sees the full context while the block is filled in. The result is high-quality drafts with higher acceptance rates.</li>
 </ul>
-<figure class="wide">
+<figure class="wide" id="fig-5">
 <iframe src="figures/dflash_flat_cost_chalk-v1.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Interactive chart of drafting cost versus block size for EAGLE-3 and DFlash"></iframe>
 </figure>
-<figcaption id="fig-5"><strong>Figure 5.</strong> Drafting cost versus block size. EAGLE-3 keeps one layer to stay fast, so drafting &gamma; tokens costs &gamma; passes; DFlash spends five layers in one pass, flat at any &gamma;.</figcaption>
+<figcaption><strong>Figure 5.</strong> Drafting cost versus block size. EAGLE-3 keeps one layer to stay fast, so drafting &gamma; tokens costs &gamma; passes; DFlash spends five layers in one pass, flat at any &gamma;.</figcaption>
 
-<figure class="wide">
+<figure class="wide" id="fig-6">
 <iframe src="figures/dflash_kv_injection_chalk-v1.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Diagram of DFlash injecting target model context features as keys and values into every draft layer"></iframe>
 </figure>
-<figcaption id="fig-6"><strong>Figure 6.</strong> DFlash converts the target's features at every verified prefix position into keys and values, injected into each draft layer's KV cache, so every layer sees the full prefix. EAGLE-3 conditions on the last token only, at the bottom layer only.</figcaption>
+<figcaption><strong>Figure 6.</strong> DFlash converts the target's features at every verified prefix position into keys and values, injected into each draft layer's KV cache, so every layer sees the full prefix. EAGLE-3 conditions on the last token only, at the bottom layer only.</figcaption>
 
 <p>As a result, DFlash cuts drafting time. This removes autoregressive drafting as the bottleneck: over 6x lossless acceleration across a range of models and tasks, up to 2.5x higher speedup than EAGLE-3.</p>
 <p class="pullquote">The block positions are predicted independently, so draft tokens cannot see each other. How do we handle the acceptance decay toward the end of the block?</p>
@@ -573,10 +573,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <li>A lightweight sequential head restores dependencies inside the block, so later positions can condition on earlier ones.</li>
 <li>A confidence head estimates how likely each draft prefix is to survive verification, and a load-aware scheduler sets the verification length per request, based on the estimated survival probability and the engine's throughput profile.</li>
 </ul>
-<figure class="wide">
+<figure class="wide" id="fig-7">
 <iframe src="figures/figure4_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of DFlash and DSpark drafting"></iframe>
 </figure>
-<figcaption id="fig-7"><strong>Figure 7.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
+<figcaption><strong>Figure 7.</strong> DSpark adds a sequential head for intra-block dependencies and a confidence head that scores each draft position; a load-aware scheduler trims low-confidence queues before verification.</figcaption>
 
 <p>Consequently, DSpark cuts verification time. Offline, DSpark improves accepted length by 16–31% over state-of-the-art drafters. Deployed in the DeepSeek-V4 production serving stack, it accelerates per-user generation by 60–85% at matched throughput over the MTP-1 production baseline (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>). DeepSeek open-sourced the DSpark checkpoints together with DeepSpec, an open-source training repository for speculative decoding.</p>
 <p class="pullquote">DSpark cuts verification time, and its sequential head eases the decay. But that head walks token by token again. Was giving up parallel drafting the right trade?</p>
@@ -588,10 +588,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <h3 id="14-dflash-2-2026--longer-acceptance-length">1.4 DFlash 2 (2026) – longer acceptance length</h3>
 <p>DSpark tries to address the acceptance decay with a sequential token head, but <strong>DFlash 2</strong> (<a href="https://inco.ai/blog/dflash2/">Inco, 2026</a>) argues drafting should stay parallel: it replaces DSpark's sequential head with a parallel selector. The cost gap is the argument: the sequential head re-predicts a full vocabulary distribution at every position, 77.8M parameters and 9.6% latency, while the selector does its job with 2.0M and 0.6%.</p>
 <p>What makes parallel selection possible is that the right tokens are usually already there. Take a verified prefix "The fastest way to" and four masked positions. Each position's short candidate list contains the token the target would pick, but taking the top candidate at every position independently yields "get to to school": two neighbors picked the same word, and the sentence breaks. The coherent "get to school quickly" was sitting in the lists all along. Inco measured how much this is worth: if a perfect judge always picked the right candidate out of the top 16, acceptance length would jump from 4.27 to 6.79. The missing tokens are rarely the problem; the missing judgment is. The job is selection, and selection can run in parallel (<a class="figref" href="#fig-8">Figure 8</a>).</p>
-<figure class="wide">
+<figure class="wide" id="fig-8">
 <iframe src="figures/figure5_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of independent top-1 selection and DFlash 2 path selection"></iframe>
 </figure>
-<figcaption id="fig-8"><strong>Figure 8.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
+<figcaption><strong>Figure 8.</strong> To keep the block coherent, DFlash 2 adds a path selector that picks coherent token sequences across adjacent positions, and local convolutions that reduce acceptance decay toward the end of the block.</figcaption>
 
 <p>DFlash 2 does it with two additions.</p>
 <ul>
@@ -607,10 +607,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 
 <h3 id="15-case-study-the-decoding-race">1.5 Case study: the decoding race</h3>
 <p>With all 4 models introduced, the race can now run in full comparison. See <a class="figref" href="#fig-9">Figure 9</a>. All 5 models decode the same sentence on the same target model.</p>
-<figure class="wide">
+<figure class="wide" id="fig-9">
 <iframe src="figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption id="fig-9"><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark numbers are our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
+<figcaption><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark numbers are our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>
@@ -659,16 +659,16 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <li>Rejection sampling: the draft proposes dog 80% of the time, but the target accepts only 5 out of 8 dog proposals (p/q = 0.5/0.8) and resamples the rest, so dog still comes out 50% of the time.</li>
 <li>A relaxed rule: every dog proposal that clears the threshold is accepted, so the output is biased toward the draft's favorite: the best pet becomes a dog with 0.8 probability. See <a class="figref" href="#fig-10">Figure 10</a>.</li>
 </ul>
-<figure>
+<figure id="fig-10">
 <iframe src="figures/figure7_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of rejection sampling and relaxed acceptance"></iframe>
 </figure>
-<figcaption id="fig-10"><strong>Figure 10.</strong> Rejection sampling keeps the draft aligned with the target distribution. A relaxed rule follows the draft's preference.</figcaption>
+<figcaption><strong>Figure 10.</strong> Rejection sampling keeps the draft aligned with the target distribution. A relaxed rule follows the draft's preference.</figcaption>
 
 <p>Lossless also depends on how verification is scheduled. A poorly designed scheduler introduces selection bias. The acceptance rate improves while the output distribution has already shifted. This makes the inference no longer lossless. To be more specific, the scheduler decides whether draft token k gets verified, and that decision must depend on only the prefix through 1 to k-1. If the draft proposes token A at position k, followed by token B at position k+1, the scheduler cannot use B to decide whether to verify A. (See the <a class="figref" href="#fig-11">Figure 11</a> example.)</p>
-<figure>
+<figure id="fig-11">
 <iframe src="figures/figure8_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of non-anticipating and peeking schedulers"></iframe>
 </figure>
-<figcaption id="fig-11"><strong>Figure 11.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
+<figcaption><strong>Figure 11.</strong> Peeking at the token at k+1 creates selection bias.</figcaption>
 
 <p>DSpark (<a href="https://arxiv.org/abs/2607.05147">DeepSeek, 2026</a>) almost violated this non-anticipating rule. All prior methods rely on this precondition for their lossless claim to hold, but none of them tested whether the proof still holds when the precondition changes:</p>
 <ol type="1">
@@ -711,10 +711,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </div>
 <figcaption><strong>Table 3.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
-<figure>
+<figure id="fig-12">
 <iframe src="figures/figure9_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated walkthrough of OpenRouter traffic by task type and speculative-decoding benchmark coverage"></iframe>
 </figure>
-<figcaption id="fig-12"><strong>Figure 12.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
+<figcaption><strong>Figure 12.</strong> OpenRouter traffic by task type. 83% of tasks have never been measured by speculative decoding methods.</figcaption>
 
 <p class="pullquote">So does lossless hold on the 83% domains/tasks that have never been measured?</p>
 
@@ -734,15 +734,15 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </ul>
 <p>The benchmarks in these papers are simple, single-turn tasks such as grade-school math and function-level coding. They capture only a narrow slice of what models are asked to do in practice, which motivates the five domains above for LosslessBench.</p>
 <p>Section 1 showed that a reported acceptance length is an implicit token-level divergence measurement, which makes it a natural probe for the five new domains (<a class="figref" href="#fig-13">Figure 13</a>). As a sanity check, our harness reproduces DFlash's published numbers on its own benchmarks: 5.32 vs. their 5.98 on GSM8K, and 5.96 vs. their 5.52 on HumanEval. Across the five LosslessBench axes, acceptance falls from 5.24 to 1.84. The draft drifts furthest on the domains the papers never measured. Frontend design is an exception: its acceptance stays high while the generated pages break (<a class="figref" href="#fig-15">Figure 15</a>), because acceptance measures draft and target agreement, not output quality. Whether the divergence translates into task-level quality loss is what <a class="figref" href="#fig-14">Figure 14</a> examines.</p>
-<figure class="plain">
+<figure class="plain" id="fig-13">
 <img src="figures/fig_alpha_divergence.svg" alt="Two-panel bar chart: DFlash acceptance length by domain and the implied distributional divergence" />
 </figure>
-<figcaption id="fig-13"><strong>Figure 13.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence.</figcaption>
+<figcaption><strong>Figure 13.</strong> DFlash acceptance length by domain (left) and the implied distributional divergence D_LK = 1 − α (right). Lower acceptance means larger token-level divergence.</figcaption>
 
-<figure class="mid plain">
+<figure class="mid plain" id="fig-14">
 <img src="figures/fig_radar_spec_pilot.svg" alt="Radar chart of Qwen3-8B with vs without speculative decoding across five domains on LosslessBench" />
 </figure>
-<figcaption id="fig-14"><strong>Figure 14.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
+<figcaption><strong>Figure 14.</strong> Qwen3-8B with vs without speculative decoding on LosslessBench. Axes are independently scaled, so each domain's relative gap is visible.</figcaption>
 
 <p><strong>Explore the evaluation by yourself.</strong> Pick any domain and run the task:</p>
 <p style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -753,15 +753,15 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <a href="demo/compare_coding.html" target="_blank" style="padding:7px 18px;border:1.5px solid #1f5c3d;border-radius:999px;text-decoration:none;color:#1f5c3d;font-weight:600;">Agentic Coding</a>
 </p>
 
-<figure class="wide">
+<figure class="wide" id="fig-15">
 <iframe src="demo/race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption id="fig-15"><strong>Figure 15.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s.</figcaption>
+<figcaption><strong>Figure 15.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s.</figcaption>
 
-<figure class="wide">
+<figure class="wide" id="fig-16">
 <iframe src="demo/creative_race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the creative brief"></iframe>
 </figure>
-<figcaption id="fig-16"><strong>Figure 16.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
+<figcaption><strong>Figure 16.</strong> The same race on a 1000-word creative brief (LosslessBench L073). Vanilla takes 15.2s, DFlash 8.5s.</figcaption>
 
 <p>Look closely at <a class="figref" href="#fig-15">Figure 15</a>: the four models did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated models between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.</p>
 <p><a class="figref" href="#fig-16">Figure 16</a> is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
@@ -822,10 +822,10 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">vllm</span> serve Qwen/Qwen3-8B <span class="at">--port</span> 8000 <span class="at">--speculative-config</span> <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;{&quot;model&quot;: &quot;deepseek-ai/dspark_qwen3_8b_block7&quot;, &quot;method&quot;: &quot;dspark&quot;, &quot;num_speculative_tokens&quot;: 7}&#39;</span></span></code></pre></div>
 <p>Across 5 runs on one H100, the speedup is stable (mean ± std, <a class="figref" href="#fig-17">Figure 17</a>):</p>
-<figure class="mid">
+<figure class="mid" id="fig-17">
 <img src="figures/fig13_runs_h100.svg" alt="Bar chart: vanilla Qwen3-8B decodes 136.3 plus or minus 1.3 tok/s, with the DSpark draft 231.4 plus or minus 4.5 tok/s, a 1.70x speedup" />
 </figure>
-<figcaption id="fig-17"><strong>Figure 17.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
+<figcaption><strong>Figure 17.</strong> Decode throughput of Qwen3-8B on one H100, vanilla vs with the DSpark draft. Mean ± std over 5 runs.</figcaption>
 
 <p>vLLM does not report acceptance length or per-token latency directly. Both come from real measurements: latency from the throughput above, and τ from the server's <code>/metrics</code> counters (5,180 draft tokens proposed at 7 per pass = ~740 verification passes for 2,606 generated tokens). See the calculation below:</p>
 <div class="sptc-py" data-lang="text"><pre>
@@ -843,10 +843,10 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <h4 id="b-adjust-acceptance-rate-yourself">b. Adjust acceptance rate yourself</h4>
 <p>SGLang ships with <code>--speculative-accept-threshold-single</code> at 1.0, where rejection sampling matches the target model. Lowering it accepts draft tokens more aggressively, trading losslessness for speed. We benchmarked 1.0 → 0.4 on the LosslessBench frontend design task (L101, the same calendar-popup prompt as <a class="figref" href="#fig-15">Figure 15</a>, temperature 1), regenerating the page at each stop and recording acceptance length and decode speed (<a class="figref" href="#fig-18">Figure 18</a>). At temperature 0 the threshold does nothing: every stop returned byte-identical pages.</p>
-<figure class="wide">
+<figure class="wide" id="fig-18">
 <iframe src="demo/knob_demo.html" style="width:100%;height:500px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Interactive acceptance-threshold demo"></iframe>
 </figure>
-<figcaption id="fig-18"><strong>Figure 18.</strong> The SGLang acceptance threshold on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
+<figcaption><strong>Figure 18.</strong> The SGLang acceptance threshold on the LosslessBench frontend design task (L101, temperature 1).</figcaption>
 
 <p>At threshold 1.0 the verifier runs rejection sampling: the page follows the target model's distribution, whatever the draft proposes. Below 1.0 the lossless free lunch is gone: any draft token whose target probability clears the threshold is accepted without resampling, and the output drifts toward the draft. τ climbs from 4.9 to 7.2: 48% more draft-preferred tokens get through. The prompt asks for a stunning translucent calendar popup, judge each page with your own eyes.</p>
 </div>
@@ -1050,12 +1050,12 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <h3 id="a2-frontend-gap-under-a-vendor-assembled-stack">A.2 Frontend gap under a vendor-assembled stack</h3>
 <p>We identified a significant gap in the frontend design evaluation under a vendor-assembled stack (fp4 quantization, speculative decoding, KV routing, prefill-decode disaggregation): the same GLM 5.2 model lost 5.6 points, 76.9 to 71.2 (<a class="figref" href="#fig-A2">Figure A2</a>). Design output is open-ended and hard for a draft to predict. It is absent from the speculative decoding benchmarks. However, frontend and UI tasks carry significant weight in the OpenRouter task usage (<a class="figref" href="#fig-12">Figure 12</a>). In other words, users would receive degraded performance when they use spec models tuned for coding and math only. The other four domains showed no significant gap. The culprit in that stack was quantization, so the measurement says little about speculative decoding on its own.</p>
-<figure>
+<figure id="fig-A2">
 <div class="fig2">
 <img src="figures/id673_fp8.png" alt="reference render of the calendar prompt, with the requested translucent popup implemented" /> <img src="figures/id673_fp4.png" alt="accelerated render of the same prompt, a clean page with the calendar popup missing" />
 </div>
 </figure>
-<figcaption id="fig-A2"><strong>Figure A2.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
+<figcaption><strong>Figure A2.</strong> The same model, the same frontend prompt, left is the original model, right is under the vendor-assembled accelerated stack. The culprit here was quantization.</figcaption>
 
 </div>
 
@@ -1063,10 +1063,10 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 
 <h3 id="a3-should-the-lab-own-inference-acceleration">A.3 Should the Lab Own Inference Acceleration?</h3>
 <p>Step by step, acceleration is moving from the serving layer into frontier labs. DeepSeek pushed FP8 into pre-training with DeepSeek-V3 (<a href="https://arxiv.org/abs/2412.19437">DeepSeek-AI, 2024</a>). OpenAI shipped gpt-oss MXFP4 weights with quantization-aware training (<a href="https://arxiv.org/abs/2508.10925">OpenAI, 2025</a>). K2-Thinking reported every benchmark number at INT4, making the quantized model the official model. Kimi K3 has the draft model fine-tuned as part of post-training, and validated before the model leaves the lab (<a href="https://arxiv.org/abs/2607.24653">Kimi Team, 2026</a>).</p>
-<figure class="plain">
+<figure class="plain" id="fig-A3">
 <img src="figures/fig14_ownership_migration.svg" alt="Timeline of acceleration work migrating from the serving layer into the labs, 2025 to 2026" />
 </figure>
-<figcaption id="fig-A3"><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> <a class="figref" href="#fig-6">Figure 6</a>, boundary redrawn as steps.</figcaption>
+<figcaption><strong>Figure A3.</strong> The model layer absorbs acceleration step by step. The room left for serving shrinks toward one job: serve. From <a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a> <a class="figref" href="#fig-6">Figure 6</a>, boundary redrawn as steps.</figcaption>
 
 <p>See <a class="figref" href="#fig-A3">Figure A3</a>. Each step, from 2025 to 2026, shows frontier labs owning more of the inference acceleration space. The work used to be owned by the serving layer. An inference provider would take the released FP8 weights, quantize them, train a draft model on top, and serve it on OpenRouter for the general public. This meant the inference layer owned the quality evaluation. But now, the labs do this work themselves and validate it before the model ships, leaving less room for the inference layer (<a href="https://lilyzh.ng/writing/losslessbench/">LosslessBench</a>, <a class="figref" href="#fig-6">Figure 6</a>).</p>
 <p class="pullquote small">This ownership shift fixes the missing quality validation: the lab validates the accelerated model before it ships, closing the gap Section 2 described.</p>
