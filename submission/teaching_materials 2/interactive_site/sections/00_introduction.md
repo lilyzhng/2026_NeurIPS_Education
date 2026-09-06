@@ -15,8 +15,6 @@
 </figure>
 <figcaption><strong>Teaser figure:</strong> Two ways to generate the same image: an autoregressive painter fills it in pixel by pixel, while a diffusion model denoises all pixels at once. In vision, parallel generation is already routine. Speculative decoding still drafts tokens one by one. Could a diffusion-style draft model propose all of its tokens in parallel, faster than an autoregressive draft? Section 1 builds up to exactly this idea (DFlash).</figcaption>
 
-**Why is it faster than the vanilla model decoding?** With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (the teaser figure above).
-
 **Today, speculative decoding runs under nearly every hosted LLM**, so the speed and quality of decoding affect everyone. Frontier labs lean on it in production: OpenAI cut GPT-5.6 Luna prices by 80% in 2026 and credited the cut partly to a redesigned draft model ([OpenAI, 2026](https://community.openai.com/t/announcing-a-major-price-drop-for-5-6-terra-and-luna-and-fast-mode-for-5-6-sol/1388484)), Anthropic's fast mode serves the same Claude Opus model up to 2.5x faster at a premium rate ([Anthropic, 2026](https://platform.claude.com/docs/en/build-with-claude/fast-mode)), DeepSeek ships DSpark in its serving engine for a 51% throughput gain ([DeepSeek, 2026](https://arxiv.org/abs/2607.05147)), and Kimi K3 ships with its own draft model ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). It is a cornerstone topic to learn in the LLM stack.
 
 **The target audience:** If you know that an LLM generates text one token at a time, you have all the prerequisites for this teaching material. The content is designed progressively, each section building on the previous one:
@@ -35,15 +33,24 @@ You can find the full glossary for reference in [A.1](#glossary).
 
 ### How it works
 
-Speculative decoding speeds up generation without changing a single output token. This section explains why that guarantee holds, how to evaluate it, and what the speedup looks like in practice.
+Speculative decoding speeds up generation without changing a single output token. This section explains where the speed comes from, why the output is unchanged, how to evaluate the speedup, and what it looks like in practice.
 
-#### a. Rejection sampling: why the output is lossless
+#### a. Why is it faster than the vanilla model decoding?
 
-So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Figure 1 walks through an example:
+With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (the teaser figure above). Figure 1 contrasts the two decoding modes:
+
+<figure class="wide">
+<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
+</figure>
+<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
+
+#### b. Rejection sampling: why the output is lossless
+
+So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Figure 2 walks through an example:
 
 <figure>
 <iframe src="../figures/rejection_sampling_chalk-v1.html" style="width:100%;height:520px;border:none;" loading="lazy" title="Animated rejection sampling example: draft tokens accepted or rejected against the target model's probabilities"></iframe>
-<figcaption><strong>Figure 1.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
+<figcaption><strong>Figure 2.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
 </figure>
 
 Here is the same rule in pseudocode:
@@ -74,7 +81,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
                 = p(x)                       # same as the target's probability
 </pre></div>
 
-#### b. Evaluation metrics for speculative decoding
+#### c. Evaluation metrics for speculative decoding
 
 How much faster exactly, and how do we measure it? Table 1 defines the six metrics. Three of them are deciding factors: drafting time, verification time, and acceptance length. The other three, decoding speedup, per-token latency, and tokens per second, are computed from these three factors.
 
@@ -111,14 +118,9 @@ where γ is the number of draft tokens per verification cycle.
 
 Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the output stays lossless however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.
 
-#### c. Speculative decoding in practice
+#### d. Speculative decoding in practice
 
-Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 2 comparison.
-
-<figure class="wide">
-<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
-</figure>
-<figcaption><strong>Figure 2.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
+Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes.
 
 Below is a math walk-through of the metrics producing a 2.3x decoding speedup in this setup.
 
