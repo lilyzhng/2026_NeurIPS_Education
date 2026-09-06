@@ -2,7 +2,7 @@
 
 ## 1. How speculative decoding evolved
 
-Speculative decoding speed comes down to three factors: **drafting time, verification time, and acceptance length**. Four generations of draft models each remove one bottleneck: EAGLE-3 lengthens acceptance, DFlash cuts drafting time, DSpark cuts verification time, and DFlash 2 pushes acceptance further. We walk through them in order.
+Speculative decoding speed comes down to three factors: **drafting time, verification time, and acceptance length**. Four generations of speculative decoding models each remove one bottleneck: EAGLE-3 lengthens acceptance, DFlash cuts drafting time, DSpark cuts verification time, and DFlash 2 pushes acceptance further. We walk through them in order.
 
 </div>
 
