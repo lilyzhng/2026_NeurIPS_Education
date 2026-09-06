@@ -102,7 +102,7 @@ DFlash 2 does it with two additions.
 
 As we can tell, DFlash 2 raises acceptance length: from 4.92 to 5.97 tokens per verification pass on Qwen3.5-4B, 21% more output than DFlash at 1.3% added latency, and 2.7x to 3.4x throughput over autoregressive decoding on Qwen3.8-27B ([Inco, 2026](https://inco.ai/blog/dflash2/)).
 
-<p class="pullquote">After four generations of draft architectures, do you have an idea that could be the next SOTA?</p>
+<p class="pullquote">After four generations of speculative decoding architectures, do you have an idea that could be the next SOTA?</p>
 
 </div>
 
