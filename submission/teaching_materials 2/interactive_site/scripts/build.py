@@ -70,6 +70,7 @@ def link_figures(html):
                   lambda m: f'<a class="figref" href="#fig-{m.group(1)}">Figure {m.group(1)}</a>', html)
     html = html.replace('see teaser figure', '<a class="figref" href="#fig-teaser">see teaser figure</a>')
     html = html.replace('see the teaser figure above', '<a class="figref" href="#fig-teaser">see the teaser figure above</a>')
+    html = html.replace('(see the teaser figure)', '(<a class="figref" href="#fig-teaser">see the teaser figure</a>)')
     html = html.replace('the teaser figure above', '<a class="figref" href="#fig-teaser">the teaser figure above</a>')
     return html
 content = link_figures(content)
