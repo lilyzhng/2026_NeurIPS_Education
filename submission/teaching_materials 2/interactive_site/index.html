@@ -539,7 +539,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 
 <h3 id="12-dflash-icml-2026--shorter-drafting-time">1.2 DFlash (ICML 2026) – shorter drafting time</h3>
 <p>The key design choice of <strong>DFlash</strong> (<a href="https://arxiv.org/abs/2602.06036">Chen et al., 2026</a>) is to make drafting parallel: generate the whole block at once, instead of token by token (<a class="figref" href="#fig-4">Figure 4</a>).</p>
-<p>The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it pixel by pixel (see the teaser figure). Text diffusion models carry the same idea over: replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.</p>
+<p>The beauty of DFlash is this very smart idea of diffusion block drafting. DFlash borrows it from diffusion models. In image and video generation, a diffusion model starts from pure noise and denoises every pixel in parallel, refining the whole canvas at once instead of painting it pixel by pixel (see the teaser figure). Text diffusion models carry the same idea over (<a href="https://arxiv.org/abs/2503.09573">Arriola et al., 2025</a>): replace the noise with MASK tokens, and let the model predict every masked position in parallel. DFlash applies this to drafting: the draft block starts as a row of MASK tokens.</p>
 <figure class="wide">
 <iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
@@ -969,6 +969,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <li>Cai, T. et al. (2024). Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads. <a href="https://arxiv.org/abs/2401.10774">arxiv.org/abs/2401.10774</a></li>
 <li>Li, Y. et al. (2024). EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty. <a href="https://arxiv.org/abs/2401.15077">arxiv.org/abs/2401.15077</a></li>
 <li>Li, Y. et al. (2025). EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test. <a href="https://arxiv.org/abs/2503.01840">arxiv.org/abs/2503.01840</a></li>
+<li>Arriola, M., Gokaslan, A., Chiu, J. T., Yang, Z., Qi, Z., Han, J., Sahoo, S. S., &amp; Kuleshov, V. (2025). Block Diffusion: Interpolating Between Autoregressive and Diffusion Language Models. <em>ICLR 2025</em>. <a href="https://arxiv.org/abs/2503.09573">arxiv.org/abs/2503.09573</a></li>
 <li>Anthropic (2026). Fast Mode (Research Preview). Claude Platform Docs. <a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">platform.claude.com</a></li>
 <li>Chen, J. et al. (2026). DFlash: Block Diffusion for Flash Speculative Decoding. <a href="https://arxiv.org/abs/2602.06036">arxiv.org/abs/2602.06036</a></li>
 <li>DeepSeek (2026). DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation. <a href="https://arxiv.org/abs/2607.05147">arxiv.org/abs/2607.05147</a></li>

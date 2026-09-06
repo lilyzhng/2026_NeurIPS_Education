@@ -10,6 +10,7 @@
 <li>Cai, T. et al. (2024). Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads. <a href="https://arxiv.org/abs/2401.10774">arxiv.org/abs/2401.10774</a></li>
 <li>Li, Y. et al. (2024). EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty. <a href="https://arxiv.org/abs/2401.15077">arxiv.org/abs/2401.15077</a></li>
 <li>Li, Y. et al. (2025). EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test. <a href="https://arxiv.org/abs/2503.01840">arxiv.org/abs/2503.01840</a></li>
+<li>Arriola, M., Gokaslan, A., Chiu, J. T., Yang, Z., Qi, Z., Han, J., Sahoo, S. S., &amp; Kuleshov, V. (2025). Block Diffusion: Interpolating Between Autoregressive and Diffusion Language Models. <em>ICLR 2025</em>. <a href="https://arxiv.org/abs/2503.09573">arxiv.org/abs/2503.09573</a></li>
 <li>Anthropic (2026). Fast Mode (Research Preview). Claude Platform Docs. <a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">platform.claude.com</a></li>
 <li>Chen, J. et al. (2026). DFlash: Block Diffusion for Flash Speculative Decoding. <a href="https://arxiv.org/abs/2602.06036">arxiv.org/abs/2602.06036</a></li>
 <li>DeepSeek (2026). DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation. <a href="https://arxiv.org/abs/2607.05147">arxiv.org/abs/2607.05147</a></li>
