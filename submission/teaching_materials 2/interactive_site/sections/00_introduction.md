@@ -33,7 +33,7 @@ You can find the full glossary for reference in [A.1](#glossary).
 
 ### How it works
 
-Speculative decoding speeds up generation without changing a single output token. This section explains where the speed comes from, why the output is unchanged, how to evaluate the speedup, and what it looks like in practice.
+This section explains why speculative decoding is faster than vanilla decoding, why the output distribution is statistically lossless, how to evaluate the model, and what it looks like in practice.
 
 #### a. Why is it faster than the vanilla model decoding?
 
