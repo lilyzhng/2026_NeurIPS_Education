@@ -35,23 +35,15 @@ You can find the full glossary for reference in [A.1](#glossary).
 
 ### How it works
 
-#### a. Fast decoding in action
+Speculative decoding speeds up generation without changing a single output token. This section explains why that guarantee holds, how to evaluate it, and what the speedup looks like in practice.
 
-To give you a quick example: serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 1 comparison.
+#### a. Rejection sampling: why the output is lossless
 
-<figure class="wide">
-<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
-</figure>
-<figcaption><strong>Figure 1.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
-
-
-#### b. How rejection sampling works
-
-So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Figure 2 walks through an example:
+So far we have covered why speculative decoding is fast. But why is it lossless? The answer is verification via <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-rejection-sampling">rejection sampling<span class="glossary-tooltip" id="glossary-rejection-sampling" role="tooltip">A method that accepts or replaces draft tokens so the final outputs still follow the target model’s distribution.</span></button>: the target model checks every draft token against its own probabilities and accepts or rejects each one. Rejection sampling makes losslessness independent of the draft: even with a weak draft model, the output still follows the target model's own distribution ([Leviathan et al. 2023](https://arxiv.org/abs/2211.17192), Appendix A.1). Losslessness depends on how strictly the rejection sampling is run, and Section 2 covers when it stays lossless and when it does not. Figure 1 walks through an example:
 
 <figure>
 <iframe src="../figures/rejection_sampling_chalk-v1.html" style="width:100%;height:520px;border:none;" loading="lazy" title="Animated rejection sampling example: draft tokens accepted or rejected against the target model's probabilities"></iframe>
-<figcaption><strong>Figure 2.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
+<figcaption><strong>Figure 1.</strong> Rejection sampling on one verify pass. Each draft token is accepted with probability min(1, p/q). A rejected token is resampled from norm(max(0, p &minus; q)) and the rest of the draft is discarded.</figcaption>
 </figure>
 
 Here is the same rule in pseudocode:
@@ -82,7 +74,7 @@ P(x is emitted) = q(x) * min(1, p(x)/q(x))   # accepted mass = min(p(x), q(x))
                 = p(x)                       # same as the target's probability
 </pre></div>
 
-#### c. How speed is measured
+#### b. Evaluation metrics for speculative decoding
 
 How much faster exactly, and how do we measure it? Table 1 defines the six metrics. Three of them are deciding factors: drafting time, verification time, and acceptance length. The other three, decoding speedup, per-token latency, and tokens per second, are computed from these three factors.
 
@@ -103,20 +95,7 @@ How much faster exactly, and how do we measure it? Table 1 defines the six metri
 </div>
 <figcaption><strong>Table 1.</strong> The metrics of speculative decoding. How speed is reported, and three deciding factors (T_draft, T_verify, acceptance length τ).</figcaption>
 
-Below is a math walk-through of achieving 2.3x decoding speedup.
-
-<div class="sptc-py" data-lang="text"><pre>
-T_verify = 4.3 ms   # one target forward pass (Qwen3-8B at 230 tok/s ≈ 4.3 ms/token)
-T_draft  = 1.3 ms   # drafting cost
-τ        = 3 tokens # accepted per verification pass
-&nbsp;
-L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
-η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
-</pre></div>
-
-#### d. Reading the acceptance rate
-
-From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:
+**Reading the acceptance rate.** From the 2023 paper (Leviathan et al., Theorem 3.5), the acceptance rate is one minus the total variation distance between the draft and target distributions:
 
 ```text
 α = 1 − E[D_LK(p, q)]
@@ -131,6 +110,26 @@ where p and q are the target and draft next-token distributions, and D_LK is the
 where γ is the number of draft tokens per verification cycle.
 
 Everything after 2023 inherits this theorem. Later papers do not re-verify losslessness: as long as verification keeps the accept-or-resample rule above, the output stays lossless however weak the draft is. What Theorem 3.5 adds is a way to read the speed numbers. A reported τ gives the acceptance rate α, and α is one minus a distributional distance: read τ, and you are reading how close the draft's distribution sits to the target's. Under strict verification this distance only decides speed. Once the acceptance threshold is relaxed, the distance would affect output quality.
+
+#### c. Speculative decoding in practice
+
+Serving Qwen3-8B on one B200, SGLang, the vanilla model decodes about 230 tokens per second; the first Harry Potter novel is roughly 100,000 tokens, more than seven minutes of decoding. With a DFlash draft model, conversational text decodes about 2.75x faster ([Chen et al., 2026](https://arxiv.org/abs/2602.06036)), ~630 tokens per second, cutting it under 3 minutes. See the Figure 2 comparison.
+
+<figure class="wide">
+<iframe src="../figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
+</figure>
+<figcaption><strong>Figure 2.</strong> Vanilla decoding emits one token per target-model pass. Speculative decoding lets a draft model propose a short block, then verifies it with the target model.</figcaption>
+
+Below is a math walk-through of the metrics producing a 2.3x decoding speedup in this setup.
+
+<div class="sptc-py" data-lang="text"><pre>
+T_verify = 4.3 ms   # one target forward pass (Qwen3-8B at 230 tok/s ≈ 4.3 ms/token)
+T_draft  = 1.3 ms   # drafting cost
+τ        = 3 tokens # accepted per verification pass
+&nbsp;
+L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
+η = 4.3 ms / 1.9 ms ≈ 2.3x                      # speedup: 2.3x
+</pre></div>
 
 To summarize, speculative decoding speed comes down to three factors: **(1) drafting time, (2) verification time, and (3) acceptance length.** Section 1 walks through the state-of-the-art architectures and how each generation improves these deciding factors.
 
