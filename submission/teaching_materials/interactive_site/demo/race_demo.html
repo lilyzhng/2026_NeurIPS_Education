@@ -10,6 +10,7 @@
            border:1px solid #4a5a44; border-radius:12px; padding:6px 12px; text-align:right; box-shadow:0 4px 14px rgba(0,0,0,.35); }
   .badge .big { font-size:22px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
   .badge .sub { font-size:11px; color:#cfd8c8; margin-top:3px; }
+  .badge .sub.warn { color:#f0b5a0; font-weight:600; }
   .head { padding:6px 10px; font-size:13px; font-weight:600; color:#fff; display:flex; gap:10px; align-items:center; }
   .head .stats { margin-left:auto; font-weight:400; font-size:12px; color:#b9c7b2; font-variant-numeric:tabular-nums; }
   .tgl { font-size:11px; padding:2px 10px; border-radius:8px; border:1px solid #667; background:#2b3a28; color:#fff; cursor:pointer; }
@@ -63,9 +64,11 @@ function laneSecs(i) { return (T[i].length/4)/TPS[i]; }
 function fillBadge(i) {
   const secs = laneSecs(i);
   const fastest = [0,1,2,3].every(j => laneSecs(i) <= laneSecs(j));
+  const NOTE = ['', '', '&#9888; fastest, but the page is broken', ''];
   document.getElementById('b'+i).innerHTML =
     '<div class="big">' + (fastest ? '&#127942; ' : '') + secs.toFixed(1) + 's</div>' +
-    '<div class="sub">' + TPS[i].toFixed(0) + ' tok/s · ' + Math.round(T[i].length/4) + ' tok</div>';
+    '<div class="sub">' + TPS[i].toFixed(0) + ' tok/s · ' + Math.round(T[i].length/4) + ' tok</div>' +
+    (NOTE[i] ? '<div class="sub warn">' + NOTE[i] + '</div>' : '');
 }
 function showRender(i, on) {
   document.getElementById('p'+i).style.display = on ? 'none' : 'block';

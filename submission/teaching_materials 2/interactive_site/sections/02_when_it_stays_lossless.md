@@ -126,7 +126,7 @@ Section 1 showed that a reported acceptance length is an implicit token-level di
 <figure class="wide">
 <iframe src="demo/race_demo.html" style="width:100%;height:720px;border:1px solid #ddd;border-radius:10px;" loading="lazy" title="Live decoding race on the calendar brief"></iframe>
 </figure>
-<figcaption><strong>Figure 15.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s.</figcaption>
+<figcaption><strong>Figure 15.</strong> The decoding race on the LosslessBench calendar brief (L101). Vanilla takes 18.7s, DFlash 8.9s. DFlash is the fastest, and its page is the broken one.</figcaption>
 
 Look closely at Figure 15: the four models did not generate the same page, or even the same number of tokens. Vanilla produced 2,683 tokens on the calendar brief, the accelerated models between 2,606 and 3,048. DFlash decoded fastest per token (341 vs 143 tok/s), and its calendar came out visibly broken.
 
