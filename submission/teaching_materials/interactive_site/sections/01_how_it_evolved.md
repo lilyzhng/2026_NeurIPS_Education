@@ -147,7 +147,7 @@ Tables 2 to 4 collect the reported acceptance lengths on three target models, an
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 3.</strong> Qwen3.5-4B. No EAGLE-3 result is reported, so DFlash is the baseline. Source: Inco blog Table 3, mean over five benchmarks.</figcaption>
+<figcaption><strong>Table 3.</strong> Qwen3.5-4B. Source: Inco blog Table 3, mean over five benchmarks at temperature 1. Inco did not evaluate EAGLE-3 on this model, and the community drafter self-reports on a different harness (three benchmarks, its own sampling settings), so its number is not comparable and DFlash is the baseline instead.</figcaption>
 
 <div class="table-wrap">
 <table>
