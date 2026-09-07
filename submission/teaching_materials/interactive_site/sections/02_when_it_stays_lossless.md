@@ -60,7 +60,7 @@ Lastly, the production stack is complicated: it accelerates inference well beyon
 
 Suppose a deployment gets everything above right: strict thresholds, a non-anticipating scheduler, a redesign for every engine constraint. How do we verify it still serves the end user's goal across all the different domains? Evidence for losslessness is limited to the domains where it was tested.
 
-The state-of-the-art speculative decoding methods are all evaluated on: coding, chat, and mathematics. EAGLE-3, DFlash, and DSpark report acceptance length and speedup on GSM8K, MATH-500, AIME25, HumanEval, MBPP, LiveCodeBench, MT-Bench, Alpaca, and Arena-Hard. DeepSpec uses the same nine benchmarks (Table 4). These benchmarks cover only a small slice of real-world tasks. Outside them, the empirical evidence for losslessness is simply absent. Figure 12 shows the 29 task types in OpenRouter's real traffic ([OpenRouter, 2026](https://openrouter.ai/rankings)): the tested domains account for only 17% of token usage, and the other 83% has never been measured.
+The state-of-the-art speculative decoding methods are all evaluated on: coding, chat, and mathematics. EAGLE-3, DFlash, and DSpark report acceptance length and speedup on GSM8K, MATH-500, AIME25, HumanEval, MBPP, LiveCodeBench, MT-Bench, Alpaca, and Arena-Hard. DeepSpec uses the same nine benchmarks (Table 5). These benchmarks cover only a small slice of real-world tasks. Outside them, the empirical evidence for losslessness is simply absent. Figure 12 shows the 29 task types in OpenRouter's real traffic ([OpenRouter, 2026](https://openrouter.ai/rankings)): the tested domains account for only 17% of token usage, and the other 83% has never been measured.
 
 <div class="table-wrap">
 <table>
@@ -75,7 +75,7 @@ The state-of-the-art speculative decoding methods are all evaluated on: coding, 
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 4.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
+<figcaption><strong>Table 5.</strong> Where lossless was measured. Evaluation datasets in each paper's experiment section.</figcaption>
 
 <figure>
 <iframe src="../figures/figure9_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated walkthrough of OpenRouter traffic by task type and speculative-decoding benchmark coverage"></iframe>
@@ -146,7 +146,7 @@ Figure 16 is the evaluation result on the creative writing task: EAGLE-3 and DSp
 | EAGLE-3 / DSpark · 6/10 | Best. 998 words, all constraints met. | Correct, sparse. | Weakest as fiction. Restates one thesis three times. No named characters. Explains politics rather than dramatizing it. |
 | DFlash · 7.5/10 | Worst. 1,092 words, 9% over. Invents a sacrae bell. | Inaccurate, decorative. | Best structure. Full dawn-to-night arc, one side character with a backstory, strongest closing image. |
 
-**Table 5.** The three distinct gladiator stories, judged on the brief's own constraints. Same target model, greedy decoding: the differences are trajectory divergence, not different models.
+**Table 6.** The three distinct gladiator stories, judged on the brief's own constraints. Same target model, greedy decoding: the differences are trajectory divergence, not different models.
 
 Overall, DFlash wins. Fiction lives on shape and character before compliance, and DFlash is the only story that delivers a complete day, a side character you remember, and a closing image that lands. Its violations are copyedit-level fixes. EAGLE-3 and DSpark followed every rule and produced the piece you forget first.
 
@@ -273,7 +273,7 @@ Run it twice, once on the vanilla server and once on the DSpark server, and comp
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 6.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
+<figcaption><strong>Table 7.</strong> The greedy byte-level comparison of the same L101 page, vanilla vs DSpark.</figcaption>
 
 The rejection-sampling proof still holds at the algorithm level: it assumes both paths compute the same target probabilities. In practice the speculative path runs different kernels, the logits shift within floating-point precision, and a near-tie token (0.2s vs 0.3s here) falls the other way. Both pages render and satisfy the brief, and they are different pages: output stability is a separate layer, one that no engine promises (Section 2.2).
 
@@ -291,9 +291,9 @@ The outputs vary by domain, and so does the speed. Measure each decoding method 
 | creative | 138.2 | 416.7 (3.0x) | 229.5 (1.66x) | 265.6 (1.92x) |
 | frontend | 137.6 | 333.1 (2.4x) | 208.2 (1.51x) | 274.0 (1.99x) |
 
-**Table 7.** Decoding speed by domain: the same draft buys different speedups on different text.
+**Table 8.** Decoding speed by domain: the same draft buys different speedups on different text.
 
-As shown in Table 7, vanilla decodes at about 138 tok/s in every domain. The speculators' speed varies with the domain, because acceptance depends on how well the draft guesses that kind of text: DSpark reaches 3.0x on creative and 2.3x on coding. On this harness DSpark leads with acceptance length τ 3.5, DFlash follows at τ 2.2 to 2.5, and EAGLE-3 trails at τ 1.3.
+As shown in Table 8, vanilla decodes at about 138 tok/s in every domain. The speculators' speed varies with the domain, because acceptance depends on how well the draft guesses that kind of text: DSpark reaches 3.0x on creative and 2.3x on coding. On this harness DSpark leads with acceptance length τ 3.5, DFlash follows at τ 2.2 to 2.5, and EAGLE-3 trails at τ 1.3.
 
 Then the open exercise: swap in prompts from a domain nobody measured (OpenRouter's other 83%), rerun the race, and report three numbers together: acceptance rate, task correctness, domain coverage. LosslessBench samples 100 such tasks across the full OpenRouter distribution if you want a ready-made prompt set.
 
