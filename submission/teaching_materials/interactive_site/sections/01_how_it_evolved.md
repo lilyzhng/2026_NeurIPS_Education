@@ -21,7 +21,7 @@ Earlier EAGLE models do not improve acceptance length with more training data. T
 </figure>
 <figcaption><strong>Figure 3.</strong> Vanilla speculative decoding uses a separate small LLM that guesses from scratch. EAGLE-3 replaces it with a single draft layer that reuses the target model's hidden features and LM head.</figcaption>
 
-The result is a longer acceptance length in EAGLE-3. It has a speedup of up to 6.5x over vanilla decoding, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.
+The result is a longer acceptance length in EAGLE-3. It reaches a speedup of up to 6.5x over vanilla decoding on HumanEval, about 1.4x over EAGLE-2, and it is one of the most widely adopted draft models in production frameworks, with native support in both SGLang and vLLM.
 
 <p class="pullquote">One bottleneck remains. A small draft model runs fast, but it still proposes one token at a time. Can drafting be parallel instead?</p>
 
@@ -115,22 +115,22 @@ With all 4 models introduced, the race can now run in full comparison. See Figur
 <figure class="wide">
 <iframe src="../figures/figure6_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of five speculative decoding approaches"></iframe>
 </figure>
-<figcaption><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark numbers are our own measurements on one H100. DFlash 2's results use Inco's reported 2.7–3.4x range.</figcaption>
+<figcaption><strong>Figure 9.</strong> The full decoding race. The EAGLE-3, DFlash, and DSpark lanes use the DeepSpec acceptance lengths on Qwen3-8B (Table 2, first column). DFlash 2's lane uses Inco's reported 2.7–3.4x range.</figcaption>
 
 <div class="table-wrap">
 <table>
 <thead>
-<tr><th>Method</th><th>τ</th><th>Speedup</th><th>Engines</th><th>Official drafters</th></tr>
+<tr><th>Method</th><th>τ (Qwen3-8B)<sup>1</sup></th><th>Drafter (Qwen3-8B)</th><th>τ (Qwen3.5-4B)<sup>2</sup></th><th>Drafter (Qwen3.5-4B)</th><th>τ (Qwen3.8-27B)<sup>3</sup></th><th>Drafter (Qwen3.8-27B)</th></tr>
 </thead>
 <tbody>
-<tr><td>EAGLE-3</td><td><span class="num">2.66</span></td><td>6.5x</td><td>SGLang, vLLM</td><td>Llama, Qwen, DeepSeek V3, Kimi K2.5</td></tr>
-<tr><td>DFlash</td><td><span class="num">3.11</span></td><td>&gt;6x</td><td>SGLang, vLLM, TRT-LLM, llama.cpp</td><td>Meta, Poolside, NVIDIA, Xiaomi</td></tr>
-<tr><td>DSpark</td><td><span class="num">3.72</span></td><td>60–85% vs MTP-1</td><td>DeepSeek-V4 stack</td><td>GLM-5.2, Kimi K3 (RedHat)</td></tr>
-<tr><td>DFlash 2</td><td><span class="num">~3.76</span> (+21% vs DFlash, reported)</td><td>2.7–3.4x</td><td>SGLang, vLLM, llama.cpp, Ollama</td><td>Qwen3.8-27B, Muse Glimmer</td></tr>
+<tr><td>EAGLE-3</td><td><span class="num">2.66</span></td><td><a href="https://huggingface.co/deepseek-ai/eagle3_qwen3_8b_ttt7">deepseek-ai/eagle3_qwen3_8b_ttt7</a></td><td>—</td><td><a href="https://huggingface.co/yuyijiong/Qwen3.5-4B-Eagle3">yuyijiong/Qwen3.5-4B-Eagle3</a> (community)</td><td>—</td><td>none</td></tr>
+<tr><td>DFlash</td><td><span class="num">3.11</span></td><td><a href="https://huggingface.co/deepseek-ai/dflash_qwen3_8b_block7">deepseek-ai/dflash_qwen3_8b_block7</a></td><td><span class="num">4.92</span></td><td><a href="https://huggingface.co/z-lab/Qwen3.5-4B-DFlash">z-lab/Qwen3.5-4B-DFlash</a></td><td>—</td><td>community only</td></tr>
+<tr><td>DSpark</td><td><span class="num">3.72</span></td><td><a href="https://huggingface.co/deepseek-ai/dspark_qwen3_8b_block7">deepseek-ai/dspark_qwen3_8b_block7</a></td><td><span class="num">5.49</span></td><td>not released</td><td><span class="num">3.62</span></td><td><a href="https://huggingface.co/RadixArk/Qwen3.8-27B-DSpark">RadixArk/Qwen3.8-27B-DSpark</a> (community)</td></tr>
+<tr><td>DFlash 2</td><td>—</td><td>not released</td><td><span class="num">5.97</span></td><td>not released</td><td><span class="num">4.80</span></td><td><a href="https://huggingface.co/incoai/Qwen3.8-27B-DFlash2">incoai/Qwen3.8-27B-DFlash2</a></td></tr>
 </tbody>
 </table>
 </div>
-<figcaption><strong>Table 2.</strong> The four models at a glance.</figcaption>
+<figcaption><strong>Table 2.</strong> The four models at a glance. τ is the mean number of accepted tokens per verification pass. Each τ column is on one target model and one setup; the columns are not comparable with each other. <sup>1</sup> DSpark paper Table 1, MT-Bench, all three drafters trained on the same data and framework (DeepSpec, [DeepSeek, 2026](https://arxiv.org/abs/2607.05147)). <sup>2</sup> Inco blog Table 3, mean over GSM8K, MATH-500, HumanEval, MBPP, and MT-Bench ([Inco, 2026](https://inco.ai/blog/dflash2/)). <sup>3</sup> Inco blog Table 4, mean over the same five benchmarks, block size 8. No EAGLE-3 result is reported on Qwen3.5-4B or Qwen3.8-27B, and no DFlash 2 drafter exists for Qwen3-8B.</figcaption>
 
 All four models are in production today. Since March 2025, EAGLE-3 draft heads ship for Llama, Qwen, and DeepSeek V3. By spring 2026, DFlash was integrated into SGLang, vLLM, TensorRT-LLM, and llama.cpp, and NVIDIA reported up to 15x throughput with it on Blackwell GPUs ([NVIDIA, 2026](https://developer.nvidia.com/blog/boost-inference-performance-up-to-15x-on-nvidia-blackwell-using-dflash-speculative-decoding/)). DFlash alone has been downloaded more than 3.5 million times in seven months. By mid-2026, model builders release official drafters alongside the models themselves: Meta, Poolside, and NVIDIA for DFlash ([Inco, 2026](https://inco.ai/blog/dflash2/)), Red Hat for DSpark ([RedHatAI, 2026](https://huggingface.co/RedHatAI/GLM-5.2-speculator.dspark-preview)), and in July 2026, Kimi K3 shipped with its own speculator, trained during post-training ([Kimi Team, 2026](https://arxiv.org/abs/2607.24653)). See Table 2.
 
