@@ -449,7 +449,7 @@ MathJax = {tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]}};
 <h3 id="how-it-works">How it works</h3>
 <p>This section explains why speculative decoding is faster than vanilla decoding, why rejection sampling makes it statistically lossless, how to evaluate the model, and what it looks like in practice.</p>
 <h4 id="a-why-is-it-faster-than-the-vanilla-model-decoding">a. Why is it faster than the vanilla model decoding?</h4>
-<p>With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (<a class="figref" href="#fig-teaser">teaser figure</a>). <a class="figref" href="#fig-1">Figure 1</a> contrasts the two decoding modes:</p>
+<p>With speculative decoding, a small draft model guesses the next γ tokens (typically 3 to 8), and the target model checks all γ of them in a single <button class="glossary-term" type="button" aria-expanded="false" aria-describedby="glossary-forward-pass">forward pass<span class="glossary-tooltip" id="glossary-forward-pass" role="tooltip">Running the model on its current input to produce scores for possible next tokens.</span></button>, which costs about the same as decoding one token. To give you an example, decoding one token per pass is like running a boat across a river with a single passenger aboard. The crossing takes the same time whether the boat is full or empty. The boat is the model weights. Each forward pass has two parts: loading the full weights from GPU memory, and the compute workload, which grows with how many tokens are processed. For a model with tens of billions of parameters, loading is far slower than computing, so inference time is bounded by the memory loading the weights, not by the compute workload: producing one token or γ tokens takes about the same time. Vanilla decoding pays for one crossing per passenger/token; speculative decoding generates γ tokens on the same crossing, paying the memory-bound cost once instead of γ times. This is essentially why speculative decoding is faster. Speed comes from three places: better drafts get accepted more often, smarter verification wastes less compute on bad drafts, and drafting itself can run in parallel (<a class="figref" href="#fig-teaser">teaser figure</a>). <a class="figref" href="#fig-1">Figure 1</a> contrasts the two decoding modes:</p>
 <figure class="wide" id="fig-1">
 <iframe src="figures/figure1_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of vanilla and speculative decoding"></iframe>
 </figure>
@@ -557,7 +557,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <figure class="wide" id="fig-4">
 <iframe src="figures/dflash_draft_chalk.html" style="width:100%;height:560px;border:none;" loading="lazy" title="Animated comparison of EAGLE-3 and DFlash drafting"></iframe>
 </figure>
-<figcaption><strong>Figure 4.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens sequentially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block.</figcaption>
+<figcaption><strong>Figure 4.</strong> Diffusion denoises every position in parallel, and DFlash carries that into drafting: EAGLE-3 drafts tokens sequentially, one at a time, while DFlash denoises a whole block of MASK tokens in one pass, with the target model's context features injected once per block. Timing follows the paper's numbers: one pass of DFlash's 5-layer draft costs about five 1-layer EAGLE-3 steps &mdash; slower than a single EAGLE-3 step &mdash; but it drafts a block of 16 tokens at once, while EAGLE-3 drafts 8 tokens in 8 steps.</figcaption>
 
 <p>Diffusion drafting brings two benefits.</p>
 <ul>
@@ -813,7 +813,7 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 <p><a class="figref" href="#fig-16">Figure 16</a> is the evaluation result on the creative writing task: EAGLE-3 and DSpark wrote identical stories, while vanilla and DFlash each took a different trajectory from the same opening line. That leaves three distinct stories to judge:</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>story</th>
 <th>instruction following</th>
 <th>Latin vocabulary</th>
@@ -821,19 +821,19 @@ L = (1.3 ms + 4.3 ms) / 3 ≈ 1.9 ms per token    # per-token latency
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>vanilla · 7/10</td>
 <td>979 words. Ends entering the fight, close to violating the no-combat rule.</td>
 <td>Correct, restrained.</td>
 <td>Strongest sensory detail. Named cast. Ending falls back on a generic freedom monologue.</td>
 </tr>
-<tr>
+<tr class="even">
 <td>EAGLE-3 / DSpark · 6/10</td>
 <td>Best. 998 words, all constraints met.</td>
 <td>Correct, sparse.</td>
 <td>Weakest as fiction. Restates one thesis three times. No named characters. Explains politics rather than dramatizing it.</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>DFlash · 7.5/10</td>
 <td>Worst. 1,092 words, 9% over. Invents a sacrae bell.</td>
 <td>Inaccurate, decorative.</td>
@@ -937,7 +937,7 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 <p>The outputs vary by domain, and so does the speed. Measure each decoding method on the coding, creative, and frontend prompts with <code>race_domains.py</code>:</p>
 <table>
 <thead>
-<tr>
+<tr class="header">
 <th>domain</th>
 <th>vanilla</th>
 <th>DSpark</th>
@@ -946,21 +946,21 @@ T_draft + T_verify = L_dspark × τ ≈ 15.1 ms # cost of one draft+verify pass
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="odd">
 <td>coding</td>
 <td>138.1</td>
 <td>311.9 (2.3x)</td>
 <td>158.8 (1.15x)</td>
 <td>311.3 (2.25x)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>creative</td>
 <td>138.2</td>
 <td>416.7 (3.0x)</td>
 <td>229.5 (1.66x)</td>
 <td>265.6 (1.92x)</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>frontend</td>
 <td>137.6</td>
 <td>333.1 (2.4x)</td>
