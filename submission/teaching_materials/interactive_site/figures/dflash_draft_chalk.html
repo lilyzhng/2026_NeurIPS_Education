@@ -56,6 +56,7 @@ body{
 }
 .lane.e .donebadge{transform:rotate(1.2deg)}
 .lane.d .donebadge{transform:rotate(-1.4deg)}
+.layers{font-size:1.05rem;color:var(--chalk-dim);letter-spacing:.04em}
 .clock{
   margin-left:auto;font-size:1.2rem;color:var(--chalk-dim);
   font-variant-numeric:tabular-nums;
@@ -64,7 +65,7 @@ body{
 .chip{
   border:1.7px solid rgba(245,244,239,.75);
   border-radius:10px 8px 11px 7px;
-  padding:5px 13px;font-size:1.3rem;font-weight:700;
+  padding:3px 8px;font-size:1.05rem;font-weight:700;
   color:var(--chalk);
   background:rgba(245,244,239,.05);
   opacity:0;transition:opacity .3s,border-style .3s,color .3s;
@@ -133,7 +134,8 @@ body{
       <div class="lane e">
         <div class="lanehead">
           <span class="lanename">EAGLE-3 draft (serial)</span>
-          <span class="donebadge" id="doneE">4 rounds</span>
+          <span class="layers">1 layer/step</span>
+          <span class="donebadge" id="doneE">8 steps &#183; 8 tokens</span>
           <span class="clock" id="clockE">0.0s</span>
         </div>
         <div class="rowchips" id="chipsE"></div>
@@ -143,11 +145,12 @@ body{
       <div class="lane d">
         <div class="lanehead">
           <span class="lanename">DFlash draft (parallel)</span>
-          <span class="donebadge" id="doneD">1 forward pass &#10003;</span>
+          <span class="layers">5 layers/pass</span>
+          <span class="donebadge" id="doneD">1 pass &#183; 16 tokens &#10003;</span>
           <span class="clock" id="clockD">0.0s</span>
         </div>
         <div class="rowchips" id="chipsD"></div>
-        <div class="passbar" id="passbar"><span id="passlbl">1 forward pass</span><div class="sweep" id="sweep"></div></div>
+        <div class="passbar" id="passbar"><span id="passlbl">1 forward pass &#183; 5 layers &#8776; five 1-layer EAGLE steps</span><div class="sweep" id="sweep"></div></div>
         <div class="status" id="statusD"></div>
       </div>
 
@@ -157,19 +160,23 @@ body{
 
 <script>
 (function(){
-  var STEP = 1.6;            // seconds per EAGLE serial draft step (slower)
-  var E_DONE = 4 * STEP;     // 6.4s
-  var D_SWEEP_START = 0.7, D_SWEEP_END = 2.1;  // DFlash: one pass
+  // Numbers per the DFlash paper (arXiv:2602.06036): EAGLE-3 drafts 8 tokens
+  // with a 1-layer step each; DFlash drafts a block of 16 in ONE pass of a
+  // 5-layer draft — so one pass costs ~5 EAGLE steps, not less than one.
+  var STEP = 0.8;            // seconds per EAGLE serial draft step (1 layer)
+  var E_STEPS = 8, D_BLOCK = 16, D_LAYERS = 5;
+  var E_DONE = E_STEPS * STEP;                       // 6.4s
+  var D_SWEEP_START = 0.4, D_SWEEP_END = 0.4 + D_LAYERS * STEP;  // 4.4s
   var END = E_DONE + 0.4;    // hold here when finished
 
   // EAGLE lane: t1 -> t2 -> t3 -> t4
   var chipsE = [], arrsE = [];
   var ce = document.getElementById('chipsE');
-  for (var i = 1; i <= 4; i++){
+  for (var i = 1; i <= E_STEPS; i++){
     var c = document.createElement('span');
     c.className = 'chip'; c.textContent = 't' + i;
     ce.appendChild(c); chipsE.push(c);
-    if (i < 4){
+    if (i < E_STEPS){
       var a = document.createElement('span');
       a.className = 'arr'; a.innerHTML = '&rarr;';
       ce.appendChild(a); arrsE.push(a);
@@ -179,7 +186,8 @@ body{
   // DFlash lane: [anchor | MASK | MASK | MASK] flipping to [t1..t4]
   var chipsD = [];
   var cd = document.getElementById('chipsD');
-  var dLabels = ['anchor','MASK','MASK','MASK'];
+  var dLabels = ['anchor'];
+  for (var m = 0; m < D_BLOCK; m++) dLabels.push('MASK');
   dLabels.forEach(function(w, i){
     var c = document.createElement('span');
     c.className = 'chip ' + (i === 0 ? 'anchor' : 'mask');
@@ -201,7 +209,7 @@ body{
     if (t >= E_DONE){
       statusE.textContent = 'one at a time \u00b7 target features: wait each step';
     } else {
-      statusE.textContent = 'step ' + Math.min(4, Math.floor(t / STEP) + 1) + ' of 4 \u00b7 waiting for target features\u2026';
+      statusE.textContent = 'step ' + Math.min(E_STEPS, Math.floor(t / STEP) + 1) + ' of ' + E_STEPS + ' \u00b7 waiting for target features\u2026';
     }
     doneE.style.opacity = t >= E_DONE ? '1' : '0';
 
@@ -228,7 +236,7 @@ body{
     });
     statusD.textContent = flipped
       ? 'whole block at once \u00b7 target features: injected once per block'
-      : 'masked block queued for one pass\u2026';
+      : (t >= D_SWEEP_START ? 'one 5-layer pass denoising all positions\u2026' : 'masked block queued for one pass\u2026');
     doneD.style.opacity = flipped ? '1' : '0';
   }
 
